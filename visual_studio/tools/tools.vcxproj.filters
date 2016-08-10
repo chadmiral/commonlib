@@ -119,4 +119,9 @@
       <Filter>Data Files</Filter>
     </Xml>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\mundus\data\materials\sun\sun_surface.mat">
+      <Filter>Data Files</Filter>
+    </None>
+  </ItemGroup>
 </Project>

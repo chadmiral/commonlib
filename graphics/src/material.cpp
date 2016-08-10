@@ -186,8 +186,8 @@ void Material::render() const
   if(transparent)
   {
     glEnable(GL_BLEND);
-    glEnable(GL_ALPHA_TEST);
-    glAlphaFunc(GL_GREATER, 0.0f);
+    //glEnable(GL_ALPHA_TEST);
+    //glAlphaFunc(GL_GREATER, 0.0f);
     glBlendFunc(src_blend_param, dst_blend_param);
   }
   else

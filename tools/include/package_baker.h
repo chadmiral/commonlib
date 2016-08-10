@@ -76,6 +76,17 @@ namespace Tool
     void *indices;
   };
 
+  class MaterialPackageAsset : public PackageAsset
+  {
+  public:
+    MaterialPackageAsset() {}
+    ~MaterialPackageAsset() {}
+
+    std::string shader_name;
+
+    uint32_t material_flags;
+  };
+
   class UILayoutPackageAsset : public PackageAsset
   {
   public:
