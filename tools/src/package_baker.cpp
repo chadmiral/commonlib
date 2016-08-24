@@ -45,19 +45,42 @@ void PackageBaker::bake(mxml_node_t *tree, std::string output_filename)
   {
     buffer = mxmlGetText(root_dir_node, NULL);
     cout << "package root dir: " << buffer << endl;
-  }
-  //change to said directory
-  if(CHDIR(buffer) != 0)
-  {
-    SET_TEXT_COLOR(CONSOLE_COLOR_RED);
-    cerr<<"Could not change directories!"<<endl;
-    SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
+
+    //change to said directory
+    if (CHDIR(buffer) != 0)
+    {
+      SET_TEXT_COLOR(CONSOLE_COLOR_RED);
+      cerr << "Could not change directories!" << endl;
+      SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
+    }
   }
 
   //make sure we succeeded
   char cwd[FILENAME_MAX];
   GETCWD(cwd, sizeof(cwd));
   cout << "working dir: " << cwd << endl;
+
+  //parse the path
+  mxml_node_t *path_node = mxmlFindElement(start_node, tree, "path", NULL, NULL, MXML_DESCEND);
+  if (path_node)
+  {
+    buffer = mxmlGetText(path_node, NULL);
+    cout << "path: " << buffer << endl;
+
+    char *tmp_path = new char[(strlen(buffer) + 1)];
+    strcpy(tmp_path, buffer);
+
+    const char delimiter[2] = ";";
+    char *token = strtok(tmp_path, delimiter);
+    while (token != NULL)
+    {
+      cout << token << endl;
+      asset_path.push_back(std::string(token));
+      token = strtok(NULL, delimiter);
+    }
+
+    delete tmp_path;
+  }
 
   //get the output filename
   mxml_node_t *outfile_node = mxmlFindElement(start_node, tree, "output_file", NULL, NULL, MXML_DESCEND);
@@ -111,6 +134,71 @@ void PackageBaker::bake(mxml_node_t *tree, std::string output_filename)
   write_package(output_filename);
 }
 
+std::string ShaderPackageAsset::include_shader(std::string inc_fname)
+{
+  std::string source;
+  //cout << "including file " << inc_fname.c_str() << endl;
+  assert(path);
+
+  for (uint32_t i = 0; i < path->size(); i++)
+  {
+    std::string full_fname = (*path)[i] + inc_fname;
+    //cout << full_fname << endl;
+
+    FILE *f = fopen(full_fname.c_str(), "r");
+    if (f)
+    {
+      fseek(f, 0, SEEK_END);
+      uint32_t fsize = ftell(f);
+      rewind(f);
+
+      char *tmp = (char *)malloc(fsize + 1);//new char[(fsize + 1) / sizeof(char)];
+      memset(tmp, 0, fsize + 1);
+      fread(tmp, fsize, 1, f);
+      fclose(f);
+
+      source = tmp;
+      free(tmp);//delete tmp;
+      return source;
+    }
+  }
+
+  return source;
+}
+
+void ShaderPackageAsset::parse_source(std::string source)
+{
+  uint32_t last = 0;
+  uint32_t next = 0;
+  std::string line;
+
+  //loop through every line of the source
+  while ((next = source.find("\n", last)) != std::string::npos)
+  {
+    line = source.substr(last, next - last);
+
+    //see if we have a "#include in this line
+    uint32_t pos = line.find("#include");
+    if (pos != std::string::npos)
+    {
+      uint32_t start_quote = line.find("\"", pos);
+      uint32_t end_quote = line.find("\"", start_quote + 1);
+      std::string inc_fname = line.substr(start_quote + 1, end_quote - start_quote - 1);
+      std::string inc_src = include_shader(inc_fname);
+      //cout << "pasting in this source: " << endl;
+      //cout << inc_src.c_str() << endl;
+      source.replace(last, next - last, inc_src);
+      next = last = 0;
+    }
+    else
+    {
+      last = next + 1;
+    }
+  }
+
+  //cout << source << endl;
+}
+
 void PackageBaker::read_shader_file(mxml_node_t *shader_node)
 {
   const char *buffer = NULL;
@@ -126,6 +214,7 @@ void PackageBaker::read_shader_file(mxml_node_t *shader_node)
   SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
 
   shader_asset->set_name(buffer);
+  shader_asset->set_path(&asset_path);
 
   mxml_node_t *vs_node = mxmlFindElement(shader_node, shader_node, "vertex_shader", NULL, NULL, MXML_DESCEND);
   if (vs_node)
@@ -196,7 +285,10 @@ void PackageBaker::read_shader_file(mxml_node_t *shader_node)
     }
   }
 
-  //TODO
+  shader_asset->parse_source(shader_asset->vs_source);
+  shader_asset->parse_source(shader_asset->fs_source);
+
+  //TODO - test compile to make sure there are no errors
   //Shader s;
   //s.compile_and_link_from_source(shader_asset->vs_source.c_str(), shader_asset->fs_source.c_str());
 }

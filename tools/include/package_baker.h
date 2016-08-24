@@ -24,12 +24,15 @@ namespace Tool
     std::string name;
     std::string fname;
     PackageAssetType type;
+    std::vector<std::string> *path;
   public:
     PackageAsset() {}
     ~PackageAsset() {}
 
     void set_name(const char *n) { name = n; }
     std::string get_name() const { return name; }
+
+    void set_path(std::vector<std::string> *p) { path = p; }
 
     void set_type(PackageAssetType t) { type = t; }
     PackageAssetType get_type() const { return type; }
@@ -46,6 +49,9 @@ namespace Tool
 
     std::string vs_source;
     std::string fs_source;
+
+    std::string include_shader(std::string inc_fname);
+    void parse_source(std::string source);
   };
 
   class TexturePackageAsset : public PackageAsset
@@ -101,6 +107,7 @@ namespace Tool
   private:
     uint32_t file_version;
     std::vector<PackageAsset *> assets;
+    std::vector<std::string> asset_path;
 
     void read_shader_file(mxml_node_t *shader_node);
     void read_texture_file(mxml_node_t *texture_node);
