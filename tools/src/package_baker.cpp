@@ -166,7 +166,7 @@ std::string ShaderPackageAsset::include_shader(std::string inc_fname)
   return source;
 }
 
-void ShaderPackageAsset::parse_source(std::string source)
+void ShaderPackageAsset::parse_source(std::string source, std::string *dest)
 {
   uint32_t last = 0;
   uint32_t next = 0;
@@ -196,7 +196,8 @@ void ShaderPackageAsset::parse_source(std::string source)
     }
   }
 
-  //cout << source << endl;
+  //copy the new source into our destination
+  *dest = source;
 }
 
 void PackageBaker::read_shader_file(mxml_node_t *shader_node)
@@ -285,8 +286,8 @@ void PackageBaker::read_shader_file(mxml_node_t *shader_node)
     }
   }
 
-  shader_asset->parse_source(shader_asset->vs_source);
-  shader_asset->parse_source(shader_asset->fs_source);
+  shader_asset->parse_source(shader_asset->vs_source, &shader_asset->vs_source);
+  shader_asset->parse_source(shader_asset->fs_source, &shader_asset->fs_source);
 
   //TODO - test compile to make sure there are no errors
   //Shader s;

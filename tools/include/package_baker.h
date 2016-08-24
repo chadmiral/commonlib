@@ -51,7 +51,7 @@ namespace Tool
     std::string fs_source;
 
     std::string include_shader(std::string inc_fname);
-    void parse_source(std::string source);
+    void parse_source(std::string source, std::string *dest);
   };
 
   class TexturePackageAsset : public PackageAsset
