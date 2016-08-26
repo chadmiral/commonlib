@@ -53,7 +53,7 @@ void Material::init()
   //create uniforms for all the textures
   if (shader)
   {
-    for (unsigned int i = 0; i < textures_2d.size(); i++)
+    for (uint32_t i = 0; i < textures_2d.size(); i++)
     {
       ShaderUniformInt sui;
       sui.set_name(textures_2d[i].second);
@@ -65,7 +65,7 @@ void Material::init()
 
     gl_check_error();
 
-    for (unsigned int i = 0; i < textures_3d.size(); i++)
+    for (uint32_t i = 0; i < textures_3d.size(); i++)
     {
       ShaderUniformInt sui;
       sui.set_name(textures_3d[i].second);
@@ -78,7 +78,7 @@ void Material::init()
     gl_check_error();
 
     //collect all the uniform variable locations
-    for (unsigned int i = 0; i < shader_uniforms.size(); i++)
+    for (uint32_t i = 0; i < shader_uniforms.size(); i++)
     {
       shader_uniforms[i]->set_loc(shader);
     }
@@ -139,14 +139,20 @@ void Material::render() const
     gl_check_error();
 
     //set up shader uniform variables
-    for (unsigned int i = 0; i < shader_uniforms.size(); i++)
+    for (uint32_t i = 0; i < shader_uniforms.size(); i++)
     {
       shader_uniforms[i]->render();
       gl_check_error();
     }
 
+    //set up shader vertex attribs
+    for (uint32_t i = 0; i < shader_vertex_attribs.size(); i++)
+    {
+      shader_vertex_attribs[i]->render();
+      gl_check_error();
+    }
 
-    for (unsigned int i = 0; i < texture_uniforms.size(); i++)
+    for (uint32_t i = 0; i < texture_uniforms.size(); i++)
     {
       texture_uniforms[i].render();
       gl_check_error();
@@ -158,7 +164,7 @@ void Material::render() const
   }
 
   //textures
-  for (unsigned int i = 0; i < textures_2d.size(); i++)
+  for (uint32_t i = 0; i < textures_2d.size(); i++)
   {
     glActiveTexture(GL_TEXTURE0 + i);
     glEnable(GL_TEXTURE_2D);
@@ -167,7 +173,7 @@ void Material::render() const
     gl_check_error();
   }
 
-  for (unsigned int i = 0; i < textures_3d.size(); i++)
+  for (uint32_t i = 0; i < textures_3d.size(); i++)
   {
     GLuint actual_tex_slot = GL_TEXTURE0 + textures_2d.size() + i;
     glActiveTexture(actual_tex_slot);
@@ -222,17 +228,22 @@ void Material::cleanup() const
 {
   glUseProgramObjectARB(0);
 
-  for(unsigned int i = 0; i < textures_2d.size(); i++)
+  for(uint32_t i = 0; i < textures_2d.size(); i++)
   {
     glActiveTexture(GL_TEXTURE0 + i);
     glDisable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, 0);
   }
 
-  for(unsigned int i = 0; i < textures_3d.size(); i++)
+  for(uint32_t i = 0; i < textures_3d.size(); i++)
   {
     glActiveTexture(GL_TEXTURE0 + i + textures_2d.size());
     glDisable(GL_TEXTURE_3D);
     glBindTexture(GL_TEXTURE_3D, 0);
+  }
+
+  for (uint32_t i = 0; i < shader_vertex_attribs.size(); i++)
+  {
+    shader_vertex_attribs[i]->cleanup();
   }
 }

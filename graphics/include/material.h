@@ -34,6 +34,7 @@ namespace Graphics {
       unsigned int get_num_textures() const { return (unsigned int)(textures_2d.size() + textures_3d.size()); }
 
       void add_uniform_var(ShaderUniformVariable *suv) { shader_uniforms.push_back(suv); }
+      void add_vertex_attrib(ShaderVertexAttrib *sva) { shader_vertex_attribs.push_back(sva); }
 
       void enable_lighting(const bool l); //archaic?
 
@@ -60,6 +61,7 @@ namespace Graphics {
     private:
       Shader                                               *shader;
       std::vector<ShaderUniformVariable *>                 shader_uniforms;
+      std::vector<ShaderVertexAttrib *>                    shader_vertex_attribs;
       std::vector<ShaderUniformInt>                        texture_uniforms; //TODO: maybe a better way?
       std::vector<std::pair<Texture2D *, std::string> >    textures_2d;
       std::vector<std::pair<Texture3D *, std::string> >    textures_3d;
