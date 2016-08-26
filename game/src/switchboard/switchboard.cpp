@@ -1,5 +1,6 @@
 #include "switchboard.h"
 
+using namespace Game;
 
 void Switchboard::assign_socket(ChannelSocket src, std::string name)
 {

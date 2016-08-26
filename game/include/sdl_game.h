@@ -41,7 +41,7 @@ class GameContext
 {
   friend class SDLGame;
 public:
-  Switchboard            switch_board;
+  Game::Switchboard      switch_board;
   Game::AssetLibrary     asset_library;
   DebugConsole           console;
 
