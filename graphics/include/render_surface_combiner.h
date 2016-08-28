@@ -16,6 +16,7 @@ namespace Graphics
 
     void set_surfaces(RenderSurface *_a, RenderSurface *_b, RenderSurface *_c, RenderSurface *_d);
     void set_shader_names(std::string vs, std::string fs);
+    void set_shader(Shader *s) { shader = s; }
 
     //void set_lut_texture(Texture3D *lt) { lut3D = lt; }
     void set_vignette_texture(Texture2D *vt) { vignette = vt; }

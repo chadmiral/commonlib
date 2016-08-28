@@ -41,13 +41,12 @@ RenderSurfaceCombiner::RenderSurfaceCombiner()
 
  //lut3D = NULL;
  vignette = NULL;
- shader = new Shader;
+ shader = NULL;
 }
 
 RenderSurfaceCombiner::~RenderSurfaceCombiner()
 {
   deinit();
-  delete shader;
 }
 
 void RenderSurfaceCombiner::set_surfaces(RenderSurface *_a, RenderSurface *_b, RenderSurface *_c, RenderSurface *_d)
@@ -66,8 +65,13 @@ void RenderSurfaceCombiner::set_shader_names(std::string vs, std::string fs)
 
 void RenderSurfaceCombiner::init()
 {
-  shader->set_shader_filenames(vertex_shader_name, fragment_shader_name);
-  shader->load_link_and_compile();
+  if (!shader)
+  {
+    //TODO: this is bad cause we never deallocate this shader!
+    shader = new Shader;
+    shader->set_shader_filenames(vertex_shader_name, fragment_shader_name);
+    shader->load_link_and_compile();
+  }
   mat.set_shader(shader);
 
   gpu_texel_size.set_name("texel_size");
