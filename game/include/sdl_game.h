@@ -23,6 +23,7 @@
 #include "game_controller.h"
 #include "asset_library.h"
 #include "switchboard.h"
+#include "object_3d.h"
 
 //TODO: framerate counter
 
@@ -44,6 +45,8 @@ public:
   Game::Switchboard      switch_board;
   Game::AssetLibrary     asset_library;
   DebugConsole           console;
+
+  std::vector<Game::Object3D *> active_game_objects;
 
   GameContext() {}
   ~GameContext() {}

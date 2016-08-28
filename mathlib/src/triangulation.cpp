@@ -68,7 +68,7 @@ void Triangulation2D::delaunay_boost()
   std::vector<VPoint> points;
   for(uint32_t i = 0; i < vertices->size(); i++)
   {
-    VPoint vp((*vertices)[i][0] * 1000000, (*vertices)[i][1] * 1000000);
+    VPoint vp((int)((*vertices)[i][0] * 1000000.0f), (int)((*vertices)[i][1] * 1000000.0f));
     points.push_back(vp);
   }
 
