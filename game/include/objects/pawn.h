@@ -10,7 +10,6 @@ namespace Game
   protected:
     //Graphics::Renderable<StaticMeshVertex> renderable; //mesh, material, shader, etc...
     Graphics::Material                mat;
-    Graphics::Shader                  *shader;
     Graphics::ShaderUniformFloat3     sun_pos;
     Graphics::ShaderUniformFloat3     sun_amb_rgb;
     Graphics::ShaderUniformFloat3     sun_diff_rgb;
@@ -22,6 +21,8 @@ namespace Game
   public:
     Pawn3D() {}
     ~Pawn3D() {}
+    
+    Graphics::Material *get_material() { return &mat; }
 
     virtual void init();
     virtual void simulate(const double game_time, const double frame_time);
