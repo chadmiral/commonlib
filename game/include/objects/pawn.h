@@ -23,8 +23,8 @@ namespace Game
     Pawn3D() {}
     ~Pawn3D() {}
 
-    virtual void init() = 0;
-    virtual void simulate() = 0;
-    virtual void render(const double game_time, const double frame_time);
+    virtual void init();
+    virtual void simulate(const double game_time, const double frame_time);
+    virtual void render(const double game_time);
   };
 };
