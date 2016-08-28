@@ -168,8 +168,8 @@ std::string ShaderPackageAsset::include_shader(std::string inc_fname)
 
 void ShaderPackageAsset::parse_source(std::string source, std::string *dest)
 {
-  uint32_t last = 0;
-  uint32_t next = 0;
+  int last = 0; //must be int for npos comparison to work
+  int next = 0; //must be int for npos comparison to work
   std::string line;
 
   //loop through every line of the source
@@ -178,7 +178,7 @@ void ShaderPackageAsset::parse_source(std::string source, std::string *dest)
     line = source.substr(last, next - last);
 
     //see if we have a "#include in this line
-    uint32_t pos = line.find("#include");
+    int pos = line.find("#include");
     if (pos != std::string::npos)
     {
       uint32_t start_quote = line.find("\"", pos);
