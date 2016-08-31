@@ -111,7 +111,7 @@ void Layout::parse_xml_level(mxml_node_t *root, LayoutWidgetTemplate *parent, La
     toolbar_node = mxmlFindElement(start_node, root, "toolbar", NULL, NULL, MXML_NO_DESCEND);
     if (toolbar_node)
     {
-      cout << "adding toolbar..." << endl;
+      //cout << "adding toolbar..." << endl;
       //ToolBox *tb = new ToolBox;
       LayoutWidgetTemplate *tb = new LayoutWidgetTemplate;
       tb->type = WIDGET_TOOLBOX;
@@ -153,13 +153,13 @@ void Layout::parse_xml_level(mxml_node_t *root, LayoutWidgetTemplate *parent, La
     radio_group_node = mxmlFindElement(start_node, root, "radio_group", NULL, NULL, MXML_NO_DESCEND);
     if (radio_group_node)
     {
-      cout << "adding radio group" << endl;
+      //cout << "adding radio group" << endl;
       LayoutWidgetTemplate *rg = new LayoutWidgetTemplate;
       rg->type = WIDGET_RADIO_GROUP;
 
       if (parent)
       {
-        cout << "parent detected..." << endl;
+        //cout << "parent detected..." << endl;
         parent->children.push_back(rg);
       }
 
@@ -177,7 +177,7 @@ void Layout::parse_xml_level(mxml_node_t *root, LayoutWidgetTemplate *parent, La
     check_button_node = mxmlFindElement(start_node, root, "check_button", NULL, NULL, MXML_NO_DESCEND);
     if (check_button_node)
     {
-      cout << "adding checkbutton..." << endl;
+      //cout << "adding checkbutton..." << endl;
       LayoutWidgetTemplate *cb = new LayoutWidgetTemplate;
       cb->type = WIDGET_CHECK_BUTTON;
 
@@ -196,7 +196,7 @@ void Layout::parse_xml_level(mxml_node_t *root, LayoutWidgetTemplate *parent, La
     push_button_node = mxmlFindElement(start_node, root, "push_button", NULL, NULL, MXML_NO_DESCEND);
     if (push_button_node)
     {
-      cout << "adding pushbutton..." << endl;
+      //cout << "adding pushbutton..." << endl;
       LayoutWidgetTemplate *pb = new LayoutWidgetTemplate;
       pb->type = WIDGET_PUSH_BUTTON;
 
@@ -210,8 +210,8 @@ void Layout::parse_xml_level(mxml_node_t *root, LayoutWidgetTemplate *parent, La
 
 void Layout::read_from_xml(mxml_node_t *root, uint32_t version)
 {
-  cout << "loading UI layout from xml..." << endl;
-  cout << "\tversion: " << version << endl;
+  //cout << "loading UI layout from xml..." << endl;
+  //cout << "\tversion: " << version << endl;
 
   mxml_node_t *layout_node = mxmlFindElement(root, root, "ui_layout", NULL, NULL, MXML_DESCEND);
   if (layout_node)
