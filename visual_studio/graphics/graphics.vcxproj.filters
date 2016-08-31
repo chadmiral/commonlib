@@ -66,6 +66,12 @@
     <ClInclude Include="..\..\graphics\include\gl_error.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\graphics\include\render_context.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\graphics\include\light.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\graphics\src\camera.cpp">

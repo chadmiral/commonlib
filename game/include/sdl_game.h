@@ -24,6 +24,7 @@
 #include "asset_library.h"
 #include "switchboard.h"
 #include "object_3d.h"
+#include "render_context.h"
 
 //TODO: framerate counter
 
@@ -42,9 +43,10 @@ class GameContext
 {
   friend class SDLGame;
 public:
-  Game::Switchboard      switch_board;
-  Game::AssetLibrary     asset_library;
-  DebugConsole           console;
+  Game::Switchboard        switch_board;
+  Game::AssetLibrary       asset_library;
+  DebugConsole             console;
+  Graphics::RenderContext  render_context;
 
   std::vector<Game::Object3D *> active_game_objects;
 

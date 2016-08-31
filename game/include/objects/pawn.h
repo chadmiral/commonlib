@@ -23,6 +23,7 @@ namespace Game
     ~Pawn3D() {}
     
     Graphics::Material *get_material() { return &mat; }
+    Graphics::StaticMesh *get_mesh() { return &mesh; }
 
     virtual void init();
     virtual void simulate(const double game_time, const double frame_time);
