@@ -2,6 +2,7 @@
 
 #include "object_3d.h"
 #include "static_mesh.h"
+#include "sdl_game.h"
 
 namespace Game
 {
@@ -18,8 +19,10 @@ namespace Game
     Graphics::StaticMesh              mesh;
 
     //TODO: components, etc
+
+    GameContext *game_context;
   public:
-    Pawn3D() {}
+    Pawn3D(GameContext *gc) { game_context = gc; }
     ~Pawn3D() {}
     
     Graphics::Material *get_material() { return &mat; }
