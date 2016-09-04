@@ -37,9 +37,9 @@ void Object3D::render(const double game_time)
 {
   GLdouble mat[16] =
   {
-    rot(0, 0), rot(1, 0), rot(2, 0),    0.0,
-    rot(0, 1), rot(1, 1), rot(2, 1),    0.0,
-    rot(0, 2), rot(1, 2), rot(2, 2),    0.0,
+    scale[0] * rot(0, 0), rot(1, 0), rot(2, 0),    0.0,
+    rot(0, 1), scale[1] * rot(1, 1), rot(2, 1),    0.0,
+    rot(0, 2), rot(1, 2), scale[2] * rot(2, 2),    0.0,
     pos[0],    pos[1],    pos[2],       1.0
   };
 
