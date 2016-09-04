@@ -19,23 +19,29 @@ void Pawn3D::init()
   mat.add_uniform_var(&cam_distance);
 
   mat.init();
+  mesh.init();
 }
 
 void Pawn3D::render(const double game_time)
 {
-  Object3D::render(game_time);
+  glMatrixMode(GL_MODELVIEW);
+  glPushMatrix();
+  {
+    Object3D::render(game_time);
 
-  //update lighting uniform variables
-  Light *sun_light = game_context->render_context.get_sun_light();
-  Float3 sun_pos_screen_space = game_context->render_context.transform_light_pos_to_screen_space(sun_light);
-  sun_pos.set_var(sun_pos_screen_space);
-  sun_amb_rgb.set_var(sun_light->get_ambient_color());
-  sun_diff_rgb.set_var(sun_light->get_diffuse_color());
-  sun_spec_rgb.set_var(sun_light->get_specular_color());
-  cam_distance.set_var(Float3(1.0f, 1.0f, 1.0f)); //TODO
+    //update lighting uniform variables
+    Light *sun_light = game_context->render_context.get_sun_light();
+    Float3 sun_pos_screen_space = game_context->render_context.transform_light_pos_to_screen_space(sun_light);
+    sun_pos.set_var(sun_pos_screen_space);
+    sun_amb_rgb.set_var(sun_light->get_ambient_color());
+    sun_diff_rgb.set_var(sun_light->get_diffuse_color());
+    sun_spec_rgb.set_var(sun_light->get_specular_color());
+    cam_distance.set_var(Float3(1.0f, 1.0f, 1.0f)); //TODO
 
-  mat.render();
-  mesh.render();
+    mat.render();
+    mesh.render();
+  }
+  glPopMatrix();
 }
 
 void Pawn3D::simulate(const double game_time, const double frame_time)

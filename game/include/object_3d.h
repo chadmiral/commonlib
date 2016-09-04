@@ -23,15 +23,15 @@ namespace Game
   class Object3D
   {
   protected:
-    uint32_t           object_flags;
-    uint32_t           type;    // to be defined by client
+    uint32_t            object_flags;
+    uint32_t            type;    // to be defined by client
     void               *data;   // to be filled by client
 
-    Math::Float3       pos;
-    Math::Float3       vel;
-    Math::Float3       scale;
+    Math::Float3        pos;
+    Math::Float3        vel;
+    Math::Float3        scale;
 
-    double             birth_time;
+    double              birth_time;
 
     //Math::Quaternion   rot;
     //Math::Quaternion   ang_vel;
