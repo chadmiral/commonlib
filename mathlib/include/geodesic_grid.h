@@ -412,10 +412,10 @@ class GeodesicGrid
     }
 
     GeodesicCell<T> *get_cell_array() { return cells; }
-    int get_num_cells() const { return num_cells; }
+    uint32_t get_num_cells() const { return num_cells; }
     //int get_num_dual_cells() const { return num_dual_cells; }
-    int get_num_edges() const { return num_edges; }
-    int get_num_faces() const { return num_faces; }
+    uint32_t get_num_edges() const { return num_edges; }
+    uint32_t get_num_faces() const { return num_faces; }
 
     GeodesicCell<T> *get_cell_by_uv(const Math::Float2 uv, GeodesicCell<T> *start)
     {
