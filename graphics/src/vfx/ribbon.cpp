@@ -16,7 +16,7 @@ Ribbon::Ribbon() : Renderable<RibbonVertex>()
 
   profile_noise_bounds[0] = 0.2f;
   profile_noise_bounds[1] = 0.35f;
-  profile_noise_scale = 1.2f;
+  profile_noise_scale = 0.8f;
   profile_noise_speed = 0.0001f;
 
   theta_bounds[0] = 0.0f;//M_PI - 0.1f;
@@ -70,9 +70,11 @@ void Ribbon::init()
 
 void Ribbon::simulate(const double gt, const double dt)
 {
-  float theta_offset = (float)M_PI;
-  float phi_offset = (float)M_PI;
-  float ribbon_length = 0.6f; //in radians?
+  float ribbon_length = 0.5f; //in radians?
+  
+  float theta_offset = 0.0f;//(float)M_PI;
+  float phi_offset = (float)M_PI * 0.5f;// - ribbon_length * 0.5f * M_PI;
+  
 
   //TODO: use dynamic texture and vertex-shader displacement
   for(int i = 0; i < num_segments; i++)
@@ -80,12 +82,12 @@ void Ribbon::simulate(const double gt, const double dt)
     float seg_pct = (float)i / (float)num_segments;
     float theta = theta_offset + PerlinNoise::scaled_octave_noise_2d(2.0f, 1.0f, root_scale, theta_bounds[0], theta_bounds[1], (float)gt * root_speed, seg_pct);
     float phi = PerlinNoise::scaled_octave_noise_2d(2.0f, 1.0f, root_scale, phi_bounds[0], phi_bounds[1], (float)gt * root_speed + 137.9532f, seg_pct);
-    phi = phi_offset + phi + seg_pct * ribbon_length;
+    phi = phi_offset + phi;// + seg_pct * ribbon_length;
 
     float profile_height = PerlinNoise::scaled_octave_noise_2d(3.0f, 1.0f, profile_noise_scale, profile_noise_bounds[0], profile_noise_bounds[1], (float)gt * profile_noise_speed + 165.132f, seg_pct * profile_noise_scale);
     profile_height *= profile_a.evaluate(seg_pct);
 
-    Float3 root_vert_pos = polar_to_cartesian(theta, phi, 1.1f);
+    Float3 root_vert_pos = polar_to_cartesian(theta, phi, 1.05f);
     Float3 top_vert_pos = root_vert_pos + root_vert_pos * profile_height;
 
     //TODO: actually normal correctly
