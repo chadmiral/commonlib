@@ -1,5 +1,6 @@
 #include "console.h"
 
+#include <stdio.h>
 #include <iostream>
 #include <algorithm>
 #include <string.h>
@@ -386,6 +387,22 @@ void DebugConsole::render_default()
     font->print(10, v_pixels + 15.0f + i * v_h, lines[i].c_str());
   }
   //font->print(10, v_pixels + 10, console_buffer.c_str());
+}
+
+void DebugConsole::write_param_file(FILE *f)
+{
+  //assumed to already be open for writing in text mode
+  assert(f);
+  for(uint32_t i = 0; i < float_var_names.size(); i++)
+  {
+    string label = "<float_var name=\"";
+    fwrite(label.c_str(), label.size(), sizeof(char), f);
+    fwrite(float_var_names[i].c_str(), float_var_names[i].size(), sizeof(char), f);
+    label = "\">";
+    fwrite(label.c_str(), label.size(), sizeof(char), f);
+    
+    string value = *(float_vars[i]);
+  }
 }
 
 void DebugConsole::register_variable(bool *b, const char *name)
