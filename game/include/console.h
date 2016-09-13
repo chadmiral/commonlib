@@ -122,7 +122,7 @@ private:
 
   //tab completion
   std::string                 tab_complete_string;
-  unsigned int                last_tab_complete_idx;
+  uint32_t                    last_tab_complete_idx;
 
   UI::WidgetWrangler          console_ww;
   float                       control_board_scroll;
@@ -153,7 +153,8 @@ public:
   void set_bg_color(Math::Float3 c) { bg_color = c; }
   void set_text_color(Math::Float3 c) { text_color = c; }
   
-  void write_param_file(FILE *f);
+  void read_param_file();
+  void write_param_file();
 
   void register_variable(bool *b, const char *name);
   void register_variable(float *f, const char *name, const Math::Float2 range = Math::Float2(0.0f, 1.0f));

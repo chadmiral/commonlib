@@ -67,10 +67,11 @@ Float3::Float3(const Float3 &b)
 
 float Math::clamp(float x, float a, float b)
 {
-	register float low = std::min(a, b);
-	register float hi = std::max(a, b);
+	float low = std::min(a, b);
+	float hi = std::max(a, b);
 	if(x < low) x = low;
 	if(x > hi) x = hi;
+  
 	return x;
 }
 

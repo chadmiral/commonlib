@@ -4,9 +4,12 @@
 #include <iostream>
 #include <algorithm>
 #include <string.h>
+#include <sstream>
 #include <boost/algorithm/string.hpp>
 
 #include "math_utility.h"
+
+#include "mxml.h"
 
 #include "meter.h"
 #include "label.h"
@@ -224,7 +227,7 @@ void DebugConsole::execute()
   i = std::find(float3_var_names.begin(), float3_var_names.end(), words[0]);
   if(i != float3_var_names.end())
   {
-    int idx = std::distance(float3_var_names.begin(), i);
+    uint32_t idx = std::distance(float3_var_names.begin(), i);
     Float3 *f = float3_vars[idx];
     if(words.size() == 1)
     {
@@ -276,7 +279,7 @@ void DebugConsole::execute()
   }
 
   command_history.push_back(current_command);
-  command_history_idx = command_history.size();
+  command_history_idx = (int)command_history.size();
   //console_buffer += "\n" + current_command;
   print_line(current_command);
   current_command.clear();
@@ -386,22 +389,73 @@ void DebugConsole::render_default()
   {
     font->print(10, v_pixels + 15.0f + i * v_h, lines[i].c_str());
   }
-  //font->print(10, v_pixels + 10, console_buffer.c_str());
 }
 
-void DebugConsole::write_param_file(FILE *f)
+void DebugConsole::read_param_file()
 {
-  //assumed to already be open for writing in text mode
-  assert(f);
-  for(uint32_t i = 0; i < float_var_names.size(); i++)
+  FILE *f = fopen("params.xml", "r");
+  if(f)
   {
-    string label = "<float_var name=\"";
-    fwrite(label.c_str(), label.size(), sizeof(char), f);
-    fwrite(float_var_names[i].c_str(), float_var_names[i].size(), sizeof(char), f);
-    label = "\">";
-    fwrite(label.c_str(), label.size(), sizeof(char), f);
+    mxml_node_t *tree = mxmlLoadFile(NULL, f, MXML_TEXT_CALLBACK);
+    assert(tree);
     
-    string value = *(float_vars[i]);
+    mxml_node_t *node = tree;
+    do
+    {
+      node = mxmlFindElement(node, tree, "float_var", NULL, NULL, MXML_DESCEND);
+      if(node)
+      {
+        const char *var_name, *var_value;
+        var_name = mxmlElementGetAttr(node, "name");
+        var_value = mxmlGetText(node, NULL);
+        
+        current_command = string(var_name) + string(" ") + string(var_value);
+        console_log << current_command << endl;
+        execute();
+        
+      }
+    } while(node);
+    
+    fclose(f);
+  }
+}
+
+//
+// sipping swigs of Caol Ila scotch whisky while driving through the Scottish highlands
+// after a lovely day on the Isle of Skye
+//
+void DebugConsole::write_param_file()
+{
+  FILE *f = fopen("params.xml", "w");
+  
+  console_log << "writing game parameter file..."<<endl;
+  if(f)
+  {
+    console_log << float_var_names.size() << "variable names"<<endl;
+    
+    string header = "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"no\" ?>\n\n";
+    fwrite(header.c_str(), header.size(), sizeof(char), f);
+    for(uint32_t i = 0; i < float_var_names.size(); i++)
+    {
+      std::stringstream ss;
+      string label = "<float_var name=\"";
+      fwrite(label.c_str(), label.size(), sizeof(char), f);
+      fwrite(float_var_names[i].c_str(), float_var_names[i].size(), sizeof(char), f);
+      label = "\">";
+      fwrite(label.c_str(), label.size(), sizeof(char), f);
+    
+      ss<<std::fixed<<*(float_vars[i]);
+      string value = ss.str();
+      fwrite(value.c_str(), value.size(), sizeof(char), f);
+    
+      label = "</float_var>\n";
+      fwrite(label.c_str(), label.size(), sizeof(char), f);
+    }
+    fclose(f);
+  }
+  else
+  {
+    console_log << "Could not open file for writing!"<<endl;
   }
 }
 
@@ -446,7 +500,7 @@ void DebugConsole::traverse_command_history(const int dir)
     }
     if(command_history_idx >= (int)command_history.size())
     {
-      command_history_idx = command_history.size() - 1;
+      command_history_idx = (int)command_history.size() - 1;
     }
     current_command = command_history[command_history_idx];
   }
@@ -474,25 +528,25 @@ void DebugConsole::tab_complete(int depth)
 
   if(last_tab_complete_idx < float_var_names.size())
   {
-    last_tab_complete_idx = float_var_names.size();
+    last_tab_complete_idx = (int)float_var_names.size();
   }
 
-  for(unsigned int i = float_var_names.size() - last_tab_complete_idx; i < float3_var_names.size(); i++)
+  for(uint32_t i = (int)float_var_names.size() - last_tab_complete_idx; i < (int)float3_var_names.size(); i++)
   {
     if(float3_var_names[i].find(tab_complete_string) != std::string::npos)
     {
       current_command = float3_var_names[i] + " ";
-      last_tab_complete_idx = i + float_var_names.size() + 1;
+      last_tab_complete_idx = i + (int)float_var_names.size() + 1;
       return;
     }
   }
 
-  unsigned int idx_offset = float3_var_names.size() + float_var_names.size();
+  uint32_t idx_offset = float3_var_names.size() + float_var_names.size();
   if(last_tab_complete_idx < idx_offset)
   {
     last_tab_complete_idx = idx_offset;
   }
-  for(unsigned int i = idx_offset - last_tab_complete_idx; i < boolean_var_names.size(); i++)
+  for(uint32_t i = idx_offset - last_tab_complete_idx; i < boolean_var_names.size(); i++)
   {
     if(boolean_var_names[i].find(tab_complete_string) != std::string::npos)
     {

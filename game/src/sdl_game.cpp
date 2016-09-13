@@ -506,6 +506,8 @@ void SDLGame::generate_ui_from_layout(std::string name)
         }
         break;
       }
+      default:
+        break;
     }
   }
 

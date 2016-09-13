@@ -344,7 +344,7 @@ void CurveEditor::add_control_point(const float fx)
   cs->end_points[1].t = middle.p + Float2(-0.1f, 0.0f);
 */
 
-  CurveSegment *new_segment = curve->insert_end_point(INTERPOLATE_LERP, middle);
+  //CurveSegment *new_segment = curve->insert_end_point(INTERPOLATE_LERP, middle);
   selected_handle = NULL;
   selected_segment = NULL;
 

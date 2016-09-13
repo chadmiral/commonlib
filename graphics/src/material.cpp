@@ -175,7 +175,7 @@ void Material::render() const
 
   for (uint32_t i = 0; i < textures_3d.size(); i++)
   {
-    GLuint actual_tex_slot = GL_TEXTURE0 + textures_2d.size() + i;
+    GLuint actual_tex_slot = GL_TEXTURE0 + (GLuint)textures_2d.size() + i;
     glActiveTexture(actual_tex_slot);
     glEnable(GL_TEXTURE_3D);
     glBindTexture(GL_TEXTURE_3D, textures_3d[i].first->get_tex_id());
@@ -237,7 +237,7 @@ void Material::cleanup() const
 
   for(uint32_t i = 0; i < textures_3d.size(); i++)
   {
-    glActiveTexture(GL_TEXTURE0 + i + textures_2d.size());
+    glActiveTexture(GL_TEXTURE0 + i + (GLenum)textures_2d.size());
     glDisable(GL_TEXTURE_3D);
     glBindTexture(GL_TEXTURE_3D, 0);
   }
