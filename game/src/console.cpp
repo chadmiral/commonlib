@@ -227,7 +227,7 @@ void DebugConsole::execute()
   i = std::find(float3_var_names.begin(), float3_var_names.end(), words[0]);
   if(i != float3_var_names.end())
   {
-    uint32_t idx = std::distance(float3_var_names.begin(), i);
+    int idx = std::distance(float3_var_names.begin(), i);
     Float3 *f = float3_vars[idx];
     if(words.size() == 1)
     {
@@ -562,7 +562,7 @@ void DebugConsole::tab_complete(int depth)
   {
     last_tab_complete_idx = idx_offset;
   }
-  for(unsigned int i = idx_offset - last_tab_complete_idx; i < func_var_names.size(); i++)
+  for(int i = idx_offset - last_tab_complete_idx; i < func_var_names.size(); i++)
   {
     if(func_var_names[i].find(tab_complete_string) != std::string::npos)
     {
