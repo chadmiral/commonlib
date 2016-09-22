@@ -1,6 +1,7 @@
 CC=g++
 LIB_PATH=
 CFLAGS=-I./include -I../mathlib/include -I../graphics/include -I/usr/local/include
+CFLAGS+=-I../game/include/switchboard -I../game/include/objects
 CFLAGS+=-I../game/include -I../game/include/cinematics -I../ui/include
 CFLAGS+= -Ofast
 CFLAGS+=$(shell pkg-config sdl2 --cflags)
@@ -51,6 +52,10 @@ endif
 OBJS_BIN=$(addprefix $(BINPATH), $(notdir $(OBJS)))
 #echo $(OBJS_BIN)
 
+MXML_SRCS=../tools/src/mxml-2.9/mxml-attr.c ../tools/src/mxml-2.9/mxml-entity.c ../tools/src/mxml-2.9/mxml-file.c
+MXML_SRCS+=../tools/src/mxml-2.9/mxml-get.c ../tools/src/mxml-2.9/mxml-index.c ../tools/src/mxml-2.9/mxml-node.c ../tools/src/mxml-2.9/mxml-private.c
+MXML_SRCS+=../tools/src/mxml-2.9/mxml-search.c ../tools/src/mxml-2.9/mxml-set.c ../tools/src/mxml-2.9/mxml-string.c
+
 all: $(BINPATH) $(OBJS_BIN) $(BINPATH)libfluids.a test
 
 $(BINPATH):
@@ -84,7 +89,10 @@ $(BINPATH)fluid2d_angle_snapper.o: $(SRCPATH)fluid2d_angle_snapper.cpp
 $(BINPATH)libfluids.a: $(OBJS_BIN)
 	ar -cvq $(BINPATH)libfluids.a $(OBJS_BIN)
 
-test: test.cpp $(BINPATH)libfluids.a
+$(BINPATH)mxml.o: $(MXML_SRCS)
+	$(CC) $(CFLAGS) $(MXML_SRCS) -o $(BINPATH)mxml.o
+
+test: test.cpp $(BINPATH)libfluids.a $(BINPATH)mxml.o
 	$(CC) $(CFLAGS) test.cpp -o test $(LIB_PATH) -lfluids -lgraphics -lgame $(LDFLAGS)
 
 clean:

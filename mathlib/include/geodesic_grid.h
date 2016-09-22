@@ -453,6 +453,14 @@ class GeodesicGrid
       assert(false);
       return NULL;
     }
+  
+    GeodesicCell<T> *get_cell_by_xyz(const Math::Float3 xyz, GeodesicCell <T> *start)
+    {
+      Math::Float2 uv;
+      uv[0] = 0.5f + (atan2(xyz[2], xyz[0]) / (float)M_PI) * 0.5f;
+      uv[1] = asin(xyz[1]) / (float)(M_PI) + 0.5f;
+      return get_cell_by_uv(uv, start);
+    }
 
 
 /*

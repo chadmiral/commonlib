@@ -84,7 +84,7 @@ namespace Game
     AssetLibrary() { file_monitor_interval_s = 1.0f; }
     ~AssetLibrary() {}
 
-    void add_asset(uint32_t hash_id, GameAsset *a) { lib.insert({ hash_id, a }); }
+    void add_asset(uint32_t hash_id, GameAsset *a);
     GameAsset *retrieve_asset(std::string name);
     Graphics::Shader *retrieve_shader(std::string name);
     Graphics::Texture2D *retrieve_texture(std::string name);

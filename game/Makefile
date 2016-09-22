@@ -1,6 +1,7 @@
 CC=g++
 LIB_PATH=
 CFLAGS=-I./include -I./include/cinematics -I/usr/local/include/
+CFLAGS+=-I./include/switchboard
 CFLAGS+=-I../graphics/include/ -I../ui/include
 CFLAGS+=-I../mathlib/include/
 CFLAGS+=$(shell pkg-config --cflags sdl2)

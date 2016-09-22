@@ -197,6 +197,9 @@ void Fluid2D::velocity_step(float dt)
   project(curr_channels, prev_channels, 0, 1);
 }
 
+//
+// Hodge decomposition to conserve mass
+// solve linear system (Poisson equation)
 void Fluid2D::project(FluidChannels *vel, FluidChannels *div_p, int a, int b)
 {
   float h = 1.0f / N;
@@ -288,8 +291,18 @@ void Fluid2D::advect(int bnd, FluidChannels *d, FluidChannels *d0, FluidChannels
   {
     for(int j = 1; j <= N; j++)
     {
+      //backtrace the (x,y) position from the velocity & clamp to the boundaries of the fluid domain
       float x = clamp((float)i - dt0 * vel[idx(i, j)].data[FLUID_CHANNEL_VEL_X], 0.5f, N + 0.5f);
       float y = clamp((float)j - dt0 * vel[idx(i, j)].data[FLUID_CHANNEL_VEL_Y], 0.5f, N + 0.5f);
+
+      //
+      //  backtraced voxel
+      //  +-------+-------+
+      //  | i0,j0 | i1,j0 |
+      //  +-------+-------+
+      //  | i0,j1 | i1,j1 |
+      //  +-------+-------+
+      //
 
       int i0 = (int)x;
       int i1 = i0 + 1;
@@ -297,11 +310,16 @@ void Fluid2D::advect(int bnd, FluidChannels *d, FluidChannels *d0, FluidChannels
       int j0 = (int)y;
       int j1 = j0 + 1;
 
+      //s0, s1 are remainder values used for blending between the above voxels
       float s1 = x - (float)i0;
       float s0 = 1.0f - s1;
       float t1 = y - (float)j0;
       float t0 = 1.0f - t1;
 
+      // we sample from the 4 backtraced voxels above in proportions based
+      // on where the exact backtraced position fell. (i.e. we almost certainly
+      // didn't land exactly in the center of a voxel, so we need to blend between
+      // several)
       for(int k = a; k < b; k++)
       {
         d[idx(i, j)].data[k] = s0 * (t0 * d0[idx(i0, j0)].data[k] +

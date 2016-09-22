@@ -151,9 +151,9 @@ private:
     angle_snapper = new Fluid2DAngleSnapper(5);
     angle_snapper->set_strength(1.0f);
 
-    console.register_variable(fluid->get_viscosity_ptr(), "viscosity");
-    console.register_variable(fluid->get_diffusion_rate_ptr(), "diffusion_rate");
-    console.register_variable(&time_scale, "time_scale");
+    //console.register_variable(fluid->get_viscosity_ptr(), "viscosity");
+    //console.register_variable(fluid->get_diffusion_rate_ptr(), "diffusion_rate");
+    //console.register_variable(&time_scale, "time_scale");
   }
 
   void user_run()

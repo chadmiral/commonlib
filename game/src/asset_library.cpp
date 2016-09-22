@@ -86,6 +86,11 @@ GameAsset *AssetLibrary::retrieve_asset(std::string name)
   return NULL;
 }
 
+void AssetLibrary::add_asset(uint32_t hash_id, GameAsset *a)
+{
+  lib.insert({ hash_id, a });
+}
+
 Shader *AssetLibrary::retrieve_shader(std::string name)
 {
   ShaderAsset *shader_asset = (ShaderAsset *)retrieve_asset(name);
