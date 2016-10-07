@@ -7,6 +7,9 @@
 
 //#define __USE_OCULUS_SDK
 
+#define VR_LEFT_EYE  0
+#define VR_RIGHT_EYE 1
+
 #if defined (_USE_OCULUS_SDK)
 #include "OVR_CAPI_GL.h"
 #endif
@@ -75,20 +78,22 @@ namespace VR
 
 	  void init_compositor();
     void render_stereo_targets();
-    void setup_distortion();
+    void setup_distortion_geo();
+    void setup_distortion_shader();
     void render_distortion();
   public:
     VRContext();
     ~VRContext() {}
 
     void init();
+    void init_gl();
     void deinit();
 
     void bind(SDLGame *game);
     void retrieve_eye_poses();
-    void get_eye_camera(const unsigned int eye, Graphics::Camera *cam) const;
-    void render_capture(const unsigned int eye);
-    void render_release(const unsigned int eye);
+    void get_eye_camera(const uint32_t eye, Graphics::Camera *cam) const;
+    void render_capture(const uint32_t eye);
+    void render_release(const uint32_t eye);
     void finalize_render();
 
     void simulate(const double game_time, const double frame_time);

@@ -26,7 +26,6 @@ Shader::Shader()
 
   gl_fragment_shader_fname[0] = '\0';
   gl_vertex_shader_fname[0] = '\0';
-
 }
 
 Shader::~Shader()
@@ -70,12 +69,17 @@ void print_log(GLuint obj)
   delete infoLog;
 }
 
-void Shader::compile_and_link_from_source(const char *vs, const char *fs)
+void Shader::create_program()
 {
   //create the shader program
   gl_shader_program = glCreateProgram();
   gl_check_error();
   assert(gl_shader_program);
+}
+
+void Shader::compile_and_link_from_source(const char *vs, const char *fs)
+{
+  create_program();
 
   cout << "compiling vertex shader..." << endl;
   gl_vertex_shader = compile_shader_from_source(GL_VERTEX_SHADER, vs);
@@ -112,6 +116,14 @@ GLuint Shader::compile_shader_from_source(GLenum shader_type, const char *source
   }
 
   glAttachShader(gl_shader_program, my_shader);
+  if (shader_type == GL_VERTEX_SHADER_ARB || shader_type == GL_VERTEX_SHADER)
+  {
+    gl_vertex_shader = my_shader;
+  }
+  else if (shader_type == GL_FRAGMENT_SHADER_ARB || shader_type == GL_FRAGMENT_SHADER)
+  {
+    gl_fragment_shader = my_shader;
+  }
 
   gl_check_error();
   return my_shader;
@@ -127,10 +139,7 @@ bool Shader::load_link_and_compile()
 {
     cout<<"loading vertex shader "<<gl_vertex_shader_fname.c_str()<<endl;
 
-    //create the shader program
-    gl_shader_program = glCreateProgram();
-    gl_check_error();
-    assert(gl_shader_program);
+    create_program();
 
     //load shader file from disk
     FILE *fp = NULL;

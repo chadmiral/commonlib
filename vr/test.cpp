@@ -29,6 +29,7 @@ private:
 
   void user_init()
   {
+    vr_context.init();
     vr_context.bind(this);
     for (int eye = 0; eye < 2; eye++)
     {
@@ -129,7 +130,6 @@ private:
 public:
   VRGame() : SDLGame(640, 480, "VR Test")
   {
-    vr_context.init();
   }
 
   ~VRGame()

@@ -22,6 +22,9 @@
     <Filter Include="Source Files\sequencer">
       <UniqueIdentifier>{d3e494b9-c255-4db8-ad60-2d381fde3b1c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\switchboard">
+      <UniqueIdentifier>{9ae2131b-c2d1-453a-a850-354168d4e89a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\game\include\asset_library.h">
@@ -67,6 +70,12 @@
     </ClCompile>
     <ClCompile Include="..\..\game\src\sequencer\sequencer.cpp">
       <Filter>Source Files\sequencer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\game\src\asset_library.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\game\src\switchboard\switchboard.cpp">
+      <Filter>Source Files\switchboard</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

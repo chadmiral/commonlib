@@ -74,11 +74,11 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\..\..\openvr\headers\;..\..\..\OculusSDK\LibOVR/Include/;..\..\..\OculusSDK\LibOVRKernel/Src/;..\..\..\SDL2-2.0.4\include;..\..\..\freetype-2.3.5-1-lib\include;..\..\..\freetype-2.3.5-1-lib\include\freetype2;..\..\..\freetype-2.3.5-1-lib\include\freetype2\freetype;..\..\..\glew-1.13.0\include;..\..\graphics\include;..\..\mathlib\include;..\..\vr\include;..\..\game\include;..\..\ui\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\tools\src\mxml-2.9\;..\..\game\include\switchboard\;..\..\..\openvr\headers\;..\..\..\OculusSDK\LibOVR/Include/;..\..\..\OculusSDK\LibOVRKernel/Src/;..\..\..\SDL2-2.0.4\include;..\..\..\freetype-2.3.5-1-lib\include;..\..\..\freetype-2.3.5-1-lib\include\freetype2;..\..\..\freetype-2.3.5-1-lib\include\freetype2\freetype;..\..\..\glew-1.13.0\include;..\..\graphics\include;..\..\mathlib\include;..\..\vr\include;..\..\game\include;..\..\ui\include;%(AdditionalIncludeDirectories);..\game\include\switchboard;..\game\include\switchboard;../../tools/src/mxml-2.9</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>..\..\..\freetype-2.3.5-1-lib\lib\;..\..\..\SDL2_image-2.0.1\lib\x86\;..\..\..\SDL2-2.0.4\lib\x86\;..\..\..\glew-1.13.0\lib\Release\Win32\;..\Debug\;..\..\..\OculusSDK\LibOVR\Lib\Windows\Win32\Debug\VS2015;..\..\..\openvr\lib\win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\freetype-2.3.5-1-lib\lib\;..\..\..\SDL2_image-2.0.1\lib\x86\;..\..\..\SDL2-2.0.4\lib\x86\;..\..\..\glew-1.13.0\lib\Release\Win32\;..\Debug\;..\..\..\OculusSDK\LibOVR\Lib\Windows\Win32\Debug\VS2015;..\..\..\openvr\lib\win32;%(AdditionalLibraryDirectories);..\..\tools\</AdditionalLibraryDirectories>
       <AdditionalDependencies>openvr_api.lib;LibOVR.lib;vr.lib;SDL2main.lib;SDL2.lib;SDL2_Image.lib;opengl32.lib;glew32.lib;glu32.lib;freetype.lib;game.lib;graphics.lib;mathlib.lib;ui.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
@@ -97,13 +97,13 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\..\..\OculusSDK\LibOVR/Include/;..\..\..\OculusSDK\LibOVRKernel/Src/;..\..\..\SDL2-2.0.4\include;..\..\..\freetype-2.3.5-1-lib\include;..\..\..\freetype-2.3.5-1-lib\include\freetype2;..\..\..\freetype-2.3.5-1-lib\include\freetype2\freetype;..\..\..\glew-1.13.0\include;..\..\graphics\include;..\..\mathlib\include;..\..\vr\include;..\..\game\include;..\..\ui\include;..\..\..\openvr\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\tools\src\mxml-2.9\;..\..\game\include\switchboard\;..\..\..\OculusSDK\LibOVR/Include/;..\..\..\OculusSDK\LibOVRKernel/Src/;..\..\..\SDL2-2.0.4\include;..\..\..\freetype-2.3.5-1-lib\include;..\..\..\freetype-2.3.5-1-lib\include\freetype2;..\..\..\freetype-2.3.5-1-lib\include\freetype2\freetype;..\..\..\glew-1.13.0\include;..\..\graphics\include;..\..\mathlib\include;..\..\vr\include;..\..\game\include;..\..\ui\include;..\..\..\openvr\headers;%(AdditionalIncludeDirectories);..\game\include\switchboard;..\game\include\switchboard;../../tools/src/mxml-2.9</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>..\..\..\freetype-2.3.5-1-lib\lib\;..\..\..\SDL2_image-2.0.1\VisualC\Win32\Release;..\..\..\SDL2-2.0.4\lib\x86\;..\..\..\glew-1.13.0\lib\Release\Win32\;..\Debug\;..\..\..\OculusSDK\LibOVR\Lib\Windows\Win32\Release\VS2015;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\freetype-2.3.5-1-lib\lib\;..\..\..\SDL2_image-2.0.1\VisualC\Win32\Release;..\..\..\SDL2-2.0.4\lib\x86\;..\..\..\glew-1.13.0\lib\Release\Win32\;..\Debug\;..\..\..\OculusSDK\LibOVR\Lib\Windows\Win32\Release\VS2015;%(AdditionalLibraryDirectories);..\..\tools\</AdditionalLibraryDirectories>
       <AdditionalDependencies>LibOVR.lib;vr.lib;SDL2main.lib;SDL2.lib;SDL2_Image.lib;opengl32.lib;glew32.lib;glu32.lib;freetype.lib;game.lib;graphics.lib;mathlib.lib;ui.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -121,6 +121,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\tools\src\mxml-2.9\mxml-attr.c" />
+    <ClCompile Include="..\..\tools\src\mxml-2.9\mxml-entity.c" />
+    <ClCompile Include="..\..\tools\src\mxml-2.9\mxml-file.c" />
+    <ClCompile Include="..\..\tools\src\mxml-2.9\mxml-get.c" />
+    <ClCompile Include="..\..\tools\src\mxml-2.9\mxml-index.c" />
+    <ClCompile Include="..\..\tools\src\mxml-2.9\mxml-node.c" />
+    <ClCompile Include="..\..\tools\src\mxml-2.9\mxml-private.c" />
+    <ClCompile Include="..\..\tools\src\mxml-2.9\mxml-search.c" />
+    <ClCompile Include="..\..\tools\src\mxml-2.9\mxml-set.c" />
+    <ClCompile Include="..\..\tools\src\mxml-2.9\mxml-string.c" />
     <ClCompile Include="..\..\vr\test.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

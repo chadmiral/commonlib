@@ -79,7 +79,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\..\..\openvr\headers\;..\..\..\OculusSDK\LibOVR/Include/;..\..\..\OculusSDK\LibOVRKernel/Src/;..\..\..\SDL2-2.0.4\include;..\..\..\glew-1.13.0\include;..\..\..\freetype-2.3.5-1-lib\include;..\..\..\freetype-2.3.5-1-lib\include\freetype2;..\..\..\freetype-2.3.5-1-lib\include\freetype2\freetype;..\..\vr\include;..\..\game\include;..\..\graphics\include;..\..\mathlib\include;..\..\ui\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\tools\src\mxml-2.9;..\..\game\include\switchboard;..\..\..\openvr\headers\;..\..\..\OculusSDK\LibOVR/Include/;..\..\..\OculusSDK\LibOVRKernel/Src/;..\..\..\SDL2-2.0.4\include;..\..\..\glew-1.13.0\include;..\..\..\freetype-2.3.5-1-lib\include;..\..\..\freetype-2.3.5-1-lib\include\freetype2;..\..\..\freetype-2.3.5-1-lib\include\freetype2\freetype;..\..\vr\include;..\..\game\include;..\..\graphics\include;..\..\mathlib\include;..\..\ui\include;%(AdditionalIncludeDirectories);..\..\</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_USE_OPENVR_SDK;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
@@ -97,7 +97,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\..\..\OculusSDK\LibOVR/Include/;..\..\..\OculusSDK\LibOVRKernel/Src/;..\..\..\SDL2-2.0.4\include;..\..\..\glew-1.13.0\include;..\..\..\freetype-2.3.5-1-lib\include;..\..\..\freetype-2.3.5-1-lib\include\freetype2;..\..\..\freetype-2.3.5-1-lib\include\freetype2\freetype;..\..\vr\include;..\..\game\include;..\..\graphics\include;..\..\mathlib\include;..\..\ui\include;..\..\..\openvr\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\tools\src\mxml-2.9;..\..\game\include\switchboard;..\..\..\OculusSDK\LibOVR/Include/;..\..\..\OculusSDK\LibOVRKernel/Src/;..\..\..\SDL2-2.0.4\include;..\..\..\glew-1.13.0\include;..\..\..\freetype-2.3.5-1-lib\include;..\..\..\freetype-2.3.5-1-lib\include\freetype2;..\..\..\freetype-2.3.5-1-lib\include\freetype2\freetype;..\..\vr\include;..\..\game\include;..\..\graphics\include;..\..\mathlib\include;..\..\ui\include;..\..\..\openvr\headers;%(AdditionalIncludeDirectories);..\..\</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_USE_OPENVR_SDK;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>

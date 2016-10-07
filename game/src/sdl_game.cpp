@@ -255,6 +255,7 @@ void SDLGame::run()
     }
 
     glFlush();
+    glFinish(); //needed? (wait for all GL commands to finish) interacts w/ vsync
     SDL_GL_SwapWindow(win);
   }
 }
@@ -564,6 +565,12 @@ void SDLGame::init_sdl()
       //SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
       SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, gl_context_profile);
     }
+
+    //from OpenVR setup (flag for vr?)
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
+    //if (m_bDebugOpenGL)
+      SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
 
     game_controller_context.init();
 

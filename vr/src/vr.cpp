@@ -6,6 +6,7 @@
 #include "sdl_game.h"
 #include "vr.h"
 #include "math_utility.h"
+#include "platform.h"
 
 #if defined (_USE_OCULUS_SDK)
 #include "Extras/OVR_Math.h"
@@ -78,6 +79,25 @@ VRContext::VRContext()
 
 void VRContext::init()
 {
+#if defined (_USE_OPENVR_SDK)
+  //Loading the SteamVR Runtime
+  //In the example this happens immediately after SDL_Init() and before window creation / 
+  //SDL / GL context creation
+  vr::EVRInitError err = vr::VRInitError_None;
+  hmd = vr::VR_Init(&err, vr::VRApplication_Scene);
+
+  if (err != vr::VRInitError_None)
+  {
+    hmd = NULL;
+    char buf[1024];
+    sprintf_s(buf, sizeof(buf), "Unable to init VR runtime: %s", vr::VR_GetVRInitErrorAsEnglishDescription(err));
+    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "VR_Init Failed", buf, NULL);
+    return;
+  }
+
+  assert(hmd);
+#endif //_USE_OPENVR_SDK
+
 #if defined (_USE_OCULUS_SDK)
   //Initialize OVR system
   ovrResult result = ovr_Initialize(nullptr);
@@ -93,6 +113,20 @@ void VRContext::init()
 
   frame_index = 0;
 #endif //_USE_OCULUS_SDK
+
+  init_gl();
+}
+
+void VRContext::init_gl()
+{
+  /*
+  SetupTexturemaps();
+  SetupScene();
+  SetupCameras();
+  SetupStereoRenderTargets();
+  */
+  setup_distortion_shader();
+  setup_distortion_geo();
 }
 
 void VRContext::deinit()
@@ -112,30 +146,12 @@ void VRContext::deinit()
 
 void VRContext::bind(SDLGame *game)
 {
+  cout<<"VRContext::bind()"<<endl;
   assert(game);
   game->get_resolution(window_dim[0], window_dim[1]);
 
 #if defined (_USE_OPENVR_SDK)
-  //Loading the SteamVR Runtime
-  vr::EVRInitError err = vr::VRInitError_None;
-  hmd = vr::VR_Init(&err, vr::VRApplication_Scene);
-
-  if (err != vr::VRInitError_None)
-  {
-    hmd = NULL;
-    char buf[1024];
-    sprintf_s(buf, sizeof(buf), "Unable to init VR runtime: %s", vr::VR_GetVRInitErrorAsEnglishDescription(err));
-    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "VR_Init Failed", buf, NULL);
-    return;
-  }
-
-  assert(hmd);
-  
   hmd->GetRecommendedRenderTargetSize(&render_target_dim[0], &render_target_dim[1]);
-
-  //load distortion shader
-  lens_shader.load_and_compile_shader(GL_VERTEX_SHADER_ARB, distortion_vertex_shader);
-  lens_shader.load_and_compile_shader(GL_FRAGMENT_SHADER_ARB, distortion_fragment_shader);
 
   //CreateFrameBuffer(render_target_dim[0], render_target_dim[1], leftEyeDesc);
   //CreateFrameBuffer(m_nRenderWidth, m_nRenderHeight, rightEyeDesc);
@@ -354,18 +370,19 @@ void VRContext::render_stereo_targets()
   glEnable(GL_MULTISAMPLE);
 
   // Left Eye
-  glBindFramebuffer(GL_FRAMEBUFFER, leftEyeDesc.m_nRenderFramebufferId);
-  glViewport(0, 0, m_nRenderWidth, m_nRenderHeight);
+  glBindFramebuffer(GL_FRAMEBUFFER, eye_fbo[VR_LEFT_EYE]);
+  glViewport(0, 0, render_target_dim[0], render_target_dim[1]);
 
-  RenderScene(vr::Eye_Left);
+  //TODO
+  //RenderScene(vr::Eye_Left);
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
   glDisable(GL_MULTISAMPLE);
 
-  glBindFramebuffer(GL_READ_FRAMEBUFFER, leftEyeDesc.m_nRenderFramebufferId);
-  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, leftEyeDesc.m_nResolveFramebufferId);
+  glBindFramebuffer(GL_READ_FRAMEBUFFER, eye_fbo[VR_LEFT_EYE]);//leftEyeDesc.m_nRenderFramebufferId);
+  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, eye_resolve_fbo[VR_LEFT_EYE]);//leftEyeDesc.m_nResolveFramebufferId);
 
-  glBlitFramebuffer(0, 0, m_nRenderWidth, m_nRenderHeight, 0, 0, m_nRenderWidth, m_nRenderHeight,
+  glBlitFramebuffer(0, 0, render_target_dim[0], render_target_dim[1], 0, 0, render_target_dim[0], render_target_dim[1],
     GL_COLOR_BUFFER_BIT,
     GL_LINEAR);
 
@@ -375,17 +392,18 @@ void VRContext::render_stereo_targets()
   glEnable(GL_MULTISAMPLE);
 
   // Right Eye
-  glBindFramebuffer(GL_FRAMEBUFFER, rightEyeDesc.m_nRenderFramebufferId);
-  glViewport(0, 0, m_nRenderWidth, m_nRenderHeight);
-  RenderScene(vr::Eye_Right);
+  glBindFramebuffer(GL_FRAMEBUFFER, eye_fbo[VR_RIGHT_EYE]);//rightEyeDesc.m_nRenderFramebufferId);
+  glViewport(0, 0, render_target_dim[0], render_target_dim[1]);
+  //TODO
+  //RenderScene(vr::Eye_Right);
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
   glDisable(GL_MULTISAMPLE);
 
-  glBindFramebuffer(GL_READ_FRAMEBUFFER, rightEyeDesc.m_nRenderFramebufferId);
-  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, rightEyeDesc.m_nResolveFramebufferId);
+  glBindFramebuffer(GL_READ_FRAMEBUFFER, eye_fbo[VR_RIGHT_EYE]);//rightEyeDesc.m_nRenderFramebufferId);
+  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, eye_resolve_fbo[VR_RIGHT_EYE]);//rightEyeDesc.m_nResolveFramebufferId);
 
-  glBlitFramebuffer(0, 0, m_nRenderWidth, m_nRenderHeight, 0, 0, m_nRenderWidth, m_nRenderHeight,
+  glBlitFramebuffer(0, 0, render_target_dim[0], render_target_dim[1], 0, 0, render_target_dim[0], render_target_dim[1],
     GL_COLOR_BUFFER_BIT,
     GL_LINEAR);
 
@@ -393,8 +411,20 @@ void VRContext::render_stereo_targets()
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 }
 
+void VRContext::setup_distortion_shader()
+{
+  //load distortion shader
+  SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_BLUE);
+  cout << "Loading VR distortion shaders..." << endl;
+  SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
+  lens_shader.create_program();
+  lens_shader.compile_shader_from_source(GL_VERTEX_SHADER_ARB, distortion_vertex_shader);
+  lens_shader.compile_shader_from_source(GL_FRAGMENT_SHADER_ARB, distortion_fragment_shader);
+  lens_shader.link_shader();
+}
+
 //set up the geo for distortion
-void VRContext::setup_distortion()
+void VRContext::setup_distortion_geo()
 {
 #if defined (_USE_OPENVR_SDK)
   if (!hmd)
@@ -565,7 +595,7 @@ void VRContext::finalize_render()
   if (hmd)
   {
     //DrawControllers();
-    //render_stereo_targets();
+    render_stereo_targets();
     render_distortion();
 
     vr::Texture_t left_eye_tex = { (void*)eye_resolve_tex[0], vr::API_OpenGL, vr::ColorSpace_Gamma };
@@ -574,7 +604,7 @@ void VRContext::finalize_render()
     vr::VRCompositor()->Submit(vr::Eye_Right, &right_eye_tex);
   }
 
-  if (false)//(m_bVblank && m_bGlFinishHack)
+  if (true)//(m_bVblank && m_bGlFinishHack)
   {
     //$ HACKHACK. From gpuview profiling, it looks like there is a bug where two renders and a present
     // happen right before and after the vsync causing all kinds of jittering issues. This glFinish()
@@ -585,19 +615,19 @@ void VRContext::finalize_render()
 
   // SwapWindow
   {
-  //  SDL_GL_SwapWindow(m_pWindow);
+    //SDL_GL_SwapWindow(m_pWindow);
   }
 
   // Clear
-  if(false) {
+  if(true) {//false) {
     // We want to make sure the glFinish waits for the entire present to complete, not just the submission
     // of the command. So, we do a clear here right here so the glFinish will wait fully for the swap.
-    glClearColor(0, 0, 0, 1);
+    glClearColor(1, 0, 0, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   }
 
   // Flush and wait for swap.
-  if (false) //(m_bVblank)
+  if (true) //(m_bVblank)
   {
     glFlush();
     glFinish();
