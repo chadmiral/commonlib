@@ -284,7 +284,7 @@ void VRContext::get_eye_camera(const unsigned int eye, Camera *cam) const
 
 void VRContext::render_capture(const unsigned int eye)
 {
-  glClearColor(0.15f, 0.15f, 0.18f, 1.0f); // nice background color, but not black
+  glClearColor(1.0f, 0.15f, 0.18f, 1.0f); // nice background color, but not black
   glEnable(GL_MULTISAMPLE);
 
   // Left Eye
@@ -348,7 +348,7 @@ void VRContext::render_release(const unsigned int eye)
 
 void VRContext::render_stereo_targets()
 {
-  glClearColor(0.15f, 0.15f, 0.18f, 1.0f); // nice background color, but not black
+  glClearColor(1.0f, 0.15f, 0.18f, 1.0f); // nice background color, but not black
   glEnable(GL_MULTISAMPLE);
 
   // Left Eye
@@ -651,16 +651,13 @@ void VRContext::finalize_render()
     glFinish();
   }
 
-  // SwapWindow
-  {
-    SDL_GL_SwapWindow(game_context->sdl_window);
-  }
+  SDL_GL_SwapWindow(game_context->sdl_window);
 
   // Clear
   if(true) {//false) {
     // We want to make sure the glFinish waits for the entire present to complete, not just the submission
     // of the command. So, we do a clear here right here so the glFinish will wait fully for the swap.
-    glClearColor(1, 0, 0, 1);
+    glClearColor(0, 0, 0, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   }
 
@@ -724,9 +721,10 @@ void VRContext::finalize_render()
 void VRContext::update_hmd_matrix_pose()
 {
   assert(hmd);
+  
+  vr::VRCompositor()->WaitGetPoses(device_poses, vr::k_unMaxTrackedDeviceCount, NULL, 0);
 
-  /*vr::VRCompositor()->WaitGetPoses(m_rTrackedDevicePose, vr::k_unMaxTrackedDeviceCount, NULL, 0);
-
+  /*
   m_iValidPoseCount = 0;
   m_strPoseClasses = "";
   for (int nDevice = 0; nDevice < vr::k_unMaxTrackedDeviceCount; ++nDevice)

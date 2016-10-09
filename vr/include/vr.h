@@ -35,6 +35,7 @@ namespace VR
   private:
     GameContext *game_context;
     vr::IVRSystem *hmd;
+    vr::TrackedDevicePose_t device_poses[vr::k_unMaxTrackedDeviceCount];
 
     float near_clip;
     float far_clip;
