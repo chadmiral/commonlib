@@ -27,9 +27,24 @@ private:
   StaticMesh static_mesh;
   float rot_angle;
 
+  void init_sdl()
+  {
+    sdl_init_verbose();
+
+    vr_context.init();
+    vr_context.init_render_models();
+
+    set_sdl_attributes();
+    init_sdl_gl_context();
+
+    vr_context.init_gl();
+
+    game_controller_context.init();
+  }
+
   void user_init()
   {
-    vr_context.init();
+    //vr_context.init();
     vr_context.bind(this);
     for (int eye = 0; eye < 2; eye++)
     {
@@ -92,7 +107,8 @@ private:
 
   void render_gl()
   {
-
+    vr_context.finalize_render();
+    return;
     double game_time = get_game_time();
     //render once for each eye
     vr_context.retrieve_eye_poses();
@@ -128,8 +144,12 @@ private:
     vr_context.simulate(game_time, frame_time);
   }
 public:
-  VRGame() : SDLGame(640, 480, "VR Test")
+  VRGame() : SDLGame(640, 480,
+                     "VR Test",
+                     SDL_GAME_GENERATE_PAUSE_MENU | SDL_GAME_LOCK_SIM_DT,
+                     SDL_GL_CONTEXT_PROFILE_CORE, 4, 1), vr_context(&game_context)
   {
+    diy_window_swap = true;
   }
 
   ~VRGame()

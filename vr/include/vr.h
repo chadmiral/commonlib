@@ -33,6 +33,7 @@ namespace VR
   class VRContext
   {
   private:
+    GameContext *game_context;
     vr::IVRSystem *hmd;
 
     float near_clip;
@@ -72,21 +73,13 @@ namespace VR
     ovrPosef              eye_render_pose[2];
     long long             frame_index;
 #endif //_USE_OCULUS_SDK
-
-    void create_eye_texture(const int eye_idx);
-    void create_eye_depth_texture(const int eye_idx);
-
-	  void init_compositor();
-    void render_stereo_targets();
-    void setup_distortion_geo();
-    void setup_distortion_shader();
-    void render_distortion();
   public:
-    VRContext();
+    VRContext(GameContext *gc);
     ~VRContext() {}
 
     void init();
     void init_gl();
+    void init_render_models();
     void deinit();
 
     void bind(SDLGame *game);
@@ -97,6 +90,21 @@ namespace VR
     void finalize_render();
 
     void simulate(const double game_time, const double frame_time);
+  private:
+    void create_eye_texture(const int eye_idx);
+    void create_eye_depth_texture(const int eye_idx);
+
+    void init_compositor();
+
+    void setup_cameras();
+    void setup_distortion_geo();
+    void setup_distortion_shader();
+    void setup_stereo_render_targets();
+
+    void render_stereo_targets();
+    void render_distortion();
+
+    void update_hmd_matrix_pose();
   };
 };
 

@@ -48,9 +48,12 @@ public:
   DebugConsole             console;
   Graphics::RenderContext  render_context;
 
+  SDL_Window               *sdl_window;
+  SDL_GLContext            *sdl_gl_context;
+
   std::vector<Game::Object3D *> active_game_objects;
 
-  GameContext() {}
+  GameContext() { sdl_window = NULL; sdl_gl_context = NULL; }
   ~GameContext() {}
 };
 
@@ -96,6 +99,7 @@ protected:
 
   float            sim_lock_dt;
   bool             vsync_enabled;
+  bool             diy_window_swap;
 
   std::unordered_map<uint32_t, void(*)(const SDL_Event &e)> ui_callback_map;
 
@@ -148,7 +152,12 @@ protected:
 
   virtual void render_gl() = 0;
 
-  void init_sdl();
+  virtual void init_sdl();
+
+  void init_sdl_default();
+  void init_sdl_gl_context();
+  void set_sdl_attributes();
+  void sdl_init_verbose();
 
   void screenshot();
 };

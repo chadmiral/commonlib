@@ -81,6 +81,7 @@ SDLGame::SDLGame(const int w, const int h,
 
   sim_lock_dt = 1.0f / 30.0f;
   vsync_enabled = true;
+  diy_window_swap = false;
 }
 
 SDLGame::~SDLGame()
@@ -254,9 +255,12 @@ void SDLGame::run()
       screenshot();
     }
 
-    glFlush();
-    glFinish(); //needed? (wait for all GL commands to finish) interacts w/ vsync
-    SDL_GL_SwapWindow(win);
+    if (!diy_window_swap)
+    {
+      glFlush();
+      glFinish(); //needed? (wait for all GL commands to finish) interacts w/ vsync
+      SDL_GL_SwapWindow(win);
+    }
   }
 }
 
@@ -542,58 +546,79 @@ void SDLGame::screenshot()
   SDL_FreeSurface(image);
 }
 
-void SDLGame::init_sdl()
+void SDLGame::set_sdl_attributes()
 {
-	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) < 0)
+  //TODO: should probably query to hardware first to determine support
+  //or - maybe just offer an option of core vs. compatibility contexts
+  if (gl_version[0] > 0 && gl_version[1] > 0)
   {
-    printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, gl_version[0]);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, gl_version[1]);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
   }
   else
   {
-    //TODO: should probably query to hardware first to determine support
-    //or - maybe just offer an option of core vs. compatibility contexts
-    if(gl_version[0] > 0 && gl_version[1] > 0)
-    {
-      SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, gl_version[0]);
-      SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, gl_version[1]);
-    }
-    else
-    {
-      // seems like it always wants 4.1 (or probably the largest supported version
-      // when I call this function)
-      // NOTE: no immediate mode functionality will work with PROFILE_CORE
-      //SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-      SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, gl_context_profile);
-    }
-
-    //from OpenVR setup (flag for vr?)
-    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
-    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
-    //if (m_bDebugOpenGL)
-      SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
-
-    game_controller_context.init();
-
-    //Create window
-    win = SDL_CreateWindow(window_title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, resolution[0], resolution[1], SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
-    assert(win);
-
-    gl_context = SDL_GL_CreateContext(win);
-    assert(gl_context);
-
-    int res = SDL_GL_SetSwapInterval(vsync_enabled ? 1 : 0);
-    assert(res == 0);
-
-    glewInit();
-
-    game_context.console.console_log<<"Initializing OpenGL..."<<endl;
-    game_context.console.console_log<<"version "<<glGetString(GL_VERSION)<<endl;//major_version<<"."<<minor_version<<endl;
-    //console.log<<"extensions: "<<endl<<glGetString(GL_EXTENSIONS)<<endl;
-
-    int max_vertex_attribs;
-    glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &max_vertex_attribs);
-    game_context.console.console_log<<"Max Vertex Attribs: "<<max_vertex_attribs<<endl;
+    // seems like it always wants 4.1 (or probably the largest supported version
+    // when I call this function)
+    // NOTE: no immediate mode functionality will work with PROFILE_CORE
+    //SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, gl_context_profile);
   }
+
+  //from OpenVR setup (flag for vr?)
+  SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
+  SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
+  //if (m_bDebugOpenGL)
+  //  SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
+}
+
+void SDLGame::sdl_init_verbose()
+{
+  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER | SDL_INIT_TIMER) < 0)
+  {
+    printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
+    return;
+  }
+}
+
+void SDLGame::init_sdl_gl_context()
+{
+  //Create window
+  win = SDL_CreateWindow(window_title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, resolution[0], resolution[1], SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+  game_context.sdl_window = win;
+  assert(win);
+
+  gl_context = SDL_GL_CreateContext(win);
+  game_context.sdl_gl_context = &gl_context;
+  assert(gl_context);
+
+  glewExperimental = GL_TRUE; //openVR does this?
+  glewInit();
+
+  int res = SDL_GL_SetSwapInterval(vsync_enabled ? 1 : 0);
+  assert(res == 0);
+
+  game_context.console.console_log << "Initializing OpenGL..." << endl;
+  game_context.console.console_log << "version " << glGetString(GL_VERSION) << endl;//major_version<<"."<<minor_version<<endl;
+                                                                                    //console.log<<"extensions: "<<endl<<glGetString(GL_EXTENSIONS)<<endl;
+
+  int max_vertex_attribs;
+  glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &max_vertex_attribs);
+  game_context.console.console_log << "Max Vertex Attribs: " << max_vertex_attribs << endl;
+}
+
+//to allow easy overriding
+void SDLGame::init_sdl_default()
+{
+  sdl_init_verbose();
+  set_sdl_attributes();
+  init_sdl_gl_context();
+  game_controller_context.init();
+}
+
+void SDLGame::init_sdl()
+{
+  init_sdl_default();
 }
 
 void SDLGame::quit_app()
