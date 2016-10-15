@@ -35,7 +35,18 @@ namespace VR
   private:
     GameContext *game_context;
     vr::IVRSystem *hmd;
+
     vr::TrackedDevicePose_t device_poses[vr::k_unMaxTrackedDeviceCount];
+    char device_classes[vr::k_unMaxTrackedDeviceCount];
+    uint32_t num_poses;
+    std::string posed_classes; // what classes we saw poses for this frame
+
+    //transforms of various things
+    Math::Matrix4x4 device_pose_matrices[vr::k_unMaxTrackedDeviceCount];
+    Math::Matrix4x4 hmd_mat;
+    Math::Matrix4x4 eye_mat[2];
+    Math::Matrix4x4 eye_proj_mat[2];
+    Math::Matrix4x4 center_proj_mat;
 
     float near_clip;
     float far_clip;

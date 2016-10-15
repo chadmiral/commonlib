@@ -245,7 +245,7 @@ void VRContext::get_eye_camera(const unsigned int eye, Camera *cam) const
   //set the camera world view matrix
   cam->set_pos(Float3(pos_mat.m[0][3], pos_mat.m[1][3], pos_mat.m[2][3]));
   cam->set_up(Float3(pos_mat.m[2][1], pos_mat.m[2][2], pos_mat.m[2][3]));
-  cam->set_up(Float3(pos_mat.m[0][1], pos_mat.m[0][2], pos_mat.m[0][3]));
+  cam->set_lookat(Float3(pos_mat.m[0][1], pos_mat.m[0][2], pos_mat.m[0][3]));
 
   //set the projection matrix
   GLfloat proj_mat_gl[] = { proj_mat.m[0][0], proj_mat.m[1][0], proj_mat.m[2][0], proj_mat.m[3][0],
@@ -284,12 +284,12 @@ void VRContext::get_eye_camera(const unsigned int eye, Camera *cam) const
 
 void VRContext::render_capture(const unsigned int eye)
 {
-  glClearColor(1.0f, 0.15f, 0.18f, 1.0f); // nice background color, but not black
+#if defined (_USE_OPENVR_SDK)
   glEnable(GL_MULTISAMPLE);
-
-  // Left Eye
-  glBindFramebuffer(GL_FRAMEBUFFER, eye_fbo[eye]);//leftEyeDesc.m_nRenderFramebufferId);
+  glBindFramebuffer(GL_FRAMEBUFFER, eye_fbo[eye]);
   glViewport(0, 0, render_target_dim[0], render_target_dim[1]);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+#endif //_USE_OPENVR_SDK
 
 #if defined (_USE_OCULUS_SDK)
   //set and clear render texture
@@ -317,12 +317,13 @@ void VRContext::render_capture(const unsigned int eye)
 
 void VRContext::render_release(const unsigned int eye)
 {
+#if defined (_USE_OPENVR_SDK)
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
   glDisable(GL_MULTISAMPLE);
 
   glBindFramebuffer(GL_READ_FRAMEBUFFER, eye_fbo[eye]);
-  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, eye_resolve_fbo[eye]);// leftEyeDesc.m_nResolveFramebufferId);
+  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, eye_resolve_fbo[eye]);
 
   glBlitFramebuffer(0, 0, render_target_dim[0], render_target_dim[1], 0, 0, render_target_dim[0], render_target_dim[1],
     GL_COLOR_BUFFER_BIT,
@@ -332,6 +333,8 @@ void VRContext::render_release(const unsigned int eye)
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
   glEnable(GL_MULTISAMPLE);
+#endif //_USE_OPENVR_SDK
+
 #if defined (_USE_OCULUS_SDK)
   //unset render surface
   glBindFramebuffer(GL_FRAMEBUFFER, eye_fbo[eye]);
@@ -351,48 +354,32 @@ void VRContext::render_stereo_targets()
   glClearColor(1.0f, 0.15f, 0.18f, 1.0f); // nice background color, but not black
   glEnable(GL_MULTISAMPLE);
 
-  // Left Eye
-  glBindFramebuffer(GL_FRAMEBUFFER, eye_fbo[VR_LEFT_EYE]);
-  glViewport(0, 0, render_target_dim[0], render_target_dim[1]);
+  for (uint32_t eye = 0; eye < 2; eye++)
+  {
+    glBindFramebuffer(GL_FRAMEBUFFER, eye_fbo[eye]);
+    glViewport(0, 0, render_target_dim[0], render_target_dim[1]);
 
-  //TODO
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  //RenderScene(vr::Eye_Left);
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    //TODO
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //RenderScene(vr::Eye_Left);
 
-  glDisable(GL_MULTISAMPLE);
 
-  glBindFramebuffer(GL_READ_FRAMEBUFFER, eye_fbo[VR_LEFT_EYE]);//leftEyeDesc.m_nRenderFramebufferId);
-  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, eye_resolve_fbo[VR_LEFT_EYE]);//leftEyeDesc.m_nResolveFramebufferId);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-  glBlitFramebuffer(0, 0, render_target_dim[0], render_target_dim[1], 0, 0, render_target_dim[0], render_target_dim[1],
-    GL_COLOR_BUFFER_BIT,
-    GL_LINEAR);
+    glDisable(GL_MULTISAMPLE);
 
-  glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, eye_fbo[eye]);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, eye_resolve_fbo[eye]);
 
-  glEnable(GL_MULTISAMPLE);
+    glBlitFramebuffer(0, 0, render_target_dim[0], render_target_dim[1], 0, 0, render_target_dim[0], render_target_dim[1],
+      GL_COLOR_BUFFER_BIT,
+      GL_LINEAR);
 
-  // Right Eye
-  glBindFramebuffer(GL_FRAMEBUFFER, eye_fbo[VR_RIGHT_EYE]);//rightEyeDesc.m_nRenderFramebufferId);
-  glViewport(0, 0, render_target_dim[0], render_target_dim[1]);
-  //TODO
-  //RenderScene(vr::Eye_Right);
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
-  glDisable(GL_MULTISAMPLE);
-
-  glBindFramebuffer(GL_READ_FRAMEBUFFER, eye_fbo[VR_RIGHT_EYE]);//rightEyeDesc.m_nRenderFramebufferId);
-  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, eye_resolve_fbo[VR_RIGHT_EYE]);//rightEyeDesc.m_nResolveFramebufferId);
-
-  glBlitFramebuffer(0, 0, render_target_dim[0], render_target_dim[1], 0, 0, render_target_dim[0], render_target_dim[1],
-    GL_COLOR_BUFFER_BIT,
-    GL_LINEAR);
-
-  glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    glEnable(GL_MULTISAMPLE);
+  }
 }
 
 void VRContext::setup_cameras()
@@ -633,7 +620,7 @@ void VRContext::finalize_render()
   if (hmd)
   {
     //DrawControllers();
-    render_stereo_targets();
+    //render_stereo_targets();
     render_distortion();
 
     vr::Texture_t left_eye_tex = { (void*)eye_resolve_tex[VR_LEFT_EYE], vr::API_OpenGL, vr::ColorSpace_Gamma };
@@ -718,41 +705,52 @@ void VRContext::finalize_render()
 #endif //_USE_OCULUS_SDK
 }
 
+Matrix4x4 ConvertSteamVRMatrixToMatrix4(const vr::HmdMatrix34_t &matPose)
+{
+  Matrix4x4 matrixObj(
+    matPose.m[0][0], matPose.m[1][0], matPose.m[2][0], 0.0,
+    matPose.m[0][1], matPose.m[1][1], matPose.m[2][1], 0.0,
+    matPose.m[0][2], matPose.m[1][2], matPose.m[2][2], 0.0,
+    matPose.m[0][3], matPose.m[1][3], matPose.m[2][3], 1.0f
+  );
+  return matrixObj;
+}
+
 void VRContext::update_hmd_matrix_pose()
 {
   assert(hmd);
-  
+ 
   vr::VRCompositor()->WaitGetPoses(device_poses, vr::k_unMaxTrackedDeviceCount, NULL, 0);
-
-  /*
-  m_iValidPoseCount = 0;
-  m_strPoseClasses = "";
-  for (int nDevice = 0; nDevice < vr::k_unMaxTrackedDeviceCount; ++nDevice)
+  
+  num_poses = 0;
+  posed_classes = "";  
+  for (uint32_t dev_id = 0; dev_id < vr::k_unMaxTrackedDeviceCount; ++dev_id)
   {
-    if (m_rTrackedDevicePose[nDevice].bPoseIsValid)
+    if (device_poses[dev_id].bPoseIsValid)
     {
-      m_iValidPoseCount++;
-      m_rmat4DevicePose[nDevice] = ConvertSteamVRMatrixToMatrix4(m_rTrackedDevicePose[nDevice].mDeviceToAbsoluteTracking);
-      if (m_rDevClassChar[nDevice] == 0)
+      num_poses++;
+      device_pose_matrices[dev_id] = ConvertSteamVRMatrixToMatrix4(device_poses[dev_id].mDeviceToAbsoluteTracking);
+      if (device_classes[dev_id] == 0)
       {
-        switch (m_pHMD->GetTrackedDeviceClass(nDevice))
+        switch (hmd->GetTrackedDeviceClass(dev_id))
         {
-        case vr::TrackedDeviceClass_Controller:        m_rDevClassChar[nDevice] = 'C'; break;
-        case vr::TrackedDeviceClass_HMD:               m_rDevClassChar[nDevice] = 'H'; break;
-        case vr::TrackedDeviceClass_Invalid:           m_rDevClassChar[nDevice] = 'I'; break;
-        case vr::TrackedDeviceClass_Other:             m_rDevClassChar[nDevice] = 'O'; break;
-        case vr::TrackedDeviceClass_TrackingReference: m_rDevClassChar[nDevice] = 'T'; break;
-        default:                                       m_rDevClassChar[nDevice] = '?'; break;
+        case vr::TrackedDeviceClass_Controller:        device_classes[dev_id] = 'C'; break;
+        case vr::TrackedDeviceClass_HMD:               device_classes[dev_id] = 'H'; break;
+        case vr::TrackedDeviceClass_Invalid:           device_classes[dev_id] = 'I'; break;
+        case vr::TrackedDeviceClass_Other:             device_classes[dev_id] = 'O'; break;
+        case vr::TrackedDeviceClass_TrackingReference: device_classes[dev_id] = 'T'; break;
+        default:                                       device_classes[dev_id] = '?'; break;
         }
       }
-      m_strPoseClasses += m_rDevClassChar[nDevice];
+      posed_classes += device_classes[dev_id];
     }
   }
 
-  if (m_rTrackedDevicePose[vr::k_unTrackedDeviceIndex_Hmd].bPoseIsValid)
+  if (device_poses[vr::k_unTrackedDeviceIndex_Hmd].bPoseIsValid)
   {
-    m_mat4HMDPose = m_rmat4DevicePose[vr::k_unTrackedDeviceIndex_Hmd].invert();
-  }*/
+    hmd_mat = device_pose_matrices[vr::k_unTrackedDeviceIndex_Hmd];
+    hmd_mat.invert();
+  }
 }
 
 void VRContext::create_eye_texture(const int eye_idx)

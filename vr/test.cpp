@@ -99,6 +99,7 @@ private:
     glRotatef(rot_angle, 0.0f, 1.0f, 0.0f);
     glRotatef(rot_angle * 0.37f, 0.0f, 0.0f, 1.0f);
 
+    glUseProgram(0);
     static_mesh.render();
 
     glDisable(GL_LIGHTING);
@@ -107,8 +108,8 @@ private:
 
   void render_gl()
   {
-    vr_context.finalize_render();
-    return;
+    //vr_context.finalize_render();
+    //return;
     double game_time = get_game_time();
     //render once for each eye
     vr_context.retrieve_eye_poses();
@@ -123,7 +124,7 @@ private:
       vr_context.get_eye_camera(eye, &cam[eye]);
       cam[eye].render_setup();
 
-      glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+      glClearColor(r, g, b, 1.0f);
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
       render_static_mesh();

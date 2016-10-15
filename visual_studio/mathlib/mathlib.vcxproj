@@ -136,6 +136,7 @@
     <ClInclude Include="..\..\mathlib\include\triangulation.h" />
     <ClInclude Include="..\..\mathlib\include\triangulation_3d.h" />
     <ClInclude Include="..\..\mathlib\include\triangulation_sphere.h" />
+    <ClInclude Include="..\..\mathlib\include\vector.h" />
     <ClInclude Include="..\..\mathlib\include\voronoi.h" />
     <ClInclude Include="..\..\mathlib\include\voronoi_sphere.h" />
   </ItemGroup>
@@ -154,6 +155,7 @@
     <ClCompile Include="..\..\mathlib\src\triangulation.cpp" />
     <ClCompile Include="..\..\mathlib\src\triangulation_3d.cpp" />
     <ClCompile Include="..\..\mathlib\src\triangulation_sphere.cpp" />
+    <ClCompile Include="..\..\mathlib\src\vector.cpp" />
     <ClCompile Include="..\..\mathlib\src\voronoi.cpp" />
     <ClCompile Include="..\..\mathlib\src\voronoi_sphere.cpp" />
   </ItemGroup>

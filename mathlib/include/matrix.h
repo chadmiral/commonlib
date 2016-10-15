@@ -1,8 +1,8 @@
 #ifndef __MATRIX_H__
 #define __MATRIX_H__
 
-#include "math_utility.h"
 #include "quaternion.h"
+#include "vector.h"
 
 //
 // TODO: use template<int N> to templatize the dimensions of the matrix
@@ -29,8 +29,6 @@ namespace Math {
       float m[2][2];
   };
 
-  std::ostream& operator<<(std::ostream &os, const Matrix2x2 &m);
-
   class Matrix3x3
   {
     public:
@@ -39,6 +37,8 @@ namespace Math {
                 const float _10, const float _11, const float _12,
                 const float _20, const float _21, const float _22);
       Matrix3x3(const Float3 &a, const Float3 &b, const Float3 &c);
+
+      float determinant() const;
 
       ~Matrix3x3() {};
 
@@ -57,7 +57,33 @@ namespace Math {
       float m[3][3];
   };
 
-  std::ostream& operator<<(std::ostream &os, const Matrix3x3 &m);
+  class Matrix4x4
+  {
+  public:
+    Matrix4x4();
+    Matrix4x4(const float _00, const float _01, const float _02, const float _03,
+              const float _10, const float _11, const float _12, const float _13,
+              const float _20, const float _21, const float _22, const float _23,
+              const float _30, const float _31, const float _32, const float _33);
+    //Matrix4x4(const Float4 &a, const Float4 &b, const Float4 &c, const Float4 &d);
+
+    ~Matrix4x4() {};
+
+    Matrix4x4 &operator=(const Matrix4x4 &r);
+
+    //Float4 operator*(const Float3 &r) const;
+
+    inline float &operator()(const int &row, const int &col) { return m[row][col]; }
+    inline float operator()(const int &row, const int &col) const { return m[row][col]; }
+
+    void identity();
+    void invert();
+    void transpose();
+    void rotation_from_quaternion(const Quaternion &q);
+  private:
+    float m[4][4];
+  };
+
 
   inline void orient_to_sphere_surface(Float3 &pos, Matrix3x3 &orientation)
   {
@@ -81,6 +107,11 @@ namespace Math {
     q.rotation_from_axis_angle(axis, angle);
     orientation.rotation_from_quaternion(q);
   }
+
+  std::ostream& operator<<(std::ostream &os, const Matrix2x2 &m);
+  std::ostream& operator<<(std::ostream &os, const Matrix3x3 &m);
+  std::ostream& operator<<(std::ostream &os, const Matrix4x4 &m);
 }
+
 
 #endif //__MATRIX_H__
