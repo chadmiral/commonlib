@@ -71,7 +71,8 @@ namespace Math {
 
     Matrix4x4 &operator=(const Matrix4x4 &r);
 
-    //Float4 operator*(const Float3 &r) const;
+    //Float4 operator*(const Float4 &r) const;
+    Matrix4x4 operator*(const Matrix4x4 &a) const;
 
     inline float &operator()(const int &row, const int &col) { return m[row][col]; }
     inline float operator()(const int &row, const int &col) const { return m[row][col]; }

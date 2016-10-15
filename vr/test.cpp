@@ -11,6 +11,8 @@
 #include "perlin.h"
 #include "camera.h"
 #include "static_mesh.h"
+#include "material.h"
+#include "shader.h"
 
 using namespace std;
 using namespace VR;
@@ -25,6 +27,8 @@ private:
 
   Camera cam[2];
   StaticMesh static_mesh;
+  Material mat;
+  Shader shader;
   float rot_angle;
 
   void init_sdl()
@@ -52,6 +56,12 @@ private:
     }
 
     static_mesh_init();
+
+    //shader.set_shader_filenames("../../mundus/data/shaders/clay.vs", "../../mundus/data/shaders/clay.fs");
+    //shader.load_link_and_compile();
+
+    //mat.set_shader(&shader);
+    //mat.init();
     rot_angle = 0.0f;
   }
 
@@ -82,7 +92,6 @@ private:
     glDisable(GL_TEXTURE_2D);
     glDisable(GL_TEXTURE_3D);
 
-
     glEnable(GL_CULL_FACE);
     glFrontFace(GL_CCW);
 
@@ -99,8 +108,10 @@ private:
     glRotatef(rot_angle, 0.0f, 1.0f, 0.0f);
     glRotatef(rot_angle * 0.37f, 0.0f, 0.0f, 1.0f);
 
-    glUseProgram(0);
+    //mat.render();
     static_mesh.render();
+    //mat.cleanup();
+    
 
     glDisable(GL_LIGHTING);
     glDisable(GL_LIGHT0);
@@ -124,8 +135,15 @@ private:
       vr_context.get_eye_camera(eye, &cam[eye]);
       cam[eye].render_setup();
 
-      glClearColor(r, g, b, 1.0f);
+      glClearColor(0.25f, 0.3f, 0.4f, 100.0f);
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+      glBegin(GL_TRIANGLES);
+      glColor3f(1.0f, 0.0f, 0.0f);
+      glVertex3f(0.0f, 0.0f, 0.0f);
+      glVertex3f(1.0f, 0.0f, 0.0f);
+      glVertex3f(1.0f, 1.0f, 0.0f);
+      glEnd();
 
       render_static_mesh();
 

@@ -2,21 +2,6 @@
 #include <assert.h>
 #include <time.h>
 
-#if defined(_WIN32)
-#include <Windows.h>
-#include <GL/glew.h>
-#endif //_WIN32
-
-#if defined(__APPLE__)
-#include <OpenGL/gl.h>
-#endif
-
-#if defined(_WIN32)
-#include <SDL.h>
-#else
-#include <SDL2/SDL.h>
-#endif
-
 #include "math_utility.h"
 #include "matrix.h"
 #include "perlin.h"
@@ -419,8 +404,17 @@ int main(int argc, char **argv)
   float x = remap_range(0.3f, 0.0f, 1.0f, -10.0f, 10.0f);
   cout<<"remap: "<<x<<endl;
 
-  app.init();
-  app.run();
+  //app.init();
+  //app.run();
+
+  Matrix4x4 mat(3.0f, 7.0f, 2.0f, 5.0f,
+                1.0f, 8.0f, 4.0f, 2.0f,
+                2.0f, 1.0f, 9.0f, 3.0f,
+                5.0f, 4.0f, 7.0f, 1.0f);
+  Matrix4x4 inv = mat;
+  inv.invert();
+
+  Matrix4x4 ident = mat * inv;
 
   return 0;
 }

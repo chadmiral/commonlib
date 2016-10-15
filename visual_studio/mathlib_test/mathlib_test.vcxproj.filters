@@ -13,10 +13,43 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\mxml">
+      <UniqueIdentifier>{7fb7da44-f5db-4edd-a60f-59a9d0c6e2f8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\mathlib\test.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\tools\src\mxml-2.9\mxml-attr.c">
+      <Filter>Source Files\mxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\tools\src\mxml-2.9\mxml-entity.c">
+      <Filter>Source Files\mxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\tools\src\mxml-2.9\mxml-file.c">
+      <Filter>Source Files\mxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\tools\src\mxml-2.9\mxml-get.c">
+      <Filter>Source Files\mxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\tools\src\mxml-2.9\mxml-index.c">
+      <Filter>Source Files\mxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\tools\src\mxml-2.9\mxml-node.c">
+      <Filter>Source Files\mxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\tools\src\mxml-2.9\mxml-private.c">
+      <Filter>Source Files\mxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\tools\src\mxml-2.9\mxml-search.c">
+      <Filter>Source Files\mxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\tools\src\mxml-2.9\mxml-set.c">
+      <Filter>Source Files\mxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\tools\src\mxml-2.9\mxml-string.c">
+      <Filter>Source Files\mxml</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

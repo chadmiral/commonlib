@@ -227,15 +227,31 @@ Matrix4x4 &Matrix4x4::operator=(const Matrix4x4 &r)
 }
 
 /*
-Float3 Matrix3x3::operator*(const Float3 &r) const
+Float4 Matrix4x4::operator*(const Float4 &r) const
 {
-  Float3 ret;
-  ret[0] = m[0][0] * r[0] + m[0][1] * r[1] + m[0][2] * r[2];
-  ret[1] = m[1][0] * r[0] + m[1][1] * r[1] + m[1][2] * r[2];
-  ret[2] = m[2][0] * r[0] + m[2][1] * r[1] + m[2][2] * r[2];
+  Float4 ret;
+  ret[0] = m[0][0] * r[0] + m[0][1] * r[1] + m[0][2] * r[2] + m[0][3] * r[3];
+  ret[1] = m[1][0] * r[0] + m[1][1] * r[1] + m[1][2] * r[2] + m[1][3] * r[3];
+  ret[2] = m[2][0] * r[0] + m[2][1] * r[1] + m[2][2] * r[2] + m[2][3] * r[3];
+  ret[3] = m[3][0] * r[0] + m[3][1] * r[1] + m[3][2] * r[2] + m[3][3] * r[3];
   return ret;
 }
 */
+
+Matrix4x4 Matrix4x4::operator*(const Matrix4x4 &a) const
+{
+  //order of operations: a * this
+  Matrix4x4 ret;
+  for (uint32_t i = 0; i < 4; i++)
+  {
+    for (uint32_t j = 0; j < 4; j++)
+    {
+      ret.m[j][i] = a.m[j][0] * m[0][i] + a.m[j][1] * m[1][i] + a.m[j][2] * m[2][i] + a.m[j][3] * m[3][i];
+    }
+  }
+
+  return ret;
+}
 
 void Matrix4x4::identity()
 {
