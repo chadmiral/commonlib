@@ -132,21 +132,11 @@ private:
     for (int eye = 0; eye < 2; eye++)
     {
       vr_context.render_capture(eye);
-
-      glEnable(GL_DEPTH_TEST);
-      
       vr_context.get_eye_camera(eye, &cam[eye]);
       
-      Camera cam_fixed;
-      float zoom = 0.0f;
-      cam_fixed.set_fov(65.0f);
-      cam_fixed.set_pos(Float3(0.0f, 0.0f, -1.0f + zoom));
-      cam_fixed.set_lookat(Float3(0.0f, 0.0f, 1.0f));
-      cam_fixed.set_up(Float3(0.0f, 1.0f, 0.0f));
-
-      //cam_fixed.render_setup();
-      
       cam[eye].render_setup();
+
+      glEnable(GL_DEPTH_TEST);
 
       glClearColor(0.25f, 0.3f, 0.4f, 100.0f);
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -154,13 +144,11 @@ private:
       render_static_mesh();
 
       cam[eye].render_cleanup();
-      //cam_fixed.render_cleanup();
-
       vr_context.render_release(eye);
     }
     vr_context.finalize_render();
     
-    glFlush();
+    //glFlush();
     //SDL_GL_SwapWindow(win);
   }
 

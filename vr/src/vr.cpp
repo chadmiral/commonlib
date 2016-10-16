@@ -232,12 +232,24 @@ void VRContext::get_eye_camera(const uint32_t eye, Camera *cam) const
   assert(hmd);
 
   vr::HmdMatrix44_t proj_mat = hmd->GetProjectionMatrix((vr::EVREye)eye, near_clip, far_clip, vr::API_OpenGL);
-  vr::HmdMatrix34_t pos_mat = hmd->GetEyeToHeadTransform((vr::EVREye)eye);
+  vr::HmdMatrix34_t ovr_eye_mat = hmd->GetEyeToHeadTransform((vr::EVREye)eye);
+
+  Matrix4x4 eye_mat(
+    ovr_eye_mat.m[0][0], ovr_eye_mat.m[0][1], ovr_eye_mat.m[0][2], ovr_eye_mat.m[0][3],
+    ovr_eye_mat.m[1][0], ovr_eye_mat.m[1][1], ovr_eye_mat.m[1][2], ovr_eye_mat.m[1][3],
+    ovr_eye_mat.m[2][0], ovr_eye_mat.m[2][1], ovr_eye_mat.m[2][2], ovr_eye_mat.m[2][3],
+    0.0f, 0.0f, 0.0f, 1.0f
+  );
+
+  //eye_mat.transpose();
+
+  eye_mat.invert();
+  eye_mat = hmd_mat * eye_mat;
 
   //set the camera world view matrix
-  cam->set_pos(Float3(pos_mat.m[0][3], pos_mat.m[1][3], pos_mat.m[2][3]));
-  cam->set_up(Float3(pos_mat.m[2][1], pos_mat.m[2][2], pos_mat.m[2][3]));
-  cam->set_lookat(Float3(pos_mat.m[0][1], pos_mat.m[0][2], pos_mat.m[0][3]));
+  cam->set_pos(Float3(eye_mat(3, 0), eye_mat(3, 1), eye_mat(3, 2)));
+  cam->set_up(Float3(eye_mat(1, 2), eye_mat(2, 2), eye_mat(3, 2)));
+  cam->set_lookat(Float3(eye_mat(1, 0), eye_mat(2, 0), eye_mat(3, 0)));
 
   //set the projection matrix
   GLfloat proj_mat_gl[] = { proj_mat.m[0][0], proj_mat.m[1][0], proj_mat.m[2][0], proj_mat.m[3][0],
@@ -707,6 +719,7 @@ Matrix4x4 ConvertSteamVRMatrixToMatrix4(const vr::HmdMatrix34_t &matPose)
     matPose.m[0][2], matPose.m[1][2], matPose.m[2][2], 0.0,
     matPose.m[0][3], matPose.m[1][3], matPose.m[2][3], 1.0f
   );
+  //matrixObj.transpose();
   return matrixObj;
 }
 
