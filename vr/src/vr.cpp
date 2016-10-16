@@ -136,14 +136,6 @@ void VRContext::init_render_models()
 
 void VRContext::init_gl()
 {
-  //CreateAllShaders();
-  //SetupTexturemaps();
-  //SetupScene();
-  //SetupCameras();
-  //SetupStereoRenderTargets();
-  //SetupDistortion();
-  //SetupRenderModels();
-
   setup_distortion_shader();
   setup_cameras();
   setup_stereo_render_targets();
@@ -235,7 +227,7 @@ void VRContext::retrieve_eye_poses()
 #endif //_USE_OCULUS_SDK
 }
 
-void VRContext::get_eye_camera(const unsigned int eye, Camera *cam) const
+void VRContext::get_eye_camera(const uint32_t eye, Camera *cam) const
 {
   assert(hmd);
 
@@ -254,6 +246,7 @@ void VRContext::get_eye_camera(const unsigned int eye, Camera *cam) const
                             proj_mat.m[0][3], proj_mat.m[1][3], proj_mat.m[2][3], proj_mat.m[3][3] };
   
   cam->set_projection_matrix(proj_mat_gl);
+  cam->set_fov(110.0f);
 
 #if defined (_USE_OCULUS_SDK)
   // Get view and projection matrices
@@ -288,7 +281,7 @@ void VRContext::render_capture(const unsigned int eye)
   glEnable(GL_MULTISAMPLE);
   glBindFramebuffer(GL_FRAMEBUFFER, eye_fbo[eye]);
   glViewport(0, 0, render_target_dim[0], render_target_dim[1]);
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 #endif //_USE_OPENVR_SDK
 
 #if defined (_USE_OCULUS_SDK)
@@ -333,6 +326,7 @@ void VRContext::render_release(const unsigned int eye)
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
   glEnable(GL_MULTISAMPLE);
+  glUseProgram(0);
 #endif //_USE_OPENVR_SDK
 
 #if defined (_USE_OCULUS_SDK)

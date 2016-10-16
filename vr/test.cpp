@@ -102,16 +102,16 @@ private:
     glLightfv(GL_LIGHT0, GL_AMBIENT, amb);
     glLightfv(GL_LIGHT0, GL_POSITION, light_pos);
 
+    //glMatrixMode(GL_MODELVIEW);
+    //glLoadIdentity();
+
     glEnable(GL_DEPTH_TEST);
     glDepthMask(GL_TRUE);
 
     glRotatef(rot_angle, 0.0f, 1.0f, 0.0f);
     glRotatef(rot_angle * 0.37f, 0.0f, 0.0f, 1.0f);
 
-    //mat.render();
     static_mesh.render();
-    //mat.cleanup();
-    
 
     glDisable(GL_LIGHTING);
     glDisable(GL_LIGHT0);
@@ -132,26 +132,36 @@ private:
     for (int eye = 0; eye < 2; eye++)
     {
       vr_context.render_capture(eye);
+
+      glEnable(GL_DEPTH_TEST);
+      
       vr_context.get_eye_camera(eye, &cam[eye]);
+      
+      Camera cam_fixed;
+      float zoom = 0.0f;
+      cam_fixed.set_fov(65.0f);
+      cam_fixed.set_pos(Float3(0.0f, 0.0f, -1.0f + zoom));
+      cam_fixed.set_lookat(Float3(0.0f, 0.0f, 1.0f));
+      cam_fixed.set_up(Float3(0.0f, 1.0f, 0.0f));
+
+      //cam_fixed.render_setup();
+      
       cam[eye].render_setup();
 
       glClearColor(0.25f, 0.3f, 0.4f, 100.0f);
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-      glBegin(GL_TRIANGLES);
-      glColor3f(1.0f, 0.0f, 0.0f);
-      glVertex3f(0.0f, 0.0f, 0.0f);
-      glVertex3f(1.0f, 0.0f, 0.0f);
-      glVertex3f(1.0f, 1.0f, 0.0f);
-      glEnd();
-
       render_static_mesh();
 
       cam[eye].render_cleanup();
+      //cam_fixed.render_cleanup();
 
       vr_context.render_release(eye);
     }
     vr_context.finalize_render();
+    
+    glFlush();
+    //SDL_GL_SwapWindow(win);
   }
 
   void game_loop(const double game_time, const double frame_time)
@@ -165,8 +175,9 @@ private:
 public:
   VRGame() : SDLGame(640, 480,
                      "VR Test",
-                     SDL_GAME_GENERATE_PAUSE_MENU | SDL_GAME_LOCK_SIM_DT,
-                     SDL_GL_CONTEXT_PROFILE_CORE, 4, 1), vr_context(&game_context)
+                     SDL_GAME_GENERATE_PAUSE_MENU | SDL_GAME_LOCK_SIM_DT),
+                     //SDL_GL_CONTEXT_PROFILE_CORE, 4, 1), 
+    vr_context(&game_context)
   {
     diy_window_swap = true;
   }

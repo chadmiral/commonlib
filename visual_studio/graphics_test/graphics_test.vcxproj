@@ -88,8 +88,8 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\..\freetype-2.3.5-1-lib\include;..\..\..\freetype-2.3.5-1-lib\include\freetype2;..\..\..\freetype-2.3.5-1-lib\include\freetype2\freetype;..\..\..\SDL2_image-2.0.1\include;..\..\..\glew-1.13.0\include;..\..\..\SDL2-2.0.4\include;..\..\game\include;..\..\ui\include;..\..\mathlib\include;..\..\graphics\include;..\..\graphics\include\vfx;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\game\include\switchboard;..\..\..\glew-1.13.0\include;..\..\game\include;..\..\graphics\include;..\..\graphics\include\vfx;..\..\..\SDL2-2.0.4\include;%(AdditionalIncludeDirectories);..\..\..\SDL2-2.0.4\include;..\..\mathlib\include;..\..\..\freetype-2.3.5-1-lib\include\freetype2\freetype;..\..\..\freetype-2.3.5-1-lib\include\;..\..\..\freetype-2.3.5-1-lib\include\freetype2\;..\..\..\freetype-2.3.5-1-lib\include\freetype2\freetype;..\..\ui\include;..\..\tools\src\mxml-2.9\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -119,7 +119,8 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\game\include\switchboard;..\..\..\glew-1.13.0\include;..\..\game\include;..\..\graphics\include;..\..\graphics\include\vfx;%(AdditionalIncludeDirectories);..\..\..\SDL2-2.0.4\include;..\..\mathlib\include;..\..\..\freetype-2.3.5-1-lib\include\freetype2\freetype;..\..\..\freetype-2.3.5-1-lib\include\;..\..\..\freetype-2.3.5-1-lib\include\freetype2\;..\..\..\freetype-2.3.5-1-lib\include\freetype2\freetype;..\..\ui\include;..\..\tools\src\mxml-2.9\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -147,6 +148,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\graphics\test.cpp" />
+    <ClCompile Include="..\..\tools\src\mxml-2.9\mxml-attr.c" />
+    <ClCompile Include="..\..\tools\src\mxml-2.9\mxml-entity.c" />
+    <ClCompile Include="..\..\tools\src\mxml-2.9\mxml-file.c" />
+    <ClCompile Include="..\..\tools\src\mxml-2.9\mxml-get.c" />
+    <ClCompile Include="..\..\tools\src\mxml-2.9\mxml-index.c" />
+    <ClCompile Include="..\..\tools\src\mxml-2.9\mxml-node.c" />
+    <ClCompile Include="..\..\tools\src\mxml-2.9\mxml-private.c" />
+    <ClCompile Include="..\..\tools\src\mxml-2.9\mxml-search.c" />
+    <ClCompile Include="..\..\tools\src\mxml-2.9\mxml-set.c" />
+    <ClCompile Include="..\..\tools\src\mxml-2.9\mxml-string.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

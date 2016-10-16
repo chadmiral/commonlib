@@ -101,6 +101,22 @@ Float3 Matrix3x3::operator*(const Float3 &r) const
   return ret;
 }
 
+Matrix3x3 Matrix3x3::operator*(const Matrix3x3 &a) const
+{
+  //order of operations: a * this
+  //c_(np)	=	a_(n1)b_(1p)+a_(n2)b_(2p)+...+a_(nm)b_(mp).
+  Matrix3x3 ret;
+  for (uint32_t i = 0; i < 3; i++)
+  {
+    for (uint32_t j = 0; j < 3; j++)
+    {
+      ret.m[j][i] = a.m[j][0] * m[0][i] + a.m[j][1] * m[1][i] + a.m[j][2] * m[2][i];
+    }
+  }
+
+  return ret;
+}
+
 void Matrix3x3::identity()
 {
   m[0][0] = 1.0f;   m[0][1] = 0.0f;   m[0][2] = 0.0f;
@@ -241,6 +257,7 @@ Float4 Matrix4x4::operator*(const Float4 &r) const
 Matrix4x4 Matrix4x4::operator*(const Matrix4x4 &a) const
 {
   //order of operations: a * this
+  //c_(np)	=	a_(n1)b_(1p)+a_(n2)b_(2p)+...+a_(nm)b_(mp).
   Matrix4x4 ret;
   for (uint32_t i = 0; i < 4; i++)
   {
@@ -274,11 +291,17 @@ void Matrix4x4::invert()
            m[9] * m[7] * m[14] +
            m[13] * m[6] * m[11] -
            m[13] * m[7] * m[10];
+
+           0 (0,0) 4 (0,1) 8  (0,2) 12 (0,3)
+           1 (1,0) 5 (1,1) 9  (1,2) 13 (1,3)
+           2 (2,0) 6 (2,1) 10 (2,2) 14 (2,3)
+           3 (3,0) 7 (3,1) 11 (3,2) 15 (3,3)
     */
   ret.m[0][0] = m[1][1] * m[2][2] * m[3][3] -
                 m[1][1] * m[3][2] * m[2][3] -
                 m[1][2] * m[2][1] * m[3][3] +
                 m[1][2] * m[3][1] * m[2][3] +
+                m[1][3] * m[2][1] * m[3][2] -
                 m[1][3] * m[3][1] * m[2][2];
     /*
     inv[4] = -m[4] * m[10] * m[15] +
@@ -454,11 +477,17 @@ void Matrix4x4::invert()
 
   /*
     inv[3] = -m[1] * m[6] * m[11] +
-  m[1] * m[7] * m[10] +
-  m[5] * m[2] * m[11] -
-  m[5] * m[3] * m[10] -
-  m[9] * m[2] * m[7] +
-  m[9] * m[3] * m[6];*/
+              m[1] * m[7] * m[10] +
+              m[5] * m[2] * m[11] -
+              m[5] * m[3] * m[10] -
+              m[9] * m[2] * m[7] +
+              m[9] * m[3] * m[6];
+
+          0 (0,0) 4 (0,1) 8  (0,2) 12 (0,3)
+          1 (1,0) 5 (1,1) 9  (1,2) 13 (1,3)
+          2 (2,0) 6 (2,1) 10 (2,2) 14 (2,3)
+          3 (3,0) 7 (3,1) 11 (3,2) 15 (3,3)
+  */
 
   ret.m[3][0] = -m[1][0] * m[2][1] * m[3][2] +
                  m[1][0] * m[3][1] * m[2][2] +
