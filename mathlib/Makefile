@@ -17,7 +17,7 @@ SRCS=src/math_utility.cpp src/perlin.cpp src/matrix.cpp src/aabb.cpp
 SRCS+=src/triangulation.cpp src/triangulation_3d.cpp src/triangulation_sphere.cpp
 SRCS+=src/quaternion.cpp src/voronoi.cpp src/shapes.cpp
 SRCS+=src/function.cpp src/curve.cpp src/voronoi_sphere.cpp
-SRCS+=src/gpu_voronoi.cpp
+SRCS+=src/gpu_voronoi.cpp src/vector.cpp
 MXML_SRCS=../tools/src/mxml-2.9/mxml-attr.c ../tools/src/mxml-2.9/mxml-entity.c ../tools/src/mxml-2.9/mxml-file.c
 MXML_SRCS+=../tools/src/mxml-2.9/mxml-get.c ../tools/src/mxml-2.9/mxml-index.c ../tools/src/mxml-2.9/mxml-node.c
 MXML_SRCS+=../tools/src/mxml-2.9/mxml-private.c ../tools/src/mxml-2.9/mxml-search.c ../tools/src/mxml-2.9/mxml-set.c
@@ -79,6 +79,9 @@ $(BINPATH)voronoi.o: $(SRCPATH)voronoi.cpp
 $(BINPATH)voronoi_sphere.o: $(SRCPATH)voronoi_sphere.cpp
 	$(CC) $(CFLAGS) -c $(SRCPATH)voronoi_sphere.cpp -o $(BINPATH)voronoi_sphere.o
 
+$(BINPATH)vector.o: $(SRCPATH)vector.cpp
+	$(CC) $(CFLAGS) -c $(SRCPATH)vector.cpp -o $(BINPATH)vector.o
+
 $(BINPATH)gpu_voronoi.o: $(SRCPATH)gpu_voronoi.cpp
 	$(CC) $(CFLAGS) -c $(SRCPATH)gpu_voronoi.cpp -o $(BINPATH)gpu_voronoi.o
 
@@ -107,6 +110,9 @@ $(BINPATH)curve.o: $(SRCPATH)curve.cpp
 $(BINPATH)libmath.a: $(OBJS_BIN) $(BINPATH)
 	ar -cvq $(BINPATH)libmath.a $(OBJS_BIN)
 
+matrix_test: matrix_test.cpp $(BINPATH)libmath.a
+	$(CC) $(CFLAGS) matrix_test.cpp -o matrix_test $(LIB_PATH) -lmath $(LDFLAGS)
+
 test: test.cpp $(BINPATH)libmath.a $(BINPATH)mxml.o
 	$(CC) $(CFLAGS) test.cpp mxml.o -o test $(LIB_PATH) -lmath -lgame -lgraphics -lui $(LDFLAGS)
 
@@ -114,3 +120,4 @@ clean:
 	rm -f $(BINPATH)*.o
 	rm -f $(BINPATH)libmath.a
 	rm -f test
+	rm -f matrix_test
