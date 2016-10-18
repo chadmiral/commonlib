@@ -18,6 +18,7 @@ Camera::Camera()
   fov = 32.0f;
 
   use_proj_mat = false;
+  use_model_view_mat = false;
 }
 
 void Camera::transform(const Matrix3x3 &m)
@@ -37,6 +38,12 @@ void Camera::set_projection_matrix(GLfloat *proj)
 {
   use_proj_mat = true;
   memcpy(proj_mat, proj, sizeof(GLfloat) * 16);
+}
+
+void Camera::set_model_view_matrix(GLfloat *proj)
+{
+  use_model_view_mat = true;
+  memcpy(model_view_mat, proj, sizeof(GLfloat) * 16);
 }
 
 void Camera::set_camera_parameters(const float fs, const float fd, const float fl, const float ss)
@@ -68,10 +75,17 @@ void Camera::render_setup(const float znear, const float zfar)
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
-  Float3 lookat_pos = pos + lookat;
-  gluLookAt(pos[0], pos[1], pos[2],
-            lookat_pos[0], lookat_pos[1], lookat_pos[2],
-            up[0], up[1], up[2]);
+  if (use_model_view_mat)
+  {
+    glLoadMatrixf(model_view_mat);
+  }
+  else
+  {
+    Float3 lookat_pos = pos + lookat;
+    gluLookAt(pos[0], pos[1], pos[2],
+              lookat_pos[0], lookat_pos[1], lookat_pos[2],
+              up[0], up[1], up[2]);
+  }
 
   gl_check_error();
 }

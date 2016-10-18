@@ -102,14 +102,15 @@ private:
     glLightfv(GL_LIGHT0, GL_AMBIENT, amb);
     glLightfv(GL_LIGHT0, GL_POSITION, light_pos);
 
-    //glMatrixMode(GL_MODELVIEW);
-    //glLoadIdentity();
-
     glEnable(GL_DEPTH_TEST);
     glDepthMask(GL_TRUE);
 
+    glTranslatef(0.0f, 0.0f, 0.0f);
+
     glRotatef(rot_angle, 0.0f, 1.0f, 0.0f);
     glRotatef(rot_angle * 0.37f, 0.0f, 0.0f, 1.0f);
+
+    glScalef(0.3f, 0.3f, 0.3f);
 
     static_mesh.render();
 
@@ -119,9 +120,8 @@ private:
 
   void render_gl()
   {
-    //vr_context.finalize_render();
-    //return;
     double game_time = get_game_time();
+
     //render once for each eye
     vr_context.retrieve_eye_poses();
     
@@ -156,7 +156,7 @@ private:
   {
     //if(!paused)
     {
-      rot_angle += 1.0f * (float)frame_time;
+      rot_angle += 4.0f * (float)frame_time;
     }
     vr_context.simulate(game_time, frame_time);
   }

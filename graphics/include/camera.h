@@ -32,6 +32,7 @@ namespace Graphics
     Math::Float3 get_right() const { return lookat ^ up; }
 
     void set_projection_matrix(GLfloat *proj);
+    void set_model_view_matrix(GLfloat *proj);
 
     void transform(const Math::Matrix3x3 &m);
     void rotate_in_place(const Math::Matrix3x3 &m);
@@ -55,6 +56,8 @@ namespace Graphics
     Math::Float2    window_dimensions;
 
     bool            use_proj_mat;
+    bool            use_model_view_mat;
+    GLfloat         model_view_mat[16];
     GLfloat         proj_mat[16];
 
     float           fov;                    //field of vision

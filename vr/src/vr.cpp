@@ -241,15 +241,18 @@ void VRContext::get_eye_camera(const uint32_t eye, Camera *cam) const
     0.0f, 0.0f, 0.0f, 1.0f
   );
 
-  //eye_mat.transpose();
-
   eye_mat.invert();
-  eye_mat = hmd_mat * eye_mat;
+  eye_mat = eye_mat * hmd_mat;
+  eye_mat.transpose();
 
-  //set the camera world view matrix
-  cam->set_pos(Float3(eye_mat(3, 0), eye_mat(3, 1), eye_mat(3, 2)));
-  cam->set_up(Float3(eye_mat(1, 2), eye_mat(2, 2), eye_mat(3, 2)));
-  cam->set_lookat(Float3(eye_mat(1, 0), eye_mat(2, 0), eye_mat(3, 0)));
+  GLfloat mve_mat_gl[] = { eye_mat(0,0), eye_mat(1,0), eye_mat(2,0), eye_mat(3,0),
+                           eye_mat(0,1), eye_mat(1,1), eye_mat(2,1), eye_mat(3,1),
+                           eye_mat(0,2), eye_mat(1,2), eye_mat(2,2), eye_mat(3,2),
+                           eye_mat(0,3), eye_mat(1,3), eye_mat(2,3), eye_mat(3,3) };
+
+  cam->set_model_view_matrix(mve_mat_gl);
+
+  //cout << "pos: " << cam->get_pos() << endl;
 
   //set the projection matrix
   GLfloat proj_mat_gl[] = { proj_mat.m[0][0], proj_mat.m[1][0], proj_mat.m[2][0], proj_mat.m[3][0],
@@ -258,7 +261,6 @@ void VRContext::get_eye_camera(const uint32_t eye, Camera *cam) const
                             proj_mat.m[0][3], proj_mat.m[1][3], proj_mat.m[2][3], proj_mat.m[3][3] };
   
   cam->set_projection_matrix(proj_mat_gl);
-  cam->set_fov(110.0f);
 
 #if defined (_USE_OCULUS_SDK)
   // Get view and projection matrices
@@ -287,7 +289,7 @@ void VRContext::get_eye_camera(const uint32_t eye, Camera *cam) const
 #endif //_USE_OCULUS_SDK
 }
 
-void VRContext::render_capture(const unsigned int eye)
+void VRContext::render_capture(const uint32_t eye)
 {
 #if defined (_USE_OPENVR_SDK)
   glEnable(GL_MULTISAMPLE);
@@ -320,7 +322,7 @@ void VRContext::render_capture(const unsigned int eye)
 #endif //_USE_OCULUS_SDK
 }
 
-void VRContext::render_release(const unsigned int eye)
+void VRContext::render_release(const uint32_t eye)
 {
 #if defined (_USE_OPENVR_SDK)
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
