@@ -105,19 +105,33 @@ private:
     glEnable(GL_DEPTH_TEST);
     glDepthMask(GL_TRUE);
 
-    Matrix4x4 c_mat = vr_context.get_device_pose(3);
+    int dev_id[2] = { -1, -1 };
+    dev_id[0] = vr_context.find_next_device_of_type(0, 'C');
+    if (dev_id[0] >= 0)
+    {
+      dev_id[1] = vr_context.find_next_device_of_type(dev_id[0] + 1, 'C');
+    }
 
-    GLfloat controller_mat[16] = { c_mat(0, 0), c_mat(0, 1), c_mat(0, 2), c_mat(0, 3),
-                                   c_mat(1, 0), c_mat(1, 1), c_mat(1, 2), c_mat(1, 3),
-                                   c_mat(2, 0), c_mat(2, 1), c_mat(2, 2), c_mat(2, 3),
-                                   c_mat(3, 0), c_mat(3, 1), c_mat(3, 2), c_mat(3, 3) };
+    for (uint32_t i = 0; i < 2; i++)
+    {
+      glMatrixMode(GL_MODELVIEW);
+      glPushMatrix();
+      if (dev_id[i] >= 0)
+      {
+        Matrix4x4 c_mat = vr_context.get_device_pose(dev_id[i]);
 
-    glMatrixMode(GL_MODELVIEW);
+        GLfloat controller_mat[16] = { c_mat(0, 0), c_mat(0, 1), c_mat(0, 2), c_mat(0, 3),
+                                       c_mat(1, 0), c_mat(1, 1), c_mat(1, 2), c_mat(1, 3),
+                                       c_mat(2, 0), c_mat(2, 1), c_mat(2, 2), c_mat(2, 3),
+                                       c_mat(3, 0), c_mat(3, 1), c_mat(3, 2), c_mat(3, 3) };
 
-    glMultMatrixf(controller_mat);
-    glScalef(0.1f, 0.1f, 0.1f);
+        glMultMatrixf(controller_mat);
+        glScalef(0.1f, 0.1f, 0.1f);
 
-    static_mesh.render();
+        static_mesh.render();
+      }
+      glPopMatrix();
+    }
 
     glDisable(GL_LIGHTING);
     glDisable(GL_LIGHT0);

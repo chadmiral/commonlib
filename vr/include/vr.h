@@ -98,6 +98,7 @@ namespace VR
     void retrieve_eye_poses();
     void get_eye_camera(const uint32_t eye, Graphics::Camera *cam) const;
     Math::Matrix4x4 get_device_pose(const uint32_t dev_id);
+    int find_next_device_of_type(uint32_t start, char type);
     void render_capture(const uint32_t eye);
     void render_release(const uint32_t eye);
     void finalize_render();

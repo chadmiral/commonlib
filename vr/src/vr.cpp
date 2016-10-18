@@ -668,6 +668,33 @@ Matrix4x4 ConvertSteamVRMatrixToMatrix4(const vr::HmdMatrix34_t &matPose)
   return matrixObj;
 }
 
+
+int VRContext::find_next_device_of_type(uint32_t start, char type)
+{
+  for (uint32_t dev_id = start; dev_id < vr::k_unMaxTrackedDeviceCount; ++dev_id)
+  {
+    if (device_poses[dev_id].bPoseIsValid)
+    {
+      char dev_type = '?';
+      switch (hmd->GetTrackedDeviceClass(dev_id))
+      {
+      case vr::TrackedDeviceClass_Controller:        dev_type = 'C'; break;
+      case vr::TrackedDeviceClass_HMD:               dev_type = 'H'; break;
+      case vr::TrackedDeviceClass_Invalid:           dev_type = 'I'; break;
+      case vr::TrackedDeviceClass_Other:             dev_type = 'O'; break;
+      case vr::TrackedDeviceClass_TrackingReference: dev_type = 'T'; break;
+      default:                                       dev_type = '?'; break;
+      }
+      if (dev_type == type)
+      {
+        return dev_id;
+      }
+    }
+  }
+
+  return -1;
+}
+
 Matrix4x4 VRContext::get_device_pose(const uint32_t dev_id)
 {
   return device_pose_matrices[dev_id];
