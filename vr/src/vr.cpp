@@ -137,7 +137,6 @@ void VRContext::init_render_models()
 void VRContext::init_gl()
 {
   setup_distortion_shader();
-  setup_cameras();
   setup_stereo_render_targets();
   setup_distortion_geo();
 }
@@ -243,7 +242,7 @@ void VRContext::get_eye_camera(const uint32_t eye, Camera *cam) const
 
   eye_mat.invert();
   eye_mat = eye_mat * hmd_mat;
-  eye_mat.transpose();
+  eye_mat.transpose(); //should be able to eliminate this
 
   GLfloat mve_mat_gl[] = { eye_mat(0,0), eye_mat(1,0), eye_mat(2,0), eye_mat(3,0),
                            eye_mat(0,1), eye_mat(1,1), eye_mat(2,1), eye_mat(3,1),
@@ -251,8 +250,6 @@ void VRContext::get_eye_camera(const uint32_t eye, Camera *cam) const
                            eye_mat(0,3), eye_mat(1,3), eye_mat(2,3), eye_mat(3,3) };
 
   cam->set_model_view_matrix(mve_mat_gl);
-
-  //cout << "pos: " << cam->get_pos() << endl;
 
   //set the projection matrix
   GLfloat proj_mat_gl[] = { proj_mat.m[0][0], proj_mat.m[1][0], proj_mat.m[2][0], proj_mat.m[3][0],
@@ -295,7 +292,6 @@ void VRContext::render_capture(const uint32_t eye)
   glEnable(GL_MULTISAMPLE);
   glBindFramebuffer(GL_FRAMEBUFFER, eye_fbo[eye]);
   glViewport(0, 0, render_target_dim[0], render_target_dim[1]);
-  //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 #endif //_USE_OPENVR_SDK
 
 #if defined (_USE_OCULUS_SDK)
@@ -357,55 +353,8 @@ void VRContext::render_release(const uint32_t eye)
 #endif //_USE_OCULUS_SDK
 }
 
-void VRContext::render_stereo_targets()
-{
-  glClearColor(1.0f, 0.15f, 0.18f, 1.0f); // nice background color, but not black
-  glEnable(GL_MULTISAMPLE);
-
-  for (uint32_t eye = 0; eye < 2; eye++)
-  {
-    glBindFramebuffer(GL_FRAMEBUFFER, eye_fbo[eye]);
-    glViewport(0, 0, render_target_dim[0], render_target_dim[1]);
-
-    //TODO
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    //RenderScene(vr::Eye_Left);
-
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-    glDisable(GL_MULTISAMPLE);
-
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, eye_fbo[eye]);
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, eye_resolve_fbo[eye]);
-
-    glBlitFramebuffer(0, 0, render_target_dim[0], render_target_dim[1], 0, 0, render_target_dim[0], render_target_dim[1],
-      GL_COLOR_BUFFER_BIT,
-      GL_LINEAR);
-
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-
-    glEnable(GL_MULTISAMPLE);
-  }
-}
-
-void VRContext::setup_cameras()
-{
-  /*
-  m_mat4ProjectionLeft = GetHMDMatrixProjectionEye(vr::Eye_Left);
-  m_mat4ProjectionRight = GetHMDMatrixProjectionEye(vr::Eye_Right);
-  m_mat4eyePosLeft = GetHMDMatrixPoseEye(vr::Eye_Left);
-  m_mat4eyePosRight = GetHMDMatrixPoseEye(vr::Eye_Right);
-  */
-}
-
 void VRContext::setup_distortion_shader()
 {
-  //load distortion shader
-  SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_BLUE);
-  cout << "Loading VR distortion shaders..." << endl;
-  SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
   lens_shader.create_program();
   lens_shader.compile_shader_from_source(GL_VERTEX_SHADER_ARB, distortion_vertex_shader);
   lens_shader.compile_shader_from_source(GL_FRAGMENT_SHADER_ARB, distortion_fragment_shader);
@@ -552,8 +501,6 @@ void VRContext::setup_stereo_render_targets()
 
   hmd->GetRecommendedRenderTargetSize(&render_target_dim[0], &render_target_dim[1]);
 
-  //CreateFrameBuffer(m_nRenderWidth, render_target_dim[0], leftEyeDesc);
-  //CreateFrameBuffer(m_nRenderWidth, render_target_dim[1], rightEyeDesc);
   for (uint32_t eye = 0; eye < 2; eye++)
   {
     glGenFramebuffers(1, &eye_fbo[eye]);
@@ -627,8 +574,6 @@ void VRContext::finalize_render()
   // for now as fast as possible
   if (hmd)
   {
-    //DrawControllers();
-    //render_stereo_targets();
     render_distortion();
 
     vr::Texture_t left_eye_tex = { (void*)eye_resolve_tex[VR_LEFT_EYE], vr::API_OpenGL, vr::ColorSpace_Gamma };
@@ -721,8 +666,12 @@ Matrix4x4 ConvertSteamVRMatrixToMatrix4(const vr::HmdMatrix34_t &matPose)
     matPose.m[0][2], matPose.m[1][2], matPose.m[2][2], 0.0,
     matPose.m[0][3], matPose.m[1][3], matPose.m[2][3], 1.0f
   );
-  //matrixObj.transpose();
   return matrixObj;
+}
+
+Matrix4x4 VRContext::get_device_pose(const uint32_t dev_id)
+{
+  return device_pose_matrices[dev_id];
 }
 
 void VRContext::update_hmd_matrix_pose()

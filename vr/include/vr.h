@@ -97,6 +97,7 @@ namespace VR
     void bind(SDLGame *game);
     void retrieve_eye_poses();
     void get_eye_camera(const uint32_t eye, Graphics::Camera *cam) const;
+    Math::Matrix4x4 get_device_pose(const uint32_t dev_id);
     void render_capture(const uint32_t eye);
     void render_release(const uint32_t eye);
     void finalize_render();
@@ -108,12 +109,10 @@ namespace VR
 
     void init_compositor();
 
-    void setup_cameras();
     void setup_distortion_geo();
     void setup_distortion_shader();
     void setup_stereo_render_targets();
 
-    void render_stereo_targets();
     void render_distortion();
 
     void update_hmd_matrix_pose();

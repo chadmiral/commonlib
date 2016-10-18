@@ -105,12 +105,17 @@ private:
     glEnable(GL_DEPTH_TEST);
     glDepthMask(GL_TRUE);
 
-    glTranslatef(0.0f, 0.0f, 0.0f);
+    Matrix4x4 c_mat = vr_context.get_device_pose(3);
 
-    glRotatef(rot_angle, 0.0f, 1.0f, 0.0f);
-    glRotatef(rot_angle * 0.37f, 0.0f, 0.0f, 1.0f);
+    GLfloat controller_mat[16] = { c_mat(0, 0), c_mat(0, 1), c_mat(0, 2), c_mat(0, 3),
+                                   c_mat(1, 0), c_mat(1, 1), c_mat(1, 2), c_mat(1, 3),
+                                   c_mat(2, 0), c_mat(2, 1), c_mat(2, 2), c_mat(2, 3),
+                                   c_mat(3, 0), c_mat(3, 1), c_mat(3, 2), c_mat(3, 3) };
 
-    glScalef(0.3f, 0.3f, 0.3f);
+    glMatrixMode(GL_MODELVIEW);
+
+    glMultMatrixf(controller_mat);
+    glScalef(0.1f, 0.1f, 0.1f);
 
     static_mesh.render();
 
