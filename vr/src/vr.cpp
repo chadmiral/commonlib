@@ -242,12 +242,11 @@ void VRContext::get_eye_camera(const uint32_t eye, Camera *cam) const
 
   eye_mat.invert();
   eye_mat = eye_mat * hmd_mat;
-  eye_mat.transpose(); //should be able to eliminate this
 
-  GLfloat mve_mat_gl[] = { eye_mat(0,0), eye_mat(1,0), eye_mat(2,0), eye_mat(3,0),
-                           eye_mat(0,1), eye_mat(1,1), eye_mat(2,1), eye_mat(3,1),
-                           eye_mat(0,2), eye_mat(1,2), eye_mat(2,2), eye_mat(3,2),
-                           eye_mat(0,3), eye_mat(1,3), eye_mat(2,3), eye_mat(3,3) };
+  GLfloat mve_mat_gl[] = { eye_mat(0,0), eye_mat(0,1), eye_mat(0,2), eye_mat(0,3),
+                           eye_mat(1,0), eye_mat(1,1), eye_mat(1,2), eye_mat(1,3),
+                           eye_mat(2,0), eye_mat(2,1), eye_mat(2,2), eye_mat(2,3),
+                           eye_mat(3,0), eye_mat(3,1), eye_mat(3,2), eye_mat(3,3) };
 
   cam->set_model_view_matrix(mve_mat_gl);
 
