@@ -48,8 +48,8 @@ namespace VR
     Math::Matrix4x4 eye_proj_mat[2];
     Math::Matrix4x4 center_proj_mat;
 
-    float near_clip;
-    float far_clip;
+    //float near_clip;
+    //float far_clip;
 
     GLuint eye_fbo[2];          //frame buffer object id
     GLuint eye_dbo[2];          //depth buffer object id
@@ -96,7 +96,7 @@ namespace VR
 
     void bind(SDLGame *game);
     void retrieve_eye_poses();
-    void get_eye_camera(const uint32_t eye, Graphics::Camera *cam) const;
+    void get_eye_camera(const uint32_t eye, Graphics::Camera *cam, float znear = 0.1f, float zfar = 30.0f) const;
     Math::Matrix4x4 get_device_pose(const uint32_t dev_id);
     int find_next_device_of_type(uint32_t start, char type);
     void render_capture(const uint32_t eye);

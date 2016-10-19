@@ -63,8 +63,8 @@ static char distortion_fragment_shader[] =
 VRContext::VRContext(GameContext *gc)
 {
   game_context = gc;
-  near_clip = 0.1f;
-  far_clip = 30.0f;
+  //near_clip = 0.1f;
+  //far_clip = 30.0f;
 
 #if defined (_USE_OCULUS_SDK)
   for (int i = 0; i < 2; i++)
@@ -226,11 +226,11 @@ void VRContext::retrieve_eye_poses()
 #endif //_USE_OCULUS_SDK
 }
 
-void VRContext::get_eye_camera(const uint32_t eye, Camera *cam) const
+void VRContext::get_eye_camera(const uint32_t eye, Camera *cam, float znear, float zfar) const
 {
   assert(hmd);
 
-  vr::HmdMatrix44_t proj_mat = hmd->GetProjectionMatrix((vr::EVREye)eye, near_clip, far_clip, vr::API_OpenGL);
+  vr::HmdMatrix44_t proj_mat = hmd->GetProjectionMatrix((vr::EVREye)eye, znear, zfar, vr::API_OpenGL);
   vr::HmdMatrix34_t ovr_eye_mat = hmd->GetEyeToHeadTransform((vr::EVREye)eye);
 
   Matrix4x4 eye_mat(
