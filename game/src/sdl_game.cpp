@@ -129,6 +129,7 @@ void SDLGame::toggle_fullscreen()
 void SDLGame::init()
 {
   //load init file and set resolution
+#if not defined (_VR)
   FILE *init_file = fopen("init.txt", "r");
 
   if(init_file)
@@ -137,6 +138,7 @@ void SDLGame::init()
     fscanf(init_file, "%i", &resolution[1]);
     fclose(init_file);
   }
+#endif //_VR
 
   init_sdl();
   font = new Font(font_face.c_str(), font_size);

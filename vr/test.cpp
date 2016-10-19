@@ -48,7 +48,6 @@ private:
 
   void user_init()
   {
-    //vr_context.init();
     vr_context.bind(this);
     for (int eye = 0; eye < 2; eye++)
     {
@@ -166,9 +165,6 @@ private:
       vr_context.render_release(eye);
     }
     vr_context.finalize_render();
-    
-    //glFlush();
-    //SDL_GL_SwapWindow(win);
   }
 
   void game_loop(const double game_time, const double frame_time)
