@@ -78,9 +78,9 @@ public:
     wt[1] = 0.5f + 0.5f * wt[1];
   } 
 
-  Math::Float3 get_pos() const { return pos; }
-  Math::Float2 get_uv() const { return uv; }
-  Math::Float2 get_wt() const { return wt; }
+  Math::Float3 &get_pos() { return pos; }
+  Math::Float2 &get_uv() { return uv; }
+  Math::Float2 &get_wt() { return wt; }
 
   Math::Float3 get_color() const { return color; }
   void set_color(const Math::Float3 c) { color = c; }

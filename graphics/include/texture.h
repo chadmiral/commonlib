@@ -66,7 +66,7 @@ namespace Graphics
 
   private:
     unsigned int       dim[2];          //dimensions of the texture
-    std::string        fname;      //filename
+    std::string        fname;           //filename
     GLenum             tex_format;
     GLenum             data_format;
     GLint              internal_format;

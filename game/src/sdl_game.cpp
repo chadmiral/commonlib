@@ -129,7 +129,7 @@ void SDLGame::toggle_fullscreen()
 void SDLGame::init()
 {
   //load init file and set resolution
-#if not defined (_VR)
+#ifndef _VR
   FILE *init_file = fopen("init.txt", "r");
 
   if(init_file)

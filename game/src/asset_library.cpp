@@ -26,6 +26,7 @@ void AssetLibrary::init()
 
 void AssetLibrary::simulate(const double game_time, const double frame_time)
 {
+#ifndef _VR
   if (file_monitor_timer.has_elapsed())
   {
     CHDIR("../data");
@@ -71,6 +72,7 @@ void AssetLibrary::simulate(const double game_time, const double frame_time)
       }
     }
   }
+#endif //_VR
 }
 
 GameAsset *AssetLibrary::retrieve_asset(std::string name)
