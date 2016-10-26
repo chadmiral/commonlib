@@ -14,6 +14,7 @@ CFLAGS+= -g3 -O0
 #LDFLAGS+=$(shell pkg-config sdl2 --libs)
 #LDFLAGS+=$(shell pkg-config SDL2_image --libs)
 #LDFLAGS+=-lmath -lgame -lui
+LDFLAGS=-lgpucompute
 SRCPATH=src/
 SRCS=src/gpu_compute.cpp
 OBJS=$(SRCS:.cpp=.o)
@@ -66,7 +67,6 @@ $(BINPATH):
 
 $(BINPATH)gpu_compute.o: $(SRCPATH)gpu_compute.cpp
 	$(CC) $(CFLAGS) -c src/gpu_compute.cpp -o $(BINPATH)gpu_compute.o
-
 
 $(BINPATH)libgpucompute.a: $(OBJS_BIN)
 	ar -cvq $(BINPATH)libgpucompute.a $(OBJS_BIN)

@@ -4,6 +4,17 @@
 #include <iostream>
 
 namespace Math {
+
+  inline float inv_sqrt(float x)
+  {
+    float xhalf = 0.5f * x;
+    int i = *(int*)&x;              // get bits for floating value
+    i = 0x5f375a86 - (i >> 1);      // gives initial guess y0
+    x = *(float*)&i;                // convert bits back to float
+    x = x * (1.5f - xhalf * x * x); // Newton step, repeating increases accuracy
+    return x;
+  }
+
   class Float2 {
   public:
     Float2();
@@ -29,7 +40,13 @@ namespace Math {
     //inline Float2 xy() const { return Float2(_val[0], _val[1]); }
     inline Float2 yx() const { return Float2(_val[1], _val[0]); }
 
-    inline void normalize() { float m = magnitude(); _val[0] /= m; _val[1] /= m; }
+    inline void normalize()
+    {
+      float sqr_sum = _val[0] * _val[0] + _val[1] * _val[1];
+      float i_sqrt = inv_sqrt(sqr_sum);
+      _val[0] = i_sqrt * _val[0];
+      _val[1] = i_sqrt * _val[1];
+    }//float m = magnitude(); _val[0] /= m; _val[1] /= m; }
     inline float magnitude() const { return sqrt(_val[0] * _val[0] + _val[1] * _val[1]); }
     inline float mag_squared() const { return _val[0] * _val[0] + _val[1] * _val[1]; }
 
@@ -80,7 +97,15 @@ namespace Math {
     inline Float3 zyx() const { return Float3(_val[2], _val[1], _val[0]); }
 
     //length / normalization
-    inline void normalize() { float m = magnitude(); _val[0] /= m; _val[1] /= m; _val[2] /= m; }
+    inline void normalize()
+    {
+      //float m = magnitude(); _val[0] /= m; _val[1] /= m; _val[2] /= m;
+      float sqr_sum = _val[0] * _val[0] + _val[1] * _val[1] + _val[2] * _val[2];
+      float i_sqrt = inv_sqrt(sqr_sum);
+      _val[0] = i_sqrt * _val[0];
+      _val[1] = i_sqrt * _val[1];
+      _val[2] = i_sqrt * _val[2];
+    }
     inline float magnitude() const { return sqrt(_val[0] * _val[0] + _val[1] * _val[1] + _val[2] * _val[2]); }
     inline float mag_squared() const { return _val[0] * _val[0] + _val[1] * _val[1] + _val[2] * _val[2]; }
 
