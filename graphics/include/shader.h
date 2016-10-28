@@ -10,7 +10,12 @@
 #include <OpenGL/gl.h>
 #endif
 
+#include <iostream>
+#include <assert.h>
+
 #include "math_utility.h"
+#include "gl_error.h"
+#include "platform.h"
 
 namespace Graphics
 {
@@ -54,6 +59,7 @@ namespace Graphics
     void set_loc(Shader *sp)
     {
       loc = glGetUniformLocation(sp->gl_shader_program, name.c_str());
+      gl_check_error();
     }
 
     virtual void render() const = 0;  //set uniform variables - to be called prior to Shader::render()
@@ -67,7 +73,7 @@ namespace Graphics
     ShaderUniformInt() : ShaderUniformVariable() { var = 0; }
     ~ShaderUniformInt() {}
 
-    virtual void render() const { glUniform1i(loc, var); }
+    virtual void render() const { glUniform1i(loc, var); gl_check_error(); }
 
     void set_var(const int v) { var = v; }
     int get_var() const { return var; }
@@ -81,7 +87,7 @@ namespace Graphics
     ShaderUniformFloat() : ShaderUniformVariable() { var = 0.0f; }
     ~ShaderUniformFloat() {}
 
-    virtual void render() const { glUniform1f(loc, var); }
+    virtual void render() const { glUniform1f(loc, var); gl_check_error(); }
     void set_var(const float v) { var = v; }
   };
 
@@ -93,7 +99,7 @@ namespace Graphics
     ShaderUniformFloat2() : ShaderUniformVariable() {}
     ~ShaderUniformFloat2() {}
 
-    virtual void render() const { glUniform2f(loc, var._val[0], var._val[1]); }
+    virtual void render() const { glUniform2f(loc, var._val[0], var._val[1]); gl_check_error(); }
     void set_var(const Math::Float2 v) { var = v; }
   };
 
@@ -105,7 +111,7 @@ namespace Graphics
     ShaderUniformFloat3() : ShaderUniformVariable() {}
     ~ShaderUniformFloat3() {}
 
-    virtual void render() const { glUniform3f(loc, var._val[0], var._val[1], var._val[2]); }
+    virtual void render() const { glUniform3f(loc, var._val[0], var._val[1], var._val[2]); gl_check_error(); }
     void set_var(const Math::Float3 v) { var = v; }
   };
 
@@ -114,7 +120,7 @@ namespace Graphics
   {
   protected:
     std::string    _name;
-    GLuint         _loc;
+    GLint         _loc;
     
     uint32_t       _type;
     uint32_t       _count;
@@ -135,6 +141,16 @@ namespace Graphics
       _vertex_size =   vertex_size;
 
       _loc = glGetAttribLocation(sp->gl_shader_program, _name.c_str());
+      if (_loc == -1)
+      {
+        SET_TEXT_COLOR(CONSOLE_COLOR_ERROR);
+        std::cerr << "Could not find shader vertex location!!!" << std::endl;
+        std::cerr << "\tshader: " << sp->gl_vertex_shader_fname.c_str() << ", " << sp->gl_fragment_shader_fname.c_str() << std::endl;
+        std::cerr << "\tattrib: " << _name.c_str() << std::endl;
+        SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
+        assert(false);
+      }
+      gl_check_error();
     }
 
     //to be called prior to Shader::render()
@@ -142,11 +158,13 @@ namespace Graphics
     {
       glEnableVertexAttribArray(_loc);
       glVertexAttribPointer(_loc, 3, _type, GL_FALSE, _vertex_size, (void *)_offset);
+      gl_check_error();
     }
 
     void cleanup() const
     {
       glDisableVertexAttribArray(_loc);
+      gl_check_error();
     }
   };
 };

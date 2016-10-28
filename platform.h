@@ -22,6 +22,7 @@ enum ConsoleColor
 };
 
 #define CONSOLE_COLOR_DEFAULT CONSOLE_COLOR_LIGHT_GREY
+#define CONSOLE_COLOR_ERROR   CONSOLE_COLOR_LIGHT_RED
 
 #if defined (_WIN32)
 #include <windows.h>
