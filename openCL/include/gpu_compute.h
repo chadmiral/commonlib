@@ -9,11 +9,11 @@
 
 namespace GPUCompute
 {
-  class GPUComputeImp
+  class GPUComputeContext
   {
     public:
-      GPUComputeImp();
-      ~GPUComputeImp();
+      GPUComputeContext();
+      ~GPUComputeContext();
 
       void init();
       void deinit();
@@ -23,19 +23,27 @@ namespace GPUCompute
       void upload_input_array(void *data);
 
       void set_num_elements(const unsigned int e) { num_elements = e; }
-      unsigned int get_num_elements() const { return num_elements; }
+      uint32_t get_num_elements() const { return num_elements; }
 
       void set_max_elements(const unsigned int e) { max_elements = e; }
-      unsigned int get_max_elements() const { return max_elements; }
+      uint32_t get_max_elements() const { return max_elements; }
+
+      void execute();
 
     private:
-      unsigned int              num_elements;
-      unsigned int              max_elements;
+      bool                      initialized;
+
+      uint32_t                  num_elements;
+      uint32_t                  max_elements;
       cl_context                context;
       cl_device_id              device_id;
 
       cl_mem                    input_buffer;
       cl_mem                    output_buffer;
+
+      cl_program                program;
+      cl_kernel                 kernel;
+      cl_command_queue          commands;
   };
 };
 
