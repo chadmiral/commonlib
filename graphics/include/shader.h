@@ -132,6 +132,7 @@ namespace Graphics
 
     std::string get_name() const { return _name; }
     void set_name(std::string name) { _name = name; }
+    void set_loc(uint32_t loc_id) { _loc = loc_id; }
     void set_loc(Shader *sp, std::string name, uint32_t vertex_size, uint32_t count, uint32_t offset, uint32_t type = GL_FLOAT)
     {
       _name = name;

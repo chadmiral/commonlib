@@ -114,6 +114,12 @@ GLuint Shader::compile_shader_from_source(GLenum shader_type, const char *source
   	glDeleteShader(my_shader);
 	  delete [] errorLog;
   }
+  else
+  {
+    SET_TEXT_COLOR(CONSOLE_COLOR_CYAN);
+    cout << "OK" << endl;
+    SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
+  }
 
   glAttachShader(gl_shader_program, my_shader);
   if (shader_type == GL_VERTEX_SHADER_ARB || shader_type == GL_VERTEX_SHADER)
