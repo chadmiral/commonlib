@@ -251,6 +251,7 @@ void Texture3D::init()
   glGenTextures(1, &gl_texture);
   glBindTexture(GL_TEXTURE_3D, gl_texture);
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+  glPixelStorei(GL_PACK_ALIGNMENT, 1);
 
   assert(glIsTexture(gl_texture) == GL_TRUE);
 
