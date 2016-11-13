@@ -464,7 +464,7 @@ public:
     float theta = 2.0f * (float)M_PI * uv[0];
     float phi = ((float)M_PI / 2.0f) + (float)M_PI * (1.0f - uv[1]);
 
-    Float3 xyz = polar_to_cartesian(theta, phi, 1.0f);
+    Math::Float3 xyz = Math::polar_to_cartesian(theta, phi, 1.0f);
     return get_cell_by_xyz(xyz);
   }
   

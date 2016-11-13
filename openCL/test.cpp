@@ -221,7 +221,7 @@ int main(int argc, char** argv)
   char kernel_fname[] = "data/test.cl";
   char kernel_name[] = "square";
 
-  uint32_t data_count = 500;
+  uint32_t data_count = 512;
   float *data = new float[data_count];
 
   for(uint32_t i = 0; i < data_count; i++)

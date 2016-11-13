@@ -127,12 +127,14 @@ namespace Math {
     float y = a._val[1] - b._val[1];
     return sqrt(x * x + y * y);
   }
+  
   inline float dist_squared(const Float2 &a, const Float2 &b)
   {
     float x = a._val[0] - b._val[0];
     float y = a._val[1] - b._val[1];
     return x * x + y * y;
   }
+
   inline float distance(const Float3 &a, const Float3 &b)
   {
     float x = a._val[0] - b._val[0];
@@ -140,6 +142,7 @@ namespace Math {
     float z = a._val[2] - b._val[2];
     return sqrt(x * x + y * y + z * z);
   }
+
   inline float dist_squared(const Float3 &a, const Float3 &b)
   {
     float x = a._val[0] - b._val[0];

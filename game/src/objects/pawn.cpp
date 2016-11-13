@@ -40,6 +40,7 @@ void Pawn3D::render(const double game_time)
 
     mat.render();
     mesh.render();
+    mat.cleanup();
   }
   glPopMatrix();
 }

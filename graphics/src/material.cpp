@@ -226,8 +226,6 @@ void Material::render() const
 
 void Material::cleanup() const
 {
-  glUseProgramObjectARB(0);
-
   for(uint32_t i = 0; i < textures_2d.size(); i++)
   {
     glActiveTexture(GL_TEXTURE0 + i);
@@ -246,4 +244,6 @@ void Material::cleanup() const
   {
     shader_vertex_attribs[i]->cleanup();
   }
+  
+  glUseProgramObjectARB(0);
 }
