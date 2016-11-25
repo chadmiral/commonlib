@@ -131,7 +131,7 @@ void GPUVoronoi2D::build_voronoi_diagram()
   glGetIntegerv(GL_VIEWPORT, win_viewport);
   glViewport(0, 0, fbo_res[0], fbo_res[1]);
 
-  glUseProgramObjectARB(0);
+  glUseProgram(0);
 
   glEnable(GL_DEPTH_TEST);
   glDepthRange(0.0f, 1.0f);
@@ -241,7 +241,7 @@ void GPUVoronoi2D::render_fullscreen_quad()
 
 void GPUVoronoi2D::setup_textured_quad_state()
 {
-  glUseProgramObjectARB(0);
+  glUseProgram(0);
   glDisable(GL_BLEND);
   //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glActiveTexture(GL_TEXTURE0);

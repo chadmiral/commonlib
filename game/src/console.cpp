@@ -336,7 +336,7 @@ void DebugConsole::render_default()
   //animation
   float v_offset = Math::cerp(-0.5f, 0.0f, pct_exposed);
 
-  glUseProgramObjectARB(0);
+  glUseProgram(0);
 
   glDisable(GL_LIGHTING);
   glDisable(GL_TEXTURE_2D);
@@ -562,7 +562,7 @@ void DebugConsole::tab_complete(int depth)
   {
     last_tab_complete_idx = idx_offset;
   }
-  for(int i = idx_offset - last_tab_complete_idx; i < func_var_names.size(); i++)
+  for(int i = idx_offset - last_tab_complete_idx; i < (int)func_var_names.size(); i++)
   {
     if(func_var_names[i].find(tab_complete_string) != std::string::npos)
     {

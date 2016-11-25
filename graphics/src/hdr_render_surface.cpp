@@ -117,7 +117,7 @@ void HDRRenderSurface::render_method_2()
   glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, (void *)0);
 
   //reset shader
-  glUseProgramObjectARB(0);
+  glUseProgram(0);
 
   mat2.cleanup();
 

@@ -287,7 +287,7 @@ void GPUParticleSystem::init(float particle_size, Float3 *initial_particle_pos, 
     assert(uniform_locations[i] != -1);
   }
 
-  glUseProgramObjectARB(0);
+  glUseProgram(0);
 }
 
 void GPUParticleSystem::deinit()
@@ -398,7 +398,7 @@ void GPUParticleSystem::update_velocities(const float game_time, const float dt)
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fbo_ibo);
   glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, (void *)0);
 
-  glUseProgramObjectARB(0);
+  glUseProgram(0);
   glActiveTexture(GL_TEXTURE2);
   glDisable(GL_TEXTURE_2D);
   glDisable(GL_TEXTURE_3D);
@@ -484,7 +484,7 @@ void GPUParticleSystem::update_positions(const float game_time, const float dt) 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fbo_ibo);
   glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, (void *)0);
 
-  glUseProgramObjectARB(0);
+  glUseProgram(0);
   glActiveTexture(GL_TEXTURE2);
   glDisable(GL_TEXTURE_2D);
   glDisable(GL_TEXTURE_3D);
@@ -575,7 +575,7 @@ void GPUParticleSystem::render()
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
   glDrawElements(GL_QUADS, num_particles * 4, GL_UNSIGNED_INT, (void *)0);
 
-  glUseProgramObjectARB(0);
+  glUseProgram(0);
   glActiveTexture(GL_TEXTURE2);
   glBindTexture(GL_TEXTURE_2D, 0);
   glActiveTexture(GL_TEXTURE1);

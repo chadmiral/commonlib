@@ -245,5 +245,5 @@ void Material::cleanup() const
     shader_vertex_attribs[i]->cleanup();
   }
   
-  glUseProgramObjectARB(0);
+  glUseProgram(0);
 }

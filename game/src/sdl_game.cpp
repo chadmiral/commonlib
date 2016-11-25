@@ -234,7 +234,7 @@ void SDLGame::run()
     else
     {
       render_gl();
-
+ 
       glMatrixMode(GL_MODELVIEW);
       glLoadIdentity();
       glMatrixMode(GL_PROJECTION);
@@ -259,8 +259,8 @@ void SDLGame::run()
 
     if (!diy_window_swap)
     {
-      glFlush();
-      glFinish(); //needed? (wait for all GL commands to finish) interacts w/ vsync
+      //glFlush();
+      //glFinish(); //needed? (wait for all GL commands to finish) interacts w/ vsync
       SDL_GL_SwapWindow(win);
     }
   }

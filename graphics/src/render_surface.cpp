@@ -287,7 +287,7 @@ void RenderSurface::render()
   mat.cleanup();
 
   //reset shader
-  //glUseProgramObjectARB(0);
+  //glUseProgram(0);
 
   /*for(int i = 0; i < tex_uniforms.size(); i++)
   {

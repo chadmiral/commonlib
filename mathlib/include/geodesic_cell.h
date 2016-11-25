@@ -139,7 +139,7 @@ public:
     return;
   }
 
-  int get_num_neighbors() const { return num_neighbors; }
+  uint32_t get_num_neighbors() const { return num_neighbors; }
   GeodesicCell<T> *get_neighbor(const int i) { return neighbors[i]; }
   Math::Float3 get_neighbor_centroid(const int i) { return neighbor_centroids[i]; }
 

@@ -399,7 +399,7 @@ void GPUHairSim::init(Float3 *hair_pos, Float3 *hair_uvs)
   uniform_locations[UNIFORM_RENDER_AMBIENT] = glGetUniformLocation(shader->gl_shader_program, "light_amb_rgb");
   uniform_locations[UNIFORM_RENDER_CAM_DISTANCE] = glGetUniformLocation(shader->gl_shader_program, "cam_distance");
 
-  glUseProgramObjectARB(0);
+  glUseProgram(0);
 }
 
 void GPUHairSim::deinit()
@@ -517,7 +517,7 @@ void GPUHairSim::simulate(const double game_time, const double dt)
   glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, (void *)0);
 
   //reset shader
-  glUseProgramObjectARB(0);
+  glUseProgram(0);
   glActiveTexture(GL_TEXTURE1);
   glDisable(GL_TEXTURE_2D);
   glActiveTexture(GL_TEXTURE2);
@@ -585,7 +585,7 @@ void GPUHairSim::render()
   glDrawElements(GL_LINES, num_indices, GL_UNSIGNED_INT, (void *)0);
 
   //reset shader
-  glUseProgramObjectARB(0);
+  glUseProgram(0);
   glActiveTexture(GL_TEXTURE0);
   glDisable(GL_TEXTURE_2D);
   glActiveTexture(GL_TEXTURE1);
