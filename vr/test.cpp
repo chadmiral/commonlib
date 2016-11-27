@@ -68,7 +68,7 @@ private:
   {
     //mesh init
     FILE *f;
-    f = fopen("../graphics/data/meshes/test_mesh.brick.bin", "rb");
+    f = fopen("../../mundus/data/meshes/hand_of_god.brick.bin", "rb");
     assert(f);
 
     static_mesh.read_from_file(f, true);
