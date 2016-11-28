@@ -35,7 +35,7 @@ namespace Graphics
 
     void read_from_file(FILE *f, bool verbose = false);
     void init();
-    void render(GLenum primitive_type = GL_TRIANGLES);
+    void render(Material *m = NULL, GLenum primitive_type = GL_TRIANGLES);
 
   protected:
     std::vector<DrawCall<StaticMeshVertex> > draw_calls;
