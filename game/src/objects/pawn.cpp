@@ -38,9 +38,9 @@ void Pawn3D::render(const double game_time)
     sun_spec_rgb.set_var(sun_light->get_specular_color());
     cam_distance.set_var(Float3(1.0f, 1.0f, 1.0f)); //TODO
 
-    //mat.render();
-    mesh.render(&mat);
-    //mat.cleanup();
+    mat.render();
+    mesh.render();
+    mat.cleanup();
   }
   glPopMatrix();
 }
