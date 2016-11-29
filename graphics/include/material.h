@@ -40,6 +40,7 @@ namespace Graphics {
 
       void enable_blending(const bool b);
       void set_blend_mode(const GLenum src, const GLenum dst);
+      void set_blend_mode_additive() { src_blend_param = GL_SRC_ALPHA; dst_blend_param = GL_ONE; }
 
       void enable_depth_write(const bool d) { depth_write = d; }
       void enable_depth_read(const bool d) { depth_read = d; }
