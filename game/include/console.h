@@ -114,6 +114,9 @@ private:
   std::vector<Math::Float2 >  float_var_ranges;
   std::vector<UI::Meter *>    float_var_sliders;
 
+  std::vector<std::string>    float2_var_names;
+  std::vector<Math::Float2 *> float2_vars;
+
   std::vector<std::string>    float3_var_names;
   std::vector<Math::Float3 *> float3_vars;
 
@@ -122,7 +125,7 @@ private:
 
   //tab completion
   std::string                 tab_complete_string;
-  uint32_t                    last_tab_complete_idx;
+  int32_t                     last_tab_complete_idx;
 
   UI::WidgetWrangler          console_ww;
   float                       control_board_scroll;
@@ -158,6 +161,7 @@ public:
 
   void register_variable(bool *b, const char *name);
   void register_variable(float *f, const char *name, const Math::Float2 range = Math::Float2(0.0f, 1.0f));
+  void register_variable(Math::Float2 *f, const char *name);
   void register_variable(Math::Float3 *f, const char *name);
   void register_function(void (*f)(), const char *name);
 

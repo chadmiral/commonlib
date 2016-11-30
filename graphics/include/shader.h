@@ -110,6 +110,7 @@ namespace Graphics
 
     virtual void render() const { glUniform2f(_loc, var._val[0], var._val[1]); gl_check_error(); }
     void set_var(const Math::Float2 v) { var = v; }
+    Math::Float2 *get_var_ptr() { return &var; }
   };
 
   class ShaderUniformFloat3 : public ShaderUniformVariable
