@@ -10,23 +10,24 @@ namespace Game
   {
   protected:
     //Graphics::Renderable<StaticMeshVertex> renderable; //mesh, material, shader, etc...
-    Graphics::Material                mat;
-    Graphics::ShaderUniformFloat3     sun_pos;
-    Graphics::ShaderUniformFloat3     sun_amb_rgb;
-    Graphics::ShaderUniformFloat3     sun_diff_rgb;
-    Graphics::ShaderUniformFloat3     sun_spec_rgb;
-    Graphics::ShaderUniformFloat3     cam_distance;
-    Graphics::StaticMesh              mesh;
+    Graphics::Material                _mat;
+    Graphics::ShaderUniformFloat3     _sun_pos;
+    Graphics::ShaderUniformFloat3     _sun_amb_rgb;
+    Graphics::ShaderUniformFloat3     _sun_diff_rgb;
+    Graphics::ShaderUniformFloat3     _sun_spec_rgb;
+    Graphics::ShaderUniformFloat3     _cam_distance;
+    Graphics::StaticMesh             *_mesh;
 
     //TODO: components, etc
 
-    GameContext *game_context;
+    GameContext *_game_context;
   public:
-    Pawn3D(GameContext *gc) { game_context = gc; }
+    Pawn3D(GameContext *gc) { _game_context = gc; _mesh = NULL; }
     ~Pawn3D() {}
     
-    Graphics::Material *get_material() { return &mat; }
-    Graphics::StaticMesh *get_mesh() { return &mesh; }
+    Graphics::Material *get_material() { return &_mat; }
+    Graphics::StaticMesh *get_mesh() { return _mesh; }
+    void set_mesh(Graphics::StaticMesh *m) { _mesh = m; }
 
     virtual void init();
     virtual void simulate(const double game_time, const double frame_time);
