@@ -37,17 +37,19 @@ namespace Graphics
     void init();
     void render(Material *m = NULL, GLenum primitive_type = GL_TRIANGLES);
 
+    void set_data(uint32_t num_verts, StaticMeshVertex *verts, uint32_t num_indices, uint32_t *indices);
+
   protected:
     std::vector<DrawCall<StaticMeshVertex> > draw_calls;
 
-    int                    num_vertices;
-    StaticMeshVertex       *vertices;
+    uint32_t                _num_vertices;
+    StaticMeshVertex       *_vertices;
 
-    int num_indices;
-    unsigned int *indices;
+    uint32_t                _num_indices;
+    uint32_t               *_indices;
 
-    GLuint vbo;
-    GLuint ibo;
+    GLuint                  _vbo;
+    GLuint                  _ibo;
   };
 };
 

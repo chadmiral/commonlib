@@ -20,6 +20,7 @@
 #include "math_utility.h"
 #include "platform.h"
 #include "shader.h"
+#include "static_mesh_baker.h"
 
 using namespace Math;
 using namespace std;
@@ -115,6 +116,16 @@ void PackageBaker::bake(mxml_node_t *tree, std::string output_filename)
   } while (asset_node);
 
   //read all the mesh assets
+  start_node = tree;
+  do
+  {
+    asset_node = mxmlFindElement(start_node, tree, "mesh", NULL, NULL, MXML_DESCEND);
+    if (asset_node)
+    {
+      read_mesh_file(asset_node);
+    }
+    start_node = asset_node;
+  } while (asset_node);
 
   //read all the ui layout assets
   start_node = tree;
@@ -129,8 +140,6 @@ void PackageBaker::bake(mxml_node_t *tree, std::string output_filename)
   } while (asset_node);
 
   //read all the generic data assets
-
-
   write_package(output_filename);
 }
 
@@ -355,6 +364,63 @@ void PackageBaker::read_texture_file(mxml_node_t *texture_node)
   SDL_FreeSurface(image);
 }
 
+void PackageBaker::read_mesh_file(mxml_node_t *mesh_node)
+{
+  const char *buffer = NULL;
+  MeshPackageAsset *mesh_asset = new MeshPackageAsset;
+  mesh_asset->set_type(PACKAGE_ASSET_MESH);
+  assets.push_back(mesh_asset);
+
+  SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
+  cout << "\tLoading mesh geometry \"";
+  buffer = mxmlElementGetAttr(mesh_node, "name");
+  cout << buffer << "\"" << endl;
+  SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
+
+  mesh_asset->set_name(buffer);
+
+  buffer = mxmlGetText(mesh_node, NULL);
+  mesh_asset->fname = buffer;
+  cout << "\t\tsource file: " << buffer << " ... " << endl;
+
+  std::string output_fname = mesh_asset->fname + ".bin";
+  FILE *fp = fopen(mesh_asset->fname.c_str(), "r");
+  if (fp)
+  {
+    mxml_node_t *tree = mxmlLoadFile(NULL, fp, MXML_TEXT_CALLBACK);
+    assert(tree);
+
+    //don't need the file anymore now that we have the xml tree
+    fclose(fp);
+
+    StaticMeshBaker smb;
+    smb.bake(tree, output_fname);
+  }
+
+  //and now open the binary file, read it and add it to the asset
+  fp = fopen(output_fname.c_str(), "rb");
+  if (fp)
+  {
+    int version;
+    fread(&version, sizeof(int), 1, fp);
+
+    fread(&mesh_asset->num_verts, sizeof(uint32_t), 1, fp);
+
+    StaticMeshVertex *verts = new StaticMeshVertex[mesh_asset->num_verts];
+    fread(verts, sizeof(StaticMeshVertex), mesh_asset->num_verts, fp);
+
+    fread(&mesh_asset->num_indices, sizeof(uint32_t), 1, fp);
+    
+    uint32_t *indices = new uint32_t[mesh_asset->num_indices];
+    fread(indices, sizeof(uint32_t), mesh_asset->num_indices, fp);
+
+    mesh_asset->vertices = verts;
+    mesh_asset->indices = indices;
+
+    fclose(fp);
+  }
+}
+
 void PackageBaker::read_ui_layout_file(mxml_node_t *layout_node)
 {
   const char *buffer = NULL;
@@ -411,7 +477,9 @@ void PackageBaker::write_package(std::string output_filename)
     //collect and count each asset type
     std::vector<ShaderPackageAsset *> shaders;
     std::vector<TexturePackageAsset *> textures;
+    std::vector<MeshPackageAsset *> meshes;
     std::vector<UILayoutPackageAsset *> ui_layouts;
+    
     for (uint32_t i = 0; i < assets.size(); i++)
     {
       switch (assets[i]->get_type())
@@ -422,6 +490,9 @@ void PackageBaker::write_package(std::string output_filename)
       case PACKAGE_ASSET_TEXTURE:
         textures.push_back((TexturePackageAsset *)assets[i]);
         break;
+      case PACKAGE_ASSET_MESH:
+        meshes.push_back((MeshPackageAsset *)assets[i]);
+        break;
       case PACKAGE_ASSET_UI_LAYOUT:
         ui_layouts.push_back((UILayoutPackageAsset *)assets[i]);
         break;
@@ -429,16 +500,19 @@ void PackageBaker::write_package(std::string output_filename)
     }
     uint32_t shader_count = shaders.size();
     uint32_t texture_count = textures.size();
+    uint32_t mesh_count = meshes.size();
     uint32_t ui_layout_count = ui_layouts.size();
 
     cout << "Packaging " << shader_count << " shaders..." << endl;
     cout << "Packaging " << texture_count << " textures..." << endl;
+    cout << "Packaging " << mesh_count << " meshes..." << endl;
     cout << "Packaging " << ui_layout_count << " ui layouts..." << endl;
 
     //file header
     fwrite(&file_version, sizeof(uint32_t), 1, fp);
     fwrite(&shader_count, sizeof(uint32_t), 1, fp);
     fwrite(&texture_count, sizeof(uint32_t), 1, fp);
+    fwrite(&mesh_count, sizeof(uint32_t), 1, fp);
     fwrite(&ui_layout_count, sizeof(uint32_t), 1, fp);
 
     SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
@@ -457,6 +531,15 @@ void PackageBaker::write_package(std::string output_filename)
     {
       TexturePackageAsset *t = textures[i];
       write_texture_packlet(fp, t);
+    }
+
+    SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
+    cout << "Writing mesh packlets..." << endl;
+    SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
+    for (uint32_t i = 0; i < meshes.size(); i++)
+    {
+      MeshPackageAsset *m = meshes[i];
+      write_mesh_packlet(fp, m);
     }
 
     SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
@@ -536,6 +619,27 @@ void PackageBaker::write_texture_packlet(FILE *fp, TexturePackageAsset *t)
   fwrite(t->fname.c_str(), sizeof(char), fname_length, fp);
 
   fwrite(t->tex_data, t->tex_data_size, 1, fp);
+}
+
+void PackageBaker::write_mesh_packlet(FILE *fp, MeshPackageAsset *m)
+{
+  uint32_t hash_id = Math::hash_value_from_string(m->get_name().c_str());
+  cout << "\"" << m->get_name().c_str() << "\"" << " -> " << hash_id << endl;
+
+  uint32_t name_length = (m->name.size() + 1) * sizeof(char);
+  uint32_t fname_length = (m->fname.size() + 1) * sizeof(char);
+
+  fwrite(&hash_id, sizeof(uint32_t), 1, fp);
+  fwrite(&name_length, sizeof(uint32_t), 1, fp);
+  fwrite(&fname_length, sizeof(uint32_t), 1, fp);
+
+  fwrite(&m->num_verts, sizeof(uint32_t), 1, fp);
+  fwrite(&m->num_indices, sizeof(uint32_t), 1, fp);
+
+  fwrite(m->name.c_str(), sizeof(char), name_length, fp);
+  fwrite(m->fname.c_str(), sizeof(char), fname_length, fp);
+  fwrite(m->vertices, sizeof(StaticMeshVertex), m->num_verts, fp);
+  fwrite(m->indices, sizeof(uint32_t), m->num_indices, fp);
 }
 
 void PackageBaker::write_ui_layout_packlet(FILE *fp, UILayoutPackageAsset *u)

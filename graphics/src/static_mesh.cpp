@@ -19,27 +19,27 @@ using namespace Graphics;
 
 StaticMesh::StaticMesh()
 {
-  vbo = ibo = 0;
+  _vbo = _ibo = 0;
 
-  num_vertices = 0;
-  vertices = NULL;
+  _num_vertices = 0;
+  _vertices = NULL;
 
-  num_indices = 0;
-  indices = NULL;
+  _num_indices = 0;
+  _indices = NULL;
 }
 
 StaticMesh::~StaticMesh()
 {
-  if(vertices)
+  if(_vertices)
   {
-    delete vertices;
-    glDeleteBuffersARB(1, &vbo);
+    delete _vertices;
+    glDeleteBuffersARB(1, &_vbo);
   }
 
-  if(indices)
+  if(_indices)
   {
-    glDeleteBuffersARB(1, &ibo);
-    delete indices;
+    glDeleteBuffersARB(1, &_ibo);
+    delete _indices;
   }
 }
 
@@ -49,38 +49,46 @@ void StaticMesh::read_from_file(FILE *f, bool verbose)
   fread(&version, sizeof(int), 1, f);
 
   //int num_verts, num_indices;
-  fread(&num_vertices, sizeof(int), 1, f);
-  vertices = new StaticMeshVertex[num_vertices];
-  fread(vertices, sizeof(StaticMeshVertex), num_vertices, f);
+  fread(&_num_vertices, sizeof(int), 1, f);
+  _vertices = new StaticMeshVertex[_num_vertices];
+  fread(_vertices, sizeof(StaticMeshVertex), _num_vertices, f);
 
-  fread(&num_indices, sizeof(int), 1, f);
-  indices = new unsigned int[num_indices];
-  fread(indices, sizeof(unsigned int), num_indices, f);
+  fread(&_num_indices, sizeof(int), 1, f);
+  _indices = new unsigned int[_num_indices];
+  fread(_indices, sizeof(unsigned int), _num_indices, f);
 
   if(verbose)
   {
     cout<<"StaticMesh::read_from_file(): "<<endl;
-    cout<<"\t"<<num_vertices<<" vertices..."<<endl;
+    cout<<"\t"<<_num_vertices<<" vertices..."<<endl;
     /*(for(int i = 0; i < num_vertices; i++)
     {
       cout<<"\t\tp:  "<<vertices[i].x<<", "<<vertices[i].y<<", "<<vertices[i].z<<endl;
       cout<<"\t\tn:  "<<vertices[i].nx<<", "<<vertices[i].ny<<", "<<vertices[i].nz<<endl;
       cout<<"\t\tuv: "<<vertices[i].u0<<", "<<vertices[i].v0<<endl;
     }*/
-    cout<<"\t"<<num_indices<<" indices..."<<endl;
+    cout<<"\t"<<_num_indices<<" indices..."<<endl;
   }
+}
+
+void StaticMesh::set_data(uint32_t num_verts, StaticMeshVertex *verts, uint32_t num_indices, uint32_t *indices)
+{
+  _num_vertices = num_verts;
+  _vertices = verts;
+  _num_indices = num_indices;
+  _indices = indices;
 }
 
 void StaticMesh::init()
 {
   //create openGL buffer objects
-  glGenBuffers(1, &vbo);
-  glBindBuffer(GL_ARRAY_BUFFER, vbo);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(StaticMeshVertex) * num_vertices, vertices, GL_STATIC_DRAW);
+  glGenBuffers(1, &_vbo);
+  glBindBuffer(GL_ARRAY_BUFFER, _vbo);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(StaticMeshVertex) * _num_vertices, _vertices, GL_STATIC_DRAW);
 
-  glGenBuffers(1, &ibo);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * num_indices, indices, GL_STATIC_DRAW);
+  glGenBuffers(1, &_ibo);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ibo);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * _num_indices, _indices, GL_STATIC_DRAW);
 
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -89,8 +97,8 @@ void StaticMesh::init()
 void StaticMesh::render(Material *m, GLenum primitive_type)
 {
   //TODO: use DrawCall objects
-  glBindBuffer(GL_ARRAY_BUFFER, vbo);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+  glBindBuffer(GL_ARRAY_BUFFER, _vbo);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ibo);
 
   if (m)
   {
@@ -111,7 +119,7 @@ void StaticMesh::render(Material *m, GLenum primitive_type)
     glTexCoordPointer(2, GL_FLOAT, sizeof(StaticMeshVertex), (void *)(sizeof(float) * 9));
   }
   
-  glDrawElements(primitive_type, num_indices, GL_UNSIGNED_INT, (void *)0);
+  glDrawElements(primitive_type, _num_indices, GL_UNSIGNED_INT, (void *)0);
 
   if (m)
   {

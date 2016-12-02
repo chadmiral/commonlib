@@ -113,6 +113,16 @@ Texture2D *AssetLibrary::retrieve_texture(std::string name)
   return tex_asset->t;
 }
 
+StaticMesh *AssetLibrary::retrieve_mesh(std::string name)
+{
+  MeshAsset *mesh_asset = (MeshAsset *)retrieve_asset(name);
+  assert(mesh_asset);
+  if (!mesh_asset) { return NULL; }
+  assert(mesh_asset->type == MESH_ASSET);
+  assert(mesh_asset->m);
+  return mesh_asset->m;
+}
+
 void ShaderAsset::reload_from_disk()
 {
   cout << "Reloading shader from disk" << endl;

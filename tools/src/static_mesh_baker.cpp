@@ -30,7 +30,7 @@ void StaticMeshBaker::bake(mxml_node_t *tree, std::string output_fname)
       mxml_node_t *diff_node = mxmlFindElement(material_node, material_node, "diffuse_color", NULL, NULL, MXML_DESCEND);
       assert(diff_node);
       Float3 diff_color = mxml_read_float3(diff_node->child);
-      cout<<"\tdiffuse: "<<diff_color<<endl;
+      //cout<<"\tdiffuse: "<<diff_color<<endl;
     }
 
     //read all the textures used by this material
@@ -63,12 +63,12 @@ void StaticMeshBaker::bake(mxml_node_t *tree, std::string output_fname)
       assert(pos_node);
       Float3 vert_pos = mxml_read_float3(pos_node->child);
       vertex_xyz.push_back(vert_pos);
-      cout<<"\tv: "<<vert_pos<<endl;
+      //cout<<"\tv: "<<vert_pos<<endl;
 
       mxml_node_t *norm_node = mxmlFindElement(vert_node, vert_node, "normal", NULL, NULL, MXML_DESCEND);
       assert(norm_node);
       Float3 vert_normal = mxml_read_float3(norm_node->child);
-      cout<<"\tn: "<<vert_normal<<endl;
+      //cout<<"\tn: "<<vert_normal<<endl;
 
       start_node = vert_node;
     }
@@ -89,11 +89,11 @@ void StaticMeshBaker::bake(mxml_node_t *tree, std::string output_fname)
       assert(face_idx_node);
 
       int face_idx = atoi(face_idx_node->child->value.text.string);
-      cout<<"\tface id: "<<face_idx<<endl;
+      //cout<<"\tface id: "<<face_idx<<endl;
 
       mxml_node_t *mat_idx_node = mxmlFindElement(face_node, face_node, "mat_idx", NULL, NULL, MXML_DESCEND);
       mf.mat_idx = atoi(mat_idx_node->child->value.text.string);
-      cout<<"\t\tmat_idx: "<<mf.mat_idx<<endl;
+      //cout<<"\t\tmat_idx: "<<mf.mat_idx<<endl;
 
       int v_idx[3] = { -1, -1, -1 };
       Float3 col[3];
@@ -109,19 +109,19 @@ void StaticMeshBaker::bake(mxml_node_t *tree, std::string output_fname)
         assert(uv_node);
 
         mf.uvs[i] = mxml_read_float2(uv_node->child);
-        cout<<"\t\tuv: "<<mf.uvs[i]<<endl;
+        //cout<<"\t\tuv: "<<mf.uvs[i]<<endl;
 
         //vertex color
         col_node = mxmlFindElement(col_node, face_node, "col", NULL, NULL, MXML_DESCEND);
         assert(col_node);
         mf.rgb[i] = mxml_read_float3(col_node->child);
-        cout<<"\t\trgb: "<<mf.rgb[i]<<endl;
+        //cout<<"\t\trgb: "<<mf.rgb[i]<<endl;
 
         //vertex index
         vidx_node = mxmlFindElement(vidx_node, face_node, "v_idx", NULL, NULL, MXML_DESCEND);
         assert(vidx_node);
         mf.vert_idx[i] = atoi(vidx_node->child->value.text.string);
-        cout<<"\t\tvidx: "<<mf.vert_idx[i]<<endl;
+        //cout<<"\t\tvidx: "<<mf.vert_idx[i]<<endl;
       }
 
       //face normal
@@ -129,7 +129,7 @@ void StaticMeshBaker::bake(mxml_node_t *tree, std::string output_fname)
       assert(norm_node);
       mf.normal = mxml_read_float3(norm_node->child);
       mf.normal.normalize();
-      cout<<"\tfn: "<<mf.normal<<endl;
+      //cout<<"\tfn: "<<mf.normal<<endl;
 
       mesh_faces.push_back(mf);
 
@@ -138,19 +138,19 @@ void StaticMeshBaker::bake(mxml_node_t *tree, std::string output_fname)
   } while(face_node);
 
   //build render data
-  cout<<endl<<endl<<"\t"<<mesh_faces.size()<<" faces."<<endl;
-  int num_indices = mesh_faces.size() * 3;
+  //cout<<endl<<endl<<"\t"<<mesh_faces.size()<<" faces."<<endl;
+  uint32_t num_indices = mesh_faces.size() * 3;
   unsigned int *indices = new unsigned int[num_indices];
   int index_counter = 0;
 
-  int num_render_verts = mesh_faces.size() * 3;
+  uint32_t num_render_verts = mesh_faces.size() * 3;
   StaticMeshVertex *render_verts = new StaticMeshVertex[num_render_verts];
   int rvi = 0;
 
   for(unsigned int i = 0; i < mesh_faces.size(); i++)
   {
     MeshFace *mf = &mesh_faces[i];
-    cout<<"\tvert_idx:\n";
+    //cout<<"\tvert_idx:\n";
     for(int j = 0; j < 3; j++)
     {
       unsigned int vert_idx = mf->vert_idx[j];
@@ -177,7 +177,7 @@ void StaticMeshBaker::bake(mxml_node_t *tree, std::string output_fname)
 
       rvi++;
     }
-    cout<<endl;
+    //cout<<endl;
   }
 
   cout<<"opening file "<<output_fname.c_str()<<"..."<<endl;
@@ -190,7 +190,7 @@ void StaticMeshBaker::bake(mxml_node_t *tree, std::string output_fname)
 
   //write vertex data
   cout<<"writing "<<num_render_verts<<" render verts"<<endl;
-  fwrite(&num_render_verts, sizeof(int), 1, f);
+  fwrite(&num_render_verts, sizeof(uint32_t), 1, f);
   fwrite(render_verts, sizeof(StaticMeshVertex), num_render_verts, f);
 
   //write index data

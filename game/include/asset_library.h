@@ -10,6 +10,7 @@
 #include "texture.h"
 #include "timer.h"
 #include "layout.h"
+#include "static_mesh.h"
 
 namespace Game
 {
@@ -63,6 +64,17 @@ namespace Game
     Graphics::Texture2D *t;
   };
 
+  class MeshAsset : public GameAsset
+  {
+  public:
+    MeshAsset() : GameAsset(MESH_ASSET) {}
+    ~MeshAsset() {}
+
+    virtual void reload_from_disk() { assert(false); }
+
+    Graphics::StaticMesh *m;
+  };
+
   class UILayoutAsset : public GameAsset
   {
   public:
@@ -88,6 +100,7 @@ namespace Game
     GameAsset *retrieve_asset(std::string name);
     Graphics::Shader *retrieve_shader(std::string name);
     Graphics::Texture2D *retrieve_texture(std::string name);
+    Graphics::StaticMesh *retrieve_mesh(std::string name);
 
     void init();
     void simulate(const double game_time, const double frame_time);

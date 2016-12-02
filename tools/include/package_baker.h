@@ -111,11 +111,13 @@ namespace Tool
 
     void read_shader_file(mxml_node_t *shader_node);
     void read_texture_file(mxml_node_t *texture_node);
+    void read_mesh_file(mxml_node_t *mesh_node);
     void read_ui_layout_file(mxml_node_t *layout_node);
 
     void write_package(std::string output_fname);
     void write_shader_packlet(FILE *fp, ShaderPackageAsset *s);
     void write_texture_packlet(FILE *fp, TexturePackageAsset *t);
+    void write_mesh_packlet(FILE *fp, MeshPackageAsset *m);
     void write_ui_layout_packlet(FILE *fp, UILayoutPackageAsset *u);
   public:
     PackageBaker() { file_version = PACKAGE_FILE_VERSION; }
