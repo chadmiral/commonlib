@@ -70,16 +70,6 @@ void Texture2D::init()
 
   assert(glIsTexture(gl_texture) == GL_TRUE);
 
-  glTexImage2D(GL_TEXTURE_2D,
-               0,
-               internal_format,
-               dim[0],
-               dim[1],
-               0,
-               tex_format,
-               data_format,
-               NULL);
-
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap_mode[0]);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap_mode[1]);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter_mode);
@@ -91,6 +81,16 @@ void Texture2D::init()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
   }
+  
+  glTexImage2D(GL_TEXTURE_2D,
+               0,
+               internal_format,
+               dim[0],
+               dim[1],
+               0,
+               tex_format,
+               data_format,
+               NULL);
 
   assert(glIsTexture(gl_texture) == GL_TRUE);
 

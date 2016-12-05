@@ -17,6 +17,7 @@
 #include "render_surface.h"
 #include "texture.h"
 #include "curve.h"
+#include "quaternion.h"
 
 #define MAX_NUM_ATTRACTORS 5
 #define MAX_AGE 100.f
@@ -51,7 +52,54 @@ namespace Graphics
     Math::Float3 location;
     float strength;
   };
-
+  
+  
+  struct Particle3D
+  {
+    Math::Float3       position;
+    Math::Float3       velocity;
+    Math::Float3       scale;
+    
+    Math::Float4       rgba;
+    
+    Math::Quaternion   rotation;
+    //Math::Float3 rotation_axis;
+    //float rotation_amount
+    
+    float              age;
+    
+    uint32_t           user_data_a;
+  };
+  
+  //base class
+  class ParticleSystem3D
+  {
+  protected:
+    std::vector<Particle3D> particles;
+  public:
+    ParticleSystem3D();
+    ~ParticleSystem3D();
+    
+    void simulate(const double game_time, const double frame_time);
+  };
+  
+  
+  class ParticleSimulator
+  {
+  private:
+    std::vector<ParticleSystem3D *> particle_systems;
+    //std::vector<Physics::Force *> forces; //interactors
+  public:
+    ParticleSimulator() {}
+    ~ParticleSimulator() {}
+    
+    void init() {}
+    void simulate(const double game_time, const float frame_time) {}
+    void render(const double game_time) {}
+    
+  };
+  
+  
   struct GPUParticleSystemTemplate
   {
     int               num_particles;

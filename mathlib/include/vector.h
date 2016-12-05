@@ -112,9 +112,76 @@ namespace Math {
     //data
     float _val[3];
   };
+  
+  
+  class Float4 {
+  public:
+    Float4();
+    Float4(const float _x, const float _y, const float _z, const float _w);
+    //Float4(const Float2 &b, const float _z);
+    Float4(const Float4 &b);
+    
+    inline Float4 &operator=(const Float4 &r) { _val[0] = r._val[0]; _val[1] = r._val[1]; _val[2] = r._val[2]; _val[3] = r._val[3]; return *this; }
+    inline Float4 operator+(const Float4 &r) const { return Float4(_val[0] + r._val[0], _val[1] + r._val[1], _val[2] + r._val[2], _val[3] + r._val[3]); }
+    inline Float4 operator-(const Float4 &r) const { return Float4(_val[0] - r._val[0], _val[1] - r._val[1], _val[2] - r._val[2], _val[3] - r._val[3]); }
+    inline Float4 operator/(const float &r) const { return Float4(_val[0] / r, _val[1] / r, _val[2] / r, _val[3] / r); }
+    inline Float4 operator*(const float &r) const { return Float4(r * _val[0], r * _val[1], r * _val[2], r * _val[3]); }
+    
+    inline float &operator[](const int idx) { return _val[idx]; }
+    inline float operator[](const int idx) const { return _val[idx]; }
+    
+    //dot product
+    inline float operator*(const Float4 &r) const { return _val[0] * r._val[0] + _val[1] * r._val[1] + _val[2] * r._val[2] + _val[3] * r._val[3]; }
+    
+    //cross product
+    /*inline Float4 operator^(const Float4 &r) const {
+      return Float4(_val[1] * r._val[2] - _val[2] * r._val[1],
+                    _val[2] * r._val[0] - _val[0] * r._val[2],
+                    _val[0] * r._val[1] - _val[1] * r._val[0]);
+    }*/
+    
+    
+    inline float &x() { return _val[0]; }
+    inline float &y() { return _val[1]; }
+    inline float &z() { return _val[2]; }
+    inline float &w() { return _val[3]; }
+    
+    /*
+    inline float &phi() { return _val[0]; }
+    inline float &theta() { return _val[1]; }
+    inline float &rad() { return _val[2]; }
+    */
+    
+    //swizzle
+    /*inline Float4 xzy() const { return Float4(_val[0], _val[2], _val[1]); }
+    inline Float4 yxz() const { return Float4(_val[1], _val[0], _val[2]); }
+    inline Float4 yzx() const { return Float4(_val[1], _val[2], _val[0]); }
+    inline Float4 zxy() const { return Float4(_val[2], _val[0], _val[1]); }
+    inline Float4 zyx() const { return Float4(_val[2], _val[1], _val[0]); }
+     */
+    
+    //length / normalization
+    inline void normalize()
+    {
+      //float m = magnitude(); _val[0] /= m; _val[1] /= m; _val[2] /= m;
+      float sqr_sum = _val[0] * _val[0] + _val[1] * _val[1] + _val[2] * _val[2] + _val[3] * _val[3];
+      float i_sqrt = inv_sqrt(sqr_sum);
+      _val[0] = i_sqrt * _val[0];
+      _val[1] = i_sqrt * _val[1];
+      _val[2] = i_sqrt * _val[2];
+      _val[3] = i_sqrt * _val[3];
+    }
+    inline float magnitude() const { return sqrt(_val[0] * _val[0] + _val[1] * _val[1] + _val[2] * _val[2] + _val[3] * _val[3]); }
+    inline float mag_squared() const { return _val[0] * _val[0] + _val[1] * _val[1] + _val[2] * _val[2] + _val[3] * _val[3]; }
+    
+    //data
+    float _val[4];
+  };
 
   inline Float2 operator*(const float &l, const Float2 &r) { return Float2(l * r._val[0], l * r._val[1]); }
   inline Float3 operator*(const float &l, const Float3 &r) { return Float3(l * r._val[0], l * r._val[1], l * r._val[2]); }
+  inline Float4 operator*(const float &l, const Float4 &r) { return Float4(l * r._val[0], l * r._val[1], l * r._val[2], l * r._val[3]); }
+  
   inline std::ostream &operator<<(std::ostream &os, const Float3 &obj) { os << "(" << obj[0] << ", " << obj[1] << ", " << obj[2] << ")"; return os; }
   inline std::ostream &operator<<(std::ostream &os, const Float2 &obj) { os << "(" << obj[0] << ", " << obj[1] << ")"; return os; }
 
