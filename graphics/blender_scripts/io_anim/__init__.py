@@ -1,10 +1,10 @@
 bl_info = {
-    "name": "Skeleton Rig (.bones)",
+    "name": "Animation (.anim)",
     "author": "Chandra Foxglove",
     "version": (0, 1),
     "blender": (2, 76, 0),
-    "location": "File > Import-Export > Skeleton (.bones) ",
-    "description": "Import-Export Bones Skeleton Format",
+    "location": "File > Import-Export > Anim (.anim) ",
+    "description": "Import-Export Animation Format",
     "warning": "",
     "wiki_url": "",
     "tracker_url": "",
@@ -12,10 +12,10 @@ bl_info = {
 
 if "bpy" in locals():
     import imp
-    if "import_bones" in locals():
-        imp.reload(import_bones)
-    if "export_bones" in locals():
-        imp.reload(export_bones)
+    if "import_anim" in locals():
+        imp.reload(import_anim)
+    if "export_anim" in locals():
+        imp.reload(export_anim)
 else:
     import bpy
 
@@ -24,19 +24,19 @@ from bpy_extras.io_utils import ExportHelper
 
 
 class BonesImporter(bpy.types.Operator):
-    """Load BONES skeleton data"""
-    bl_idname = "import_skeleton.bones"
-    bl_label = "Import BONES"
+    """Load ANIM data"""
+    bl_idname = "import_anim.anim"
+    bl_label = "Import ANIM"
     bl_options = {'UNDO'}
 
     filepath = StringProperty(
             subtype='FILE_PATH',
             )
-    filter_glob = StringProperty(default="*.bones", options={'HIDDEN'})
+    filter_glob = StringProperty(default="*.anim", options={'HIDDEN'})
 
     def execute(self, context):
-        from . import import_bones
-        import_bones.read(self.filepath)
+        from . import import_anim
+        import_anim.read(self.filepath)
         return {'FINISHED'}
 
     def invoke(self, context, event):
@@ -46,12 +46,12 @@ class BonesImporter(bpy.types.Operator):
 
 
 class BonesExporter(bpy.types.Operator, ExportHelper):
-    """Save BONES skeleton data"""
-    bl_idname = "export_skeleton.bones"
-    bl_label = "Export BONES"
+    """Save ANIM data"""
+    bl_idname = "export_anim.anim"
+    bl_label = "Export ANIM"
 
-    filename_ext = ".bones"
-    filter_glob = StringProperty(default="*.bones", options={'HIDDEN'})
+    filename_ext = ".anim"
+    filter_glob = StringProperty(default="*.anim", options={'HIDDEN'})
 
     apply_modifiers = BoolProperty(
             name="Apply Modifiers",
@@ -65,8 +65,8 @@ class BonesExporter(bpy.types.Operator, ExportHelper):
             )
 
     def execute(self, context):
-        from . import export_bones
-        export_bones.write(self.filepath,
+        from . import export_anim
+        export_anim.write(self.filepath,
                          self.apply_modifiers,
                          self.triangulate,
                          )
@@ -75,11 +75,11 @@ class BonesExporter(bpy.types.Operator, ExportHelper):
 
 
 def menu_import(self, context):
-    self.layout.operator(BonesImporter.bl_idname, text="BONES (.bones)")
+    self.layout.operator(BonesImporter.bl_idname, text="ANIM (.anim)")
 
 
 def menu_export(self, context):
-    self.layout.operator(BonesExporter.bl_idname, text="BONES (.bones)")
+    self.layout.operator(BonesExporter.bl_idname, text="ANIM (.anim)")
 
 
 def register():
