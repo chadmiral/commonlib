@@ -1,7 +1,5 @@
 """
-Export the selected object to a brick mesh (hopefully it's already a mesh and ready for export!)
-
-Requirements: transforms applied... (world matrix, etc not taken into account)
+Export the selected object to a bones xml file
 
 """
 
@@ -18,7 +16,7 @@ def write(filepath,
 	# write the header of the file
 	file = open(filepath, "w")
 	file.write("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>\n")
-	file.write("<static_mesh version=\"1\">\n")
+	file.write("<skeleton version=\"1\">\n")
 
 	for obj in bpy.context.selected_objects:
 		if obj.type == 'MESH':
