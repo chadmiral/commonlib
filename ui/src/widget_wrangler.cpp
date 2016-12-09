@@ -43,7 +43,7 @@ void WidgetWrangler::process_event(const SDL_Event &e, const Float2 offset)
   //focus_idx = 0;
 
   int mouse_x, mouse_y;
-  //Uint32 button_state = SDL_GetMouseState(&mouse_x, &mouse_y);
+  Uint32 button_state = SDL_GetMouseState(&mouse_x, &mouse_y);
   mouse_x += (int)offset[0];
   mouse_y += (int)offset[1];
 

@@ -59,26 +59,9 @@ void Billboard::render(const double game_time)
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 
   material->render();
-
-  
-  /*
-  glEnableClientState(GL_VERTEX_ARRAY);
-  glVertexPointer(3, GL_FLOAT, sizeof(BillboardVertex), (void *)0);
-
-  glClientActiveTexture(GL_TEXTURE0);
-  glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-  glTexCoordPointer(2, GL_FLOAT, sizeof(BillboardVertex), (void *)(sizeof(float) * 3));
-*/
-   
   glDrawElements(geo_mode, num_indices, GL_UNSIGNED_INT, (void *)0);
 
-
+  material->cleanup();
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-  //glClientActiveTexture(GL_TEXTURE0);
-  //glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-
-  material->cleanup();
-
 }

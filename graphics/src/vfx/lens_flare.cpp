@@ -33,7 +33,7 @@ void LensFlareElement::init()
   // 3---2
   //
   
-  float size = 50.0f;
+  float size = 25.0f;
   
   index_data[0] = 0;
   vertex_data[0].x = -size;

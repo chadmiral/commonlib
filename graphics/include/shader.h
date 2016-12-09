@@ -172,7 +172,7 @@ namespace Graphics
 #endif
       {
         glEnableVertexAttribArray(_loc);
-        glVertexAttribPointer(_loc, 3, _type, GL_FALSE, _vertex_size, (void *)_offset);
+        glVertexAttribPointer(_loc, _count, _type, GL_FALSE, _vertex_size, (void *)_offset);
         gl_check_error();
       }
     }

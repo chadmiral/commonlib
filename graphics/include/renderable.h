@@ -29,15 +29,21 @@ namespace Graphics
     {
       deallocate_buffers();
       vertex_data = new VertexType[num_vertices];
-      index_data = new unsigned int[num_indices];
+      index_data = new uint32_t[num_indices];
     }
 
     void deallocate_buffers()
     {
-      glDeleteBuffers(1, &vbo);
-      glDeleteBuffers(1, &ibo);
-      if (vertex_data) { delete vertex_data; }
-      if (index_data) { delete index_data; }
+      if (vertex_data)
+      { 
+        delete vertex_data;
+        glDeleteBuffers(1, &vbo);
+      }
+      if (index_data)
+      {
+        delete index_data;
+        glDeleteBuffers(1, &ibo);
+      }
     }
 
     void init_buffers()
@@ -49,7 +55,7 @@ namespace Graphics
 
       glGenBuffers(1, &ibo);
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-      glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * num_indices, index_data, gl_usage);
+      glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32_t) * num_indices, index_data, gl_usage);
 
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
       glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -62,6 +68,8 @@ namespace Graphics
       index_data = NULL;
       geo_mode = GL_QUAD_STRIP;
       gl_usage = GL_STATIC_DRAW;
+      vbo = 0;
+      ibo = 0;
     }
     ~Renderable() {}
 
