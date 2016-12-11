@@ -16,14 +16,20 @@
     <Filter Include="Header Files\cinematics">
       <UniqueIdentifier>{435e8a27-5476-4b68-a6c7-4b66f47b5454}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\cinematics">
-      <UniqueIdentifier>{67f20b32-ef83-4d62-bad9-42c5f9e3ff13}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\sequencer">
       <UniqueIdentifier>{d3e494b9-c255-4db8-ad60-2d381fde3b1c}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\switchboard">
       <UniqueIdentifier>{9ae2131b-c2d1-453a-a850-354168d4e89a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\animation">
+      <UniqueIdentifier>{0d12c455-bb0e-47dd-bd87-f23b5fbd1585}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\animation">
+      <UniqueIdentifier>{02807090-e2cb-4ee0-99dc-9b976f3d83b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\cinematics">
+      <UniqueIdentifier>{67f20b32-ef83-4d62-bad9-42c5f9e3ff13}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -44,6 +50,9 @@
     </ClInclude>
     <ClInclude Include="..\..\game\include\game_controller.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\game\include\animation\skeleton.h">
+      <Filter>Header Files\animation</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -76,6 +85,9 @@
     </ClCompile>
     <ClCompile Include="..\..\game\src\switchboard\switchboard.cpp">
       <Filter>Source Files\switchboard</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\game\src\animation\skeleton.cpp">
+      <Filter>Source Files\animation</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

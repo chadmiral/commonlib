@@ -11,6 +11,7 @@
 #include "timer.h"
 #include "layout.h"
 #include "static_mesh.h"
+#include "skeleton.h"
 
 namespace Game
 {
@@ -19,6 +20,7 @@ namespace Game
     SHADER_ASSET,
     TEXTURE_ASSET,
     MESH_ASSET,
+    SKELETON_ASSET,
     UI_LAYOUT_ASSET,
     AUDIO_ASSET
   };
@@ -75,6 +77,17 @@ namespace Game
     Graphics::StaticMesh *m;
   };
 
+  class SkeletonAsset : public GameAsset
+  {
+  public:
+    SkeletonAsset() : GameAsset(SKELETON_ASSET) {}
+    ~SkeletonAsset() {}
+
+    virtual void reload_from_disk() { assert(false); }
+
+    Animation::Skeleton *s;
+  };
+
   class UILayoutAsset : public GameAsset
   {
   public:
@@ -101,6 +114,7 @@ namespace Game
     Graphics::Shader *retrieve_shader(std::string name);
     Graphics::Texture2D *retrieve_texture(std::string name);
     Graphics::StaticMesh *retrieve_mesh(std::string name);
+    Animation::Skeleton *retrieve_skeleton(std::string name);
 
     void init();
     void simulate(const double game_time, const double frame_time);

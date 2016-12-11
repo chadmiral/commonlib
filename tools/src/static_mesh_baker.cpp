@@ -9,11 +9,6 @@ using namespace Graphics;
 using namespace Math;
 using namespace std;
 
-StaticMeshBaker::StaticMeshBaker()
-{
-
-}
-
 void StaticMeshBaker::bake(mxml_node_t *tree, std::string output_fname)
 {
   cout<<"\tParsing static mesh xml..."<<endl;
@@ -147,13 +142,13 @@ void StaticMeshBaker::bake(mxml_node_t *tree, std::string output_fname)
   StaticMeshVertex *render_verts = new StaticMeshVertex[num_render_verts];
   int rvi = 0;
 
-  for(unsigned int i = 0; i < mesh_faces.size(); i++)
+  for(uint32_t i = 0; i < mesh_faces.size(); i++)
   {
     MeshFace *mf = &mesh_faces[i];
     //cout<<"\tvert_idx:\n";
     for(int j = 0; j < 3; j++)
     {
-      unsigned int vert_idx = mf->vert_idx[j];
+      uint32_t vert_idx = mf->vert_idx[j];
       indices[index_counter] = index_counter;//vert_idx;
       index_counter++;
 

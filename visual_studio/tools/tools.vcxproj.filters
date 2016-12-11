@@ -54,6 +54,9 @@
     <ClInclude Include="..\..\tools\include\package_baker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\tools\include\skeleton_baker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\tools\src\bakery.cpp">
@@ -108,6 +111,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\tools\src\package_baker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\tools\src\skeleton_baker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

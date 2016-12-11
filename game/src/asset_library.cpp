@@ -5,6 +5,7 @@
 
 using namespace Game;
 using namespace Graphics;
+using namespace Animation;
 
 using namespace std;
 
@@ -121,6 +122,16 @@ StaticMesh *AssetLibrary::retrieve_mesh(std::string name)
   assert(mesh_asset->type == MESH_ASSET);
   assert(mesh_asset->m);
   return mesh_asset->m;
+}
+
+Skeleton *AssetLibrary::retrieve_skeleton(std::string name)
+{
+  SkeletonAsset *skeleton_asset = (SkeletonAsset *)retrieve_asset(name);
+  assert(skeleton_asset);
+  if (!skeleton_asset) { return NULL;  }
+  assert(skeleton_asset->type == SKELETON_ASSET);
+  assert(skeleton_asset->s);
+  return skeleton_asset->s;
 }
 
 void ShaderAsset::reload_from_disk()

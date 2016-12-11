@@ -124,6 +124,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\game\include\animation\skeleton.h" />
     <ClInclude Include="..\..\game\include\asset_library.h" />
     <ClInclude Include="..\..\game\include\cinematics\fade_screen.h" />
     <ClInclude Include="..\..\game\include\console.h" />
@@ -132,6 +133,7 @@
     <ClInclude Include="..\..\game\include\sdl_game.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\game\src\animation\skeleton.cpp" />
     <ClCompile Include="..\..\game\src\asset_library.cpp" />
     <ClCompile Include="..\..\game\src\cinematics\fade_screen.cpp" />
     <ClCompile Include="..\..\game\src\console.cpp" />

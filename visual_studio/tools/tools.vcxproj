@@ -90,7 +90,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>../../;../../tools/include;../../tools/include/minilzo;../../tools/src/mxml-2.9;../../mathlib/include;../../game/include;../../graphics/include;..\..\..\glew-1.13.0\include;..\..\..\SDL2-2.0.4\include;..\..\..\SDL2_image-2.0.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../;../../tools/include;../../tools/include/minilzo;../../tools/src/mxml-2.9;../../mathlib/include;../../game/include;../../game/include/animation;../../graphics/include;..\..\..\glew-1.13.0\include;..\..\..\SDL2-2.0.4\include;..\..\..\SDL2_image-2.0.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -123,7 +123,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>../../;../../tools/include;../../tools/include/minilzo;../../tools/src/mxml-2.9;../../mathlib/include;../../game/include;../../graphics/include;..\..\..\glew-1.13.0\include;..\..\..\SDL2-2.0.4\include;..\..\..\SDL2_image-2.0.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../;../../tools/include;../../tools/include/minilzo;../../tools/src/mxml-2.9;../../mathlib/include;../../game/include;../../game/include/animation;../../graphics/include;..\..\..\glew-1.13.0\include;..\..\..\SDL2-2.0.4\include;..\..\..\SDL2_image-2.0.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -160,6 +160,7 @@
     <ClInclude Include="..\..\tools\include\minilzo\minilzo.h" />
     <ClInclude Include="..\..\tools\include\package_baker.h" />
     <ClInclude Include="..\..\tools\include\shader_baker.h" />
+    <ClInclude Include="..\..\tools\include\skeleton_baker.h" />
     <ClInclude Include="..\..\tools\include\static_mesh_baker.h" />
     <ClInclude Include="..\..\tools\include\tool.h" />
   </ItemGroup>
@@ -180,6 +181,7 @@
     <ClCompile Include="..\..\tools\src\mxml-2.9\mxml-string.c" />
     <ClCompile Include="..\..\tools\src\package_baker.cpp" />
     <ClCompile Include="..\..\tools\src\shader_baker.cpp" />
+    <ClCompile Include="..\..\tools\src\skeleton_baker.cpp" />
     <ClCompile Include="..\..\tools\src\static_mesh_baker.cpp" />
     <ClCompile Include="..\..\tools\src\tool.cpp" />
   </ItemGroup>

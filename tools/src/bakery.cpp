@@ -13,6 +13,7 @@ void Bakery::init()
 
   package_baker.init();
   static_mesh_baker.init();
+  skeleton_baker.init();
   bphys_baker.init();
   shader_baker.init();
 }
@@ -67,6 +68,13 @@ void Bakery::bake(std::string fname, std::string out_fname)
       if(node)
       {
         shader_baker.bake(tree, output_fname);
+      }
+
+      //skeleton
+      node = mxmlFindElement(tree, tree, "skeleton", "version", NULL, MXML_DESCEND);
+      if (node)
+      {
+        skeleton_baker.bake(tree, output_fname);
       }
 
       //package

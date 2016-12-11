@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <mxml.h>
+#include "skeleton.h"
 
 #define PACKAGE_FILE_VERSION 1
 
@@ -12,8 +13,11 @@ namespace Tool
   enum PackageAssetType
   {
     PACKAGE_ASSET_SHADER,
+    PACKAGE_ASSET_MATERIAL,
     PACKAGE_ASSET_TEXTURE,
     PACKAGE_ASSET_MESH,
+    PACKAGE_ASSET_SKELETON,
+    PACKAGE_ASSET_ANIMATION,
     PACKAGE_ASSET_UI_LAYOUT
   };
 
@@ -27,6 +31,7 @@ namespace Tool
     std::vector<std::string> *path;
   public:
     PackageAsset() {}
+    PackageAsset(PackageAssetType t) { type = t; }
     ~PackageAsset() {}
 
     void set_name(const char *n) { name = n; }
@@ -41,7 +46,7 @@ namespace Tool
   class ShaderPackageAsset : public PackageAsset
   {
   public:
-    ShaderPackageAsset() {}
+    ShaderPackageAsset() : PackageAsset(PACKAGE_ASSET_SHADER) {}
     ~ShaderPackageAsset() {}
 
     std::string vs_fname;
@@ -57,7 +62,7 @@ namespace Tool
   class TexturePackageAsset : public PackageAsset
   {
   public:
-    TexturePackageAsset() { tex_data = NULL; wrap_u = GL_REPEAT; wrap_v = GL_REPEAT; }
+    TexturePackageAsset() : PackageAsset(PACKAGE_ASSET_TEXTURE) { tex_data = NULL; tex_data_size = 0; wrap_u = GL_REPEAT; wrap_v = GL_REPEAT; }
     ~TexturePackageAsset() { if (tex_data) { delete tex_data; } }
 
     uint32_t width;  //texture width
@@ -73,7 +78,7 @@ namespace Tool
   class MeshPackageAsset : public PackageAsset
   {
   public:
-    MeshPackageAsset() {}
+    MeshPackageAsset() : PackageAsset(PACKAGE_ASSET_MESH) { num_verts = 0; vertices = NULL; num_indices = 0; indices = NULL; }
     ~MeshPackageAsset() {}
 
     uint32_t num_verts;
@@ -85,7 +90,7 @@ namespace Tool
   class MaterialPackageAsset : public PackageAsset
   {
   public:
-    MaterialPackageAsset() {}
+    MaterialPackageAsset() : PackageAsset(PACKAGE_ASSET_MATERIAL) {}
     ~MaterialPackageAsset() {}
 
     std::string shader_name;
@@ -93,10 +98,30 @@ namespace Tool
     uint32_t material_flags;
   };
 
+  /*
+  struct SkeletonBone
+  {
+    char name[32];
+    char parent[32];
+
+    Math::Float3 head_pos;
+    Math::Float3 tail_pos;
+  };*/
+
+  class SkeletonPackageAsset : public PackageAsset
+  {
+  public:
+    SkeletonPackageAsset() : PackageAsset(PACKAGE_ASSET_SKELETON) { num_bones = 0; bones = NULL; }
+    ~SkeletonPackageAsset() { if (bones) { delete bones; } }
+
+    uint32_t            num_bones;
+    Animation::Bone    *bones;
+  };
+
   class UILayoutPackageAsset : public PackageAsset
   {
   public:
-    UILayoutPackageAsset() {}
+    UILayoutPackageAsset() : PackageAsset(PACKAGE_ASSET_UI_LAYOUT) {}
     ~UILayoutPackageAsset() {}
 
     std::string xml_source;
@@ -112,12 +137,17 @@ namespace Tool
     void read_shader_file(mxml_node_t *shader_node);
     void read_texture_file(mxml_node_t *texture_node);
     void read_mesh_file(mxml_node_t *mesh_node);
+    void read_skeleton_file(mxml_node_t *skeleton_node);
     void read_ui_layout_file(mxml_node_t *layout_node);
 
     void write_package(std::string output_fname);
+
+    void write_packlet_header(FILE *fp, PackageAsset *a);
+
     void write_shader_packlet(FILE *fp, ShaderPackageAsset *s);
     void write_texture_packlet(FILE *fp, TexturePackageAsset *t);
     void write_mesh_packlet(FILE *fp, MeshPackageAsset *m);
+    void write_skeleton_packlet(FILE *fp, SkeletonPackageAsset *s);
     void write_ui_layout_packlet(FILE *fp, UILayoutPackageAsset *u);
   public:
     PackageBaker() { file_version = PACKAGE_FILE_VERSION; }

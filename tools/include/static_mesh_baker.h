@@ -24,7 +24,7 @@ namespace Tool
   class StaticMeshBaker
   {
   public:
-    StaticMeshBaker();
+    StaticMeshBaker() {}
     ~StaticMeshBaker() {}
 
     void init() {}

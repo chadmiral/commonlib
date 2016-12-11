@@ -31,8 +31,9 @@ def write(filepath,
 					file.write(bone.parent.name)
 				file.write("\">\n")
 
-				file.write("\t\t\t<head>%.6f %.6f %.6f</head>\n" % (bone.head[0], bone.head[1], bone.head[2]))
-				file.write("\t\t\t<tail>%.6f %.6f %.6f</tail>\n" % (bone.tail[0], bone.tail[1], bone.tail[2]))
+				#note: bone.head / bone.tail will give coordinates relative to the bone's parent
+				file.write("\t\t\t<head>%.6f %.6f %.6f</head>\n" % (bone.head_local[0], bone.head_local[1], bone.head_local[2]))
+				file.write("\t\t\t<tail>%.6f %.6f %.6f</tail>\n" % (bone.tail_local[0], bone.tail_local[1], bone.tail_local[2]))
 
 				file.write("\t\t</bone>\n")
 			file.write("\t</skeleton>\n")
