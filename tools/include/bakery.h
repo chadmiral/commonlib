@@ -6,6 +6,7 @@
 #include "static_mesh_baker.h"
 #include "shader_baker.h"
 #include "skeleton_baker.h"
+#include "animation_baker.h"
 #include "bphys_baker.h"
 #include "package_baker.h"
 
@@ -27,7 +28,7 @@ namespace Tool
     StaticMeshBaker   static_mesh_baker;
     ShaderBaker       shader_baker;
     SkeletonBaker     skeleton_baker;
-    //AnimationBaker    animation_baker;
+    AnimationBaker    animation_baker;
   };
 };
 

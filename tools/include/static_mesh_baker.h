@@ -29,7 +29,7 @@ namespace Tool
 
     void init() {}
 
-    void bake(mxml_node_t *tree, std::string output_fname);
+    void bake(mxml_node_t *tree, std::string output_fname, std::string tabs = "");
   };
 };
 

@@ -30,7 +30,7 @@ def write(filepath,
 
 			axis_name = ['x', 'y', 'z', 'w'][curve.array_index]
 
-			file.write("\t<curve bone=\"")
+			file.write("\t<anim_curve bone=\"")
 			file.write(bone_name)
 			file.write("\" data_type=\"")
 			file.write(transform_name)
@@ -56,7 +56,7 @@ def write(filepath,
 				#transform into [0,1] range
 				x = (frame - scene.frame_start) / (scene.frame_end - scene.frame_start)
 				file.write("\t\t<frame>%.6f %.6f</frame>\n" % (x, y))
-			file.write("\t</curve>\n")
+			file.write("\t</anim_curve>\n")
 
 	file.write("</animation>\n")
 	file.close()

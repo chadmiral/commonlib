@@ -14,7 +14,7 @@ using namespace Animation;
 using namespace std;
 using namespace Math;
 
-void Skeleton::transform(const float t, AnimAction *a)
+void Skeleton::transform(const float t, BoneAnim *a)
 {
   cout << "Skeleton::transform(): " << _name.c_str() << endl;
 }

@@ -153,6 +153,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\tools\include\animation_baker.h" />
     <ClInclude Include="..\..\tools\include\bakery.h" />
     <ClInclude Include="..\..\tools\include\bphys_baker.h" />
     <ClInclude Include="..\..\tools\include\minilzo\lzoconf.h" />
@@ -166,6 +167,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\tools\bake.cpp" />
+    <ClCompile Include="..\..\tools\src\animation_baker.cpp" />
     <ClCompile Include="..\..\tools\src\bakery.cpp" />
     <ClCompile Include="..\..\tools\src\bphys_baker.cpp" />
     <ClCompile Include="..\..\tools\src\minilzo\minilzo.cpp" />

@@ -9,7 +9,7 @@ namespace Tool
       ShaderBaker();
       ~ShaderBaker();
       void init() {}
-      void bake(mxml_node_t *tree, std::string output_fname);
+      void bake(mxml_node_t *tree, std::string output_fname, std::string tabs = "");
     private:
       void parse_shader_block(std::string fname);
   };

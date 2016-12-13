@@ -42,7 +42,7 @@ namespace Tool
     ~BPhysBaker() {}
 
     void init();
-    void bake(FILE *f, std::string output_filename);
+    void bake(FILE *f, std::string output_filename, std::string tabs = "");
   private:
     std::string out_fname;
 

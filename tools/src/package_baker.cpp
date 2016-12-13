@@ -16,13 +16,17 @@
 #include <iostream>
 #include <assert.h>
 #include "tool.h"
-#include "package_baker.h"
+
 #include "math_utility.h"
 #include "platform.h"
 #include "shader.h"
+#include "skeleton.h"
+
+#include "package_baker.h"
 #include "static_mesh_baker.h"
 #include "skeleton_baker.h"
-#include "skeleton.h"
+#include "animation_baker.h"
+
 
 using namespace Math;
 using namespace std;
@@ -33,9 +37,9 @@ void PackageBaker::init()
 {
 }
 
-void PackageBaker::bake(mxml_node_t *tree, std::string output_filename)
+void PackageBaker::bake(mxml_node_t *tree, std::string output_filename, std::string tabs)
 {
-  cout << "Parsing package xml..." << endl;
+  cout << tabs.c_str() << "Parsing package xml..." << endl;
 
   //read all the materials
   mxml_node_t *asset_node = NULL;
@@ -47,13 +51,13 @@ void PackageBaker::bake(mxml_node_t *tree, std::string output_filename)
   if (root_dir_node)
   {
     buffer = mxmlGetText(root_dir_node, NULL);
-    cout << "package root dir: " << buffer << endl;
+    cout << tabs.c_str() << "package root dir: " << buffer << endl;
 
     //change to said directory
     if (CHDIR(buffer) != 0)
     {
       SET_TEXT_COLOR(CONSOLE_COLOR_RED);
-      cerr << "Could not change directories!" << endl;
+      cerr << tabs.c_str() << "Could not change directories!" << endl;
       SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
     }
   }
@@ -61,14 +65,14 @@ void PackageBaker::bake(mxml_node_t *tree, std::string output_filename)
   //make sure we succeeded
   char cwd[FILENAME_MAX];
   GETCWD(cwd, sizeof(cwd));
-  cout << "working dir: " << cwd << endl;
+  cout << tabs.c_str() << "working dir: " << cwd << endl;
 
   //parse the path
   mxml_node_t *path_node = mxmlFindElement(start_node, tree, "path", NULL, NULL, MXML_DESCEND);
   if (path_node)
   {
     buffer = mxmlGetText(path_node, NULL);
-    cout << "path: " << buffer << endl;
+    cout << tabs.c_str() << "path: " << buffer << endl;
 
     char *tmp_path = new char[(strlen(buffer) + 1)];
     strcpy(tmp_path, buffer);
@@ -77,7 +81,7 @@ void PackageBaker::bake(mxml_node_t *tree, std::string output_filename)
     char *token = strtok(tmp_path, delimiter);
     while (token != NULL)
     {
-      cout << token << endl;
+      cout << tabs.c_str() << token << endl;
       asset_path.push_back(std::string(token));
       token = strtok(NULL, delimiter);
     }
@@ -90,7 +94,7 @@ void PackageBaker::bake(mxml_node_t *tree, std::string output_filename)
   if (outfile_node)
   {
     buffer = mxmlGetText(outfile_node, NULL);
-    cout << "output package filename: " << buffer << endl;
+    cout << tabs.c_str() << "output package filename: " << buffer << endl;
     output_filename = buffer;
   }
 
@@ -137,6 +141,18 @@ void PackageBaker::bake(mxml_node_t *tree, std::string output_filename)
     if (asset_node)
     {
       read_skeleton_file(asset_node);
+    }
+    start_node = asset_node;
+  } while (asset_node);
+
+  //read all the animation assets
+  start_node = tree;
+  do
+  {
+    asset_node = mxmlFindElement(start_node, tree, "animation", NULL, NULL, MXML_DESCEND);
+    if (asset_node)
+    {
+      read_animation_file(asset_node);
     }
     start_node = asset_node;
   } while (asset_node);
@@ -223,14 +239,15 @@ void ShaderPackageAsset::parse_source(std::string source, std::string *dest)
   *dest = source;
 }
 
-void PackageBaker::read_shader_file(mxml_node_t *shader_node)
+void PackageBaker::read_shader_file(mxml_node_t *shader_node, std::string tabs)
 {
+  tabs = tabs + "\t";
   const char *buffer = NULL;
   ShaderPackageAsset *shader_asset = new ShaderPackageAsset;
   assets.push_back(shader_asset);
 
   SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
-  cout << "\tLoading shader \"";
+  cout << tabs.c_str() << "Loading shader \"";
 
   buffer = mxmlElementGetAttr(shader_node, "name");
   cout << buffer << "\"" << endl;
@@ -244,7 +261,7 @@ void PackageBaker::read_shader_file(mxml_node_t *shader_node)
   {
     buffer = mxmlGetText(vs_node, NULL);
     shader_asset->vs_fname = buffer;
-    cout << "\tvs: " << buffer << " ... ";
+    cout << tabs.c_str() << "\tvs: " << buffer << " ... ";
 
     FILE *fp = NULL;
     FOPEN(fp, buffer, "r");
@@ -269,7 +286,7 @@ void PackageBaker::read_shader_file(mxml_node_t *shader_node)
     else
     {
       SET_TEXT_COLOR(CONSOLE_COLOR_RED);
-      cerr << "Could not open file!" << endl;
+      cerr << tabs.c_str() << "Could not open file!" << endl;
       SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
     }
   }
@@ -279,7 +296,7 @@ void PackageBaker::read_shader_file(mxml_node_t *shader_node)
   {
     buffer = mxmlGetText(fs_node, NULL);
     shader_asset->fs_fname = buffer;
-    cout << "\tfs: " << buffer << " ... ";
+    cout << tabs.c_str() << "\tfs: " << buffer << " ... ";
 
     FILE *fp = NULL;
     FOPEN(fp, buffer, "r");
@@ -303,7 +320,7 @@ void PackageBaker::read_shader_file(mxml_node_t *shader_node)
     else
     {
       SET_TEXT_COLOR(CONSOLE_COLOR_RED);
-      cerr << "Could not open file!" << endl;
+      cerr << tabs.c_str() << "Could not open file!" << endl;
       SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
     }
   }
@@ -316,26 +333,26 @@ void PackageBaker::read_shader_file(mxml_node_t *shader_node)
   //s.compile_and_link_from_source(shader_asset->vs_source.c_str(), shader_asset->fs_source.c_str());
 }
 
-void PackageBaker::read_texture_file(mxml_node_t *texture_node)
+void PackageBaker::read_texture_file(mxml_node_t *texture_node, std::string tabs)
 {
   const char *buffer = NULL;
   TexturePackageAsset *texture_asset = new TexturePackageAsset;
   assets.push_back(texture_asset);
 
   SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
-  cout << "\tLoading texture \"";
+  cout << tabs.c_str() << "\tLoading texture \"";
   buffer = mxmlElementGetAttr(texture_node, "name");
-  cout << buffer << "\"" << endl;
+  cout << tabs.c_str() << buffer << "\"" << endl;
   SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
 
   texture_asset->set_name(buffer);
 
   buffer = mxmlElementGetAttr(texture_node, "format");
-  cout << "\t\ttexture format: " << buffer << endl;
+  cout << tabs.c_str() << "\t\ttexture format: " << buffer << endl;
 
   buffer = mxmlGetText(texture_node, NULL);
   texture_asset->fname = buffer;
-  cout << "\t\tsource file: " << buffer << " ... ";
+  cout << tabs.c_str() << "\t\tsource file: " << buffer << " ... ";
 
   SDL_Surface *image = IMG_Load(buffer);
   if (!image)
@@ -376,23 +393,23 @@ void PackageBaker::read_texture_file(mxml_node_t *texture_node)
   SDL_FreeSurface(image);
 }
 
-void PackageBaker::read_mesh_file(mxml_node_t *mesh_node)
+void PackageBaker::read_mesh_file(mxml_node_t *mesh_node, std::string tabs)
 {
   const char *buffer = NULL;
   MeshPackageAsset *mesh_asset = new MeshPackageAsset;
   assets.push_back(mesh_asset);
 
   SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
-  cout << "\tLoading mesh geometry \"";
+  cout << tabs.c_str() << "\tLoading mesh geometry \"";
   buffer = mxmlElementGetAttr(mesh_node, "name");
-  cout << buffer << "\"" << endl;
+  cout << tabs.c_str() << buffer << "\"" << endl;
   SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
 
   mesh_asset->set_name(buffer);
 
   buffer = mxmlGetText(mesh_node, NULL);
   mesh_asset->fname = buffer;
-  cout << "\t\tsource file: " << buffer << " ... " << endl;
+  cout << tabs.c_str() << "\t\tsource file: " << buffer << " ... " << endl;
 
   std::string output_fname = mesh_asset->fname + ".bin";
   FILE *fp = fopen(mesh_asset->fname.c_str(), "r");
@@ -405,7 +422,7 @@ void PackageBaker::read_mesh_file(mxml_node_t *mesh_node)
     fclose(fp);
 
     StaticMeshBaker smb;
-    smb.bake(tree, output_fname);
+    smb.bake(tree, output_fname, tabs);
   }
 
   //and now open the binary file, read it and add it to the asset
@@ -432,14 +449,15 @@ void PackageBaker::read_mesh_file(mxml_node_t *mesh_node)
   }
 }
 
-void PackageBaker::read_skeleton_file(mxml_node_t *skel_node)
+void PackageBaker::read_skeleton_file(mxml_node_t *skel_node, std::string tabs)
 {
+  tabs += "\t";
   const char *buffer = NULL;
   SkeletonPackageAsset *skeleton_asset = new SkeletonPackageAsset;
   assets.push_back(skeleton_asset);
 
   SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
-  cout << "\tLoading Skeleton Rig \"";
+  cout << tabs.c_str() << "Loading Skeleton Rig \"";
   buffer = mxmlElementGetAttr(skel_node, "name");
   cout << buffer << "\"" << endl;
   SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
@@ -448,7 +466,7 @@ void PackageBaker::read_skeleton_file(mxml_node_t *skel_node)
 
   buffer = mxmlGetText(skel_node, NULL);
   skeleton_asset->fname = buffer;
-  cout << "\t\tsource file: " << buffer << " ... " << endl;
+  cout << tabs.c_str() << "\tsource file: " << buffer << " ... " << endl;
 
   std::string output_fname = skeleton_asset->fname + ".bin";
   FILE *fp = fopen(skeleton_asset->fname.c_str(), "r");
@@ -461,7 +479,7 @@ void PackageBaker::read_skeleton_file(mxml_node_t *skel_node)
     fclose(fp);
 
     SkeletonBaker sb;
-    sb.bake(tree, output_fname);
+    sb.bake(tree, output_fname, tabs);
   }
 
   //and now open the binary file, read it and add it to the asset
@@ -481,7 +499,43 @@ void PackageBaker::read_skeleton_file(mxml_node_t *skel_node)
   }
 }
 
-void PackageBaker::read_ui_layout_file(mxml_node_t *layout_node)
+void PackageBaker::read_animation_file(mxml_node_t *anim_node, std::string tabs)
+{
+  tabs += "\t";
+  const char *buffer = NULL;
+  AnimationPackageAsset *animation_asset = new AnimationPackageAsset;
+  assets.push_back(animation_asset);
+
+  SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
+  cout << tabs.c_str() << "Loading Animation \"";
+  buffer = mxmlElementGetAttr(anim_node, "name");
+  cout << buffer << "\"" << endl;
+  SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
+
+  animation_asset->set_name(buffer);
+
+  buffer = mxmlGetText(anim_node, NULL);
+  animation_asset->fname = buffer;
+  cout << tabs.c_str() << "\tsource file: " << buffer << " ... " << endl;
+
+  std::string output_fname = animation_asset->fname + ".bin";
+  FILE *fp = fopen(animation_asset->fname.c_str(), "r");
+  if (fp)
+  {
+    mxml_node_t *tree = mxmlLoadFile(NULL, fp, MXML_TEXT_CALLBACK);
+    assert(tree);
+
+    //don't need the file anymore now that we have the xml tree
+    fclose(fp);
+
+    AnimationBaker ab;
+    ab.bake(tree, output_fname, tabs);
+  }
+
+  assert(false); //need to read the binary file back in
+}
+
+void PackageBaker::read_ui_layout_file(mxml_node_t *layout_node, std::string tabs)
 {
   const char *buffer = NULL;
   UILayoutPackageAsset *layout_asset = new UILayoutPackageAsset;
@@ -489,7 +543,7 @@ void PackageBaker::read_ui_layout_file(mxml_node_t *layout_node)
   assets.push_back(layout_asset);
 
   SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
-  cout << "\tLoading UI Layout \"";
+  cout << tabs.c_str() << "Loading UI Layout \"";
   buffer = mxmlElementGetAttr(layout_node, "name");
   cout << buffer << "\"" << endl;
   SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
@@ -498,7 +552,7 @@ void PackageBaker::read_ui_layout_file(mxml_node_t *layout_node)
 
   buffer = mxmlGetText(layout_node, NULL);
   layout_asset->fname = buffer;
-  cout << "\t\tsource file: " << buffer << " ... ";
+  cout << tabs.c_str() << "\tsource file: " << buffer << " ... ";
 
   FILE *fp = NULL;
   FOPEN(fp, layout_asset->fname.c_str(), "rt");
@@ -522,14 +576,14 @@ void PackageBaker::read_ui_layout_file(mxml_node_t *layout_node)
   else
   {
     SET_TEXT_COLOR(CONSOLE_COLOR_RED);
-    cerr << "Could not open file!" << endl;
+    cerr << tabs.c_str() << "Could not open file!" << endl;
     SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
   }
 }
 
-void PackageBaker::write_package(std::string output_filename)
+void PackageBaker::write_package(std::string output_filename, std::string tabs)
 {
-  cout << endl << "Writing game package to " << output_filename.c_str() << endl;
+  cout << endl << tabs.c_str() <<"Writing game package to " << output_filename.c_str() << endl;
   FILE *fp;
   FOPEN(fp, output_filename.c_str(), "wb");
   if (fp)
@@ -568,11 +622,11 @@ void PackageBaker::write_package(std::string output_filename)
     uint32_t skeleton_count = skeletons.size();
     uint32_t ui_layout_count = ui_layouts.size();
 
-    cout << "Packaging " << shader_count << " shaders..." << endl;
-    cout << "Packaging " << texture_count << " textures..." << endl;
-    cout << "Packaging " << mesh_count << " meshes..." << endl;
-    cout << "Packaging " << skeleton_count << "skeletons..." << endl;
-    cout << "Packaging " << ui_layout_count << " ui layouts..." << endl;
+    cout << tabs.c_str() << "Packaging " << shader_count << " shaders..." << endl;
+    cout << tabs.c_str() << "Packaging " << texture_count << " textures..." << endl;
+    cout << tabs.c_str() << "Packaging " << mesh_count << " meshes..." << endl;
+    cout << tabs.c_str() << "Packaging " << skeleton_count << "skeletons..." << endl;
+    cout << tabs.c_str() << "Packaging " << ui_layout_count << " ui layouts..." << endl;
 
     //file header
     fwrite(&file_version, sizeof(uint32_t), 1, fp);
@@ -583,7 +637,7 @@ void PackageBaker::write_package(std::string output_filename)
     fwrite(&ui_layout_count, sizeof(uint32_t), 1, fp);
 
     SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
-    cout << "Writing shader packlets..." << endl;
+    cout << tabs.c_str() << "Writing shader packlets..." << endl;
     SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
     for (uint32_t i = 0; i < shaders.size(); i++)
     {
@@ -592,7 +646,7 @@ void PackageBaker::write_package(std::string output_filename)
     }
 
     SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
-    cout << "Writing texture packlets..." << endl;
+    cout << tabs.c_str() << "Writing texture packlets..." << endl;
     SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
     for (uint32_t i = 0; i < textures.size(); i++)
     {
@@ -601,7 +655,7 @@ void PackageBaker::write_package(std::string output_filename)
     }
 
     SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
-    cout << "Writing mesh packlets..." << endl;
+    cout << tabs.c_str() << "Writing mesh packlets..." << endl;
     SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
     for (uint32_t i = 0; i < meshes.size(); i++)
     {
@@ -610,7 +664,7 @@ void PackageBaker::write_package(std::string output_filename)
     }
 
     SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
-    cout << "Writing skeleton packlets..." << endl;
+    cout << tabs.c_str() << "Writing skeleton packlets..." << endl;
     SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
     for (uint32_t i = 0; i < skeletons.size(); i++)
     {
@@ -619,7 +673,7 @@ void PackageBaker::write_package(std::string output_filename)
     }
 
     SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
-    cout << "Writing ui layout packlets..." << endl;
+    cout << tabs.c_str() << "Writing ui layout packlets..." << endl;
     SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
     for (uint32_t i = 0; i < ui_layouts.size(); i++)
     {
@@ -632,15 +686,15 @@ void PackageBaker::write_package(std::string output_filename)
   else
   {
     SET_TEXT_COLOR(CONSOLE_COLOR_RED);
-    cerr << "Could not open file for writing!!!" << endl;
+    cerr << tabs.c_str() << "Could not open file for writing!!!" << endl;
     SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
   }
 }
 
-void PackageBaker::write_packlet_header(FILE *fp, PackageAsset *a)
+void PackageBaker::write_packlet_header(FILE *fp, PackageAsset *a, std::string tabs)
 {
   uint32_t hash_id = Math::hash_value_from_string(a->get_name().c_str());
-  cout << "\"" << a->get_name().c_str() << "\"" << " -> " << hash_id << endl;
+  cout << tabs.c_str() << "\"" << a->get_name().c_str() << "\"" << " -> " << hash_id << endl;
 
   uint32_t name_length = (a->name.size() + 1) * sizeof(char);
   uint32_t fname_length = (a->fname.size() + 1) * sizeof(char);
@@ -650,11 +704,11 @@ void PackageBaker::write_packlet_header(FILE *fp, PackageAsset *a)
   fwrite(&fname_length, sizeof(uint32_t), 1, fp);
 }
 
-void PackageBaker::write_shader_packlet(FILE *fp, ShaderPackageAsset *s)
+void PackageBaker::write_shader_packlet(FILE *fp, ShaderPackageAsset *s, std::string tabs)
 {
   //convert name to hash id
   uint32_t hash_id = Math::hash_value_from_string(s->get_name().c_str());
-  cout << "\"" << s->get_name().c_str() << "\"" << " -> " << hash_id << endl;
+  cout << tabs.c_str() << "\"" << s->get_name().c_str() << "\"" << " -> " << hash_id << endl;
 
   uint32_t name_length = (s->name.size() + 1) * sizeof(char);
   uint32_t vs_fname_length = (s->vs_fname.size() + 1) * sizeof(char);
@@ -679,10 +733,10 @@ void PackageBaker::write_shader_packlet(FILE *fp, ShaderPackageAsset *s)
   fwrite(s->fs_source.c_str(), sizeof(char), fs_length, fp);
 }
 
-void PackageBaker::write_texture_packlet(FILE *fp, TexturePackageAsset *t)
+void PackageBaker::write_texture_packlet(FILE *fp, TexturePackageAsset *t, std::string tabs)
 {
   uint32_t hash_id = Math::hash_value_from_string(t->get_name().c_str());
-  cout << "\"" << t->get_name().c_str() << "\"" << " -> " << hash_id << endl;
+  cout << tabs.c_str() << "\"" << t->get_name().c_str() << "\"" << " -> " << hash_id << endl;
 
   uint32_t name_length = (t->name.size() + 1) * sizeof(char);
   uint32_t fname_length = (t->fname.size() + 1) * sizeof(char);
@@ -710,7 +764,7 @@ void PackageBaker::write_texture_packlet(FILE *fp, TexturePackageAsset *t)
   fwrite(t->tex_data, t->tex_data_size, 1, fp);
 }
 
-void PackageBaker::write_mesh_packlet(FILE *fp, MeshPackageAsset *m)
+void PackageBaker::write_mesh_packlet(FILE *fp, MeshPackageAsset *m, std::string tabs)
 {
   write_packlet_header(fp, m);
   fwrite(&m->num_verts, sizeof(uint32_t), 1, fp);
@@ -724,7 +778,7 @@ void PackageBaker::write_mesh_packlet(FILE *fp, MeshPackageAsset *m)
   fwrite(m->indices, sizeof(uint32_t), m->num_indices, fp);
 }
 
-void PackageBaker::write_skeleton_packlet(FILE *fp, SkeletonPackageAsset *s)
+void PackageBaker::write_skeleton_packlet(FILE *fp, SkeletonPackageAsset *s, std::string tabs)
 {
   //header
   write_packlet_header(fp, s);
@@ -739,10 +793,10 @@ void PackageBaker::write_skeleton_packlet(FILE *fp, SkeletonPackageAsset *s)
   fwrite(s->bones, sizeof(Animation::Bone), s->num_bones, fp);
 }
 
-void PackageBaker::write_ui_layout_packlet(FILE *fp, UILayoutPackageAsset *u)
+void PackageBaker::write_ui_layout_packlet(FILE *fp, UILayoutPackageAsset *u, std::string tabs)
 {
   uint32_t hash_id = Math::hash_value_from_string(u->get_name().c_str());
-  cout << "\"" << u->get_name().c_str() << "\"" << " -> " << hash_id << endl;
+  cout << tabs.c_str() << "\"" << u->get_name().c_str() << "\"" << " -> " << hash_id << endl;
 
   uint32_t name_length = (u->name.size() + 1) * sizeof(char);
   uint32_t fname_length = (u->fname.size() + 1) * sizeof(char);

@@ -9,9 +9,10 @@ using namespace Graphics;
 using namespace Math;
 using namespace std;
 
-void StaticMeshBaker::bake(mxml_node_t *tree, std::string output_fname)
+void StaticMeshBaker::bake(mxml_node_t *tree, std::string output_fname, std::string tabs)
 {
-  cout<<"\tParsing static mesh xml..."<<endl;
+  tabs = tabs + "\t";
+  cout << tabs.c_str() << "Parsing static mesh xml..." << endl;
 
   //read all the materials
   mxml_node_t *material_node = NULL;
@@ -175,21 +176,21 @@ void StaticMeshBaker::bake(mxml_node_t *tree, std::string output_fname)
     //cout<<endl;
   }
 
-  cout<<"opening file "<<output_fname.c_str()<<"..."<<endl;
+  cout<< tabs.c_str() << "opening file "<<output_fname.c_str()<<"..."<<endl;
   FILE *f = fopen(output_fname.c_str(), "wb");
   assert(f);
 
   int version = 1;
-  cout<<"file version: "<<version<<endl;
+  cout<< tabs.c_str() << "file version: "<<version<<endl;
   fwrite(&version, sizeof(int), 1, f);
 
   //write vertex data
-  cout<<"writing "<<num_render_verts<<" render verts"<<endl;
+  cout<< tabs.c_str() << "writing "<<num_render_verts<<" render verts"<<endl;
   fwrite(&num_render_verts, sizeof(uint32_t), 1, f);
   fwrite(render_verts, sizeof(StaticMeshVertex), num_render_verts, f);
 
   //write index data
-  cout<<"writing "<<num_indices<<" indices"<<endl;
+  cout<< tabs.c_str() << "writing "<<num_indices<<" indices"<<endl;
   fwrite(&num_indices, sizeof(int), 1, f);
   fwrite(indices, sizeof(unsigned int), num_indices, f);
 

@@ -21,7 +21,7 @@ void BPhysBaker::init()
   }
 }
 
-void BPhysBaker::bake(FILE *f, std::string output_filename)
+void BPhysBaker::bake(FILE *f, std::string output_filename, std::string tabs)
 {
   BPhysHeader bph;
   fread(&bph, sizeof(BPhysHeader), 1, f);

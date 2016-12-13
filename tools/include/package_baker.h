@@ -98,16 +98,6 @@ namespace Tool
     uint32_t material_flags;
   };
 
-  /*
-  struct SkeletonBone
-  {
-    char name[32];
-    char parent[32];
-
-    Math::Float3 head_pos;
-    Math::Float3 tail_pos;
-  };*/
-
   class SkeletonPackageAsset : public PackageAsset
   {
   public:
@@ -116,6 +106,15 @@ namespace Tool
 
     uint32_t            num_bones;
     Animation::Bone    *bones;
+  };
+
+  class AnimationPackageAsset : public PackageAsset
+  {
+  public:
+    AnimationPackageAsset() : PackageAsset(PACKAGE_ASSET_ANIMATION) {  }
+    ~AnimationPackageAsset() { }
+
+    Animation::BoneAnim anim;
   };
 
   class UILayoutPackageAsset : public PackageAsset
@@ -134,26 +133,27 @@ namespace Tool
     std::vector<PackageAsset *> assets;
     std::vector<std::string> asset_path;
 
-    void read_shader_file(mxml_node_t *shader_node);
-    void read_texture_file(mxml_node_t *texture_node);
-    void read_mesh_file(mxml_node_t *mesh_node);
-    void read_skeleton_file(mxml_node_t *skeleton_node);
-    void read_ui_layout_file(mxml_node_t *layout_node);
+    void read_shader_file(mxml_node_t *shader_node, std::string tabs = "");
+    void read_texture_file(mxml_node_t *texture_node, std::string tabs = "");
+    void read_mesh_file(mxml_node_t *mesh_node, std::string tabs = "");
+    void read_skeleton_file(mxml_node_t *skeleton_node, std::string tabs = "");
+    void read_animation_file(mxml_node_t *animation_node, std::string tabs = "");
+    void read_ui_layout_file(mxml_node_t *layout_node, std::string tabs = "");
 
-    void write_package(std::string output_fname);
+    void write_package(std::string output_fname, std::string tabs = "");
 
-    void write_packlet_header(FILE *fp, PackageAsset *a);
+    void write_packlet_header(FILE *fp, PackageAsset *a, std::string tabs = "");
 
-    void write_shader_packlet(FILE *fp, ShaderPackageAsset *s);
-    void write_texture_packlet(FILE *fp, TexturePackageAsset *t);
-    void write_mesh_packlet(FILE *fp, MeshPackageAsset *m);
-    void write_skeleton_packlet(FILE *fp, SkeletonPackageAsset *s);
-    void write_ui_layout_packlet(FILE *fp, UILayoutPackageAsset *u);
+    void write_shader_packlet(FILE *fp, ShaderPackageAsset *s, std::string tabs = "");
+    void write_texture_packlet(FILE *fp, TexturePackageAsset *t, std::string tabs = "");
+    void write_mesh_packlet(FILE *fp, MeshPackageAsset *m, std::string tabs = "");
+    void write_skeleton_packlet(FILE *fp, SkeletonPackageAsset *s, std::string tabs = "");
+    void write_ui_layout_packlet(FILE *fp, UILayoutPackageAsset *u, std::string tabs = "");
   public:
     PackageBaker() { file_version = PACKAGE_FILE_VERSION; }
     ~PackageBaker() {}
 
     void init();
-    void bake(mxml_node_t *tree, std::string output_filename);
+    void bake(mxml_node_t *tree, std::string output_filename, std::string tabs = "");
   };
 };

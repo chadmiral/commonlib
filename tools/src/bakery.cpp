@@ -77,6 +77,13 @@ void Bakery::bake(std::string fname, std::string out_fname)
         skeleton_baker.bake(tree, output_fname);
       }
 
+      //animation
+      node = mxmlFindElement(tree, tree, "animation", "version", NULL, MXML_DESCEND);
+      if (node)
+      {
+        animation_baker.bake(tree, output_fname);
+      }
+
       //package
       node = mxmlFindElement(tree, tree, "package", "version", NULL, MXML_DESCEND);
       if (node)
