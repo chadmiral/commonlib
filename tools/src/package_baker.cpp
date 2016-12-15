@@ -32,6 +32,7 @@ using namespace Math;
 using namespace std;
 using namespace Tool;
 using namespace Graphics;
+using namespace Animation;
 
 void PackageBaker::init()
 {
@@ -532,7 +533,41 @@ void PackageBaker::read_animation_file(mxml_node_t *anim_node, std::string tabs)
     ab.bake(tree, output_fname, tabs);
   }
 
-  assert(false); //need to read the binary file back in
+  //and now open the binary file, read it and add it to the asset
+  fp = fopen(output_fname.c_str(), "rb");
+  if (fp)
+  {
+    int version;
+    fread(&version, sizeof(int), 1, fp);
+
+    uint32_t num_tracks;
+    fread(&num_tracks, sizeof(uint32_t), 1, fp);
+    
+    for (uint32_t i = 0; i < num_tracks; i++)
+    {
+      BoneAnimTrack bat;
+
+      uint32_t hash_id;
+      fread(&hash_id, sizeof(uint32_t), 1, fp);
+      bat._bone = (Bone *)hash_id;
+
+      uint32_t num_pos_frames, num_rot_frames, num_scale_frames;
+      fread(&num_pos_frames, sizeof(uint32_t), 1, fp);
+      fread(&num_rot_frames, sizeof(uint32_t), 1, fp);
+      fread(&num_scale_frames, sizeof(uint32_t), 1, fp);
+
+      bat._pos_frames.resize(num_pos_frames);
+      bat._rot_frames.resize(num_rot_frames);
+      bat._scale_frames.resize(num_scale_frames);
+
+      fread(bat._pos_frames.data(), sizeof(BoneTransformPos), num_pos_frames, fp);
+      fread(bat._rot_frames.data(), sizeof(BoneTransformRot), num_rot_frames, fp);
+      fread(bat._scale_frames.data(), sizeof(BoneTransformScale), num_scale_frames, fp);
+
+      animation_asset->anim.add_track(bat);
+    }
+    fclose(fp);
+  }
 }
 
 void PackageBaker::read_ui_layout_file(mxml_node_t *layout_node, std::string tabs)

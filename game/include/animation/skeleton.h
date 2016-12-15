@@ -86,8 +86,9 @@ namespace Animation
 
   class BoneAnimTrack
   {
-    friend class BoneAnim;
-  private:
+   // friend class BoneAnim;
+  //private:
+  public:
     Bone                             *_bone;
     std::vector<BoneTransformPos>     _pos_frames;
     std::vector<BoneTransformRot>     _rot_frames;
@@ -106,5 +107,9 @@ namespace Animation
   public:
     BoneAnim() {}
     ~BoneAnim() {}
+    
+    uint32_t get_num_tracks() const { return _tracks.size(); }
+    BoneAnimTrack *get_anim_track(const uint32_t idx) { return &_tracks[idx]; }
+    void add_track(BoneAnimTrack &bat) { _tracks.push_back(bat); }
   };
 };
