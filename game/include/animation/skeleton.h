@@ -102,6 +102,7 @@ namespace Animation
 
   class BoneAnim
   {
+  friend class PackageBaker;
   private:
     std::vector<BoneAnimTrack> _tracks;
   public:

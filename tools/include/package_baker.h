@@ -148,6 +148,7 @@ namespace Tool
     void write_texture_packlet(FILE *fp, TexturePackageAsset *t, std::string tabs = "");
     void write_mesh_packlet(FILE *fp, MeshPackageAsset *m, std::string tabs = "");
     void write_skeleton_packlet(FILE *fp, SkeletonPackageAsset *s, std::string tabs = "");
+    void write_animation_packlet(FILE *fp, AnimationPackageAsset *a, std::string tabs = "");
     void write_ui_layout_packlet(FILE *fp, UILayoutPackageAsset *u, std::string tabs = "");
   public:
     PackageBaker() { file_version = PACKAGE_FILE_VERSION; }

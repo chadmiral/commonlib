@@ -624,11 +624,12 @@ void PackageBaker::write_package(std::string output_filename, std::string tabs)
   if (fp)
   {
     //collect and count each asset type
-    std::vector<ShaderPackageAsset *> shaders;
-    std::vector<TexturePackageAsset *> textures;
-    std::vector<MeshPackageAsset *> meshes;
-    std::vector<SkeletonPackageAsset *> skeletons;
-    std::vector<UILayoutPackageAsset *> ui_layouts;
+    std::vector<ShaderPackageAsset *>    shaders;
+    std::vector<TexturePackageAsset *>   textures;
+    std::vector<MeshPackageAsset *>      meshes;
+    std::vector<SkeletonPackageAsset *>  skeletons;
+    std::vector<AnimationPackageAsset *> animations;
+    std::vector<UILayoutPackageAsset *>  ui_layouts;
     
     for (uint32_t i = 0; i < assets.size(); i++)
     {
@@ -646,6 +647,9 @@ void PackageBaker::write_package(std::string output_filename, std::string tabs)
       case PACKAGE_ASSET_SKELETON:
         skeletons.push_back((SkeletonPackageAsset *)assets[i]);
         break;
+      case PACKAGE_ASSET_ANIMATION:
+        animations.push_back((AnimationPackageAsset *)assets[i]);
+        break;
       case PACKAGE_ASSET_UI_LAYOUT:
         ui_layouts.push_back((UILayoutPackageAsset *)assets[i]);
         break;
@@ -655,12 +659,14 @@ void PackageBaker::write_package(std::string output_filename, std::string tabs)
     uint32_t texture_count = textures.size();
     uint32_t mesh_count = meshes.size();
     uint32_t skeleton_count = skeletons.size();
+    uint32_t animation_count = animations.size();
     uint32_t ui_layout_count = ui_layouts.size();
 
     cout << tabs.c_str() << "Packaging " << shader_count << " shaders..." << endl;
     cout << tabs.c_str() << "Packaging " << texture_count << " textures..." << endl;
     cout << tabs.c_str() << "Packaging " << mesh_count << " meshes..." << endl;
     cout << tabs.c_str() << "Packaging " << skeleton_count << "skeletons..." << endl;
+    cout << tabs.c_str() << "Packaging " << animation_count << "animations..." << endl;
     cout << tabs.c_str() << "Packaging " << ui_layout_count << " ui layouts..." << endl;
 
     //file header
@@ -669,6 +675,7 @@ void PackageBaker::write_package(std::string output_filename, std::string tabs)
     fwrite(&texture_count, sizeof(uint32_t), 1, fp);
     fwrite(&mesh_count, sizeof(uint32_t), 1, fp); 
     fwrite(&skeleton_count, sizeof(uint32_t), 1, fp);
+    fwrite(&animation_count, sizeof(uint32_t), 1, fp);
     fwrite(&ui_layout_count, sizeof(uint32_t), 1, fp);
 
     SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
@@ -677,7 +684,7 @@ void PackageBaker::write_package(std::string output_filename, std::string tabs)
     for (uint32_t i = 0; i < shaders.size(); i++)
     {
       ShaderPackageAsset *s = shaders[i];
-      write_shader_packlet(fp, s);
+      write_shader_packlet(fp, s, tabs);
     }
 
     SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
@@ -686,7 +693,7 @@ void PackageBaker::write_package(std::string output_filename, std::string tabs)
     for (uint32_t i = 0; i < textures.size(); i++)
     {
       TexturePackageAsset *t = textures[i];
-      write_texture_packlet(fp, t);
+      write_texture_packlet(fp, t, tabs);
     }
 
     SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
@@ -695,7 +702,7 @@ void PackageBaker::write_package(std::string output_filename, std::string tabs)
     for (uint32_t i = 0; i < meshes.size(); i++)
     {
       MeshPackageAsset *m = meshes[i];
-      write_mesh_packlet(fp, m);
+      write_mesh_packlet(fp, m, tabs);
     }
 
     SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
@@ -704,7 +711,16 @@ void PackageBaker::write_package(std::string output_filename, std::string tabs)
     for (uint32_t i = 0; i < skeletons.size(); i++)
     {
       SkeletonPackageAsset *m = skeletons[i];
-      write_skeleton_packlet(fp, m);
+      write_skeleton_packlet(fp, m, tabs);
+    }
+
+    SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
+    cout << tabs.c_str() << "Writing animation packlets..." << endl;
+    SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
+    for (uint32_t i = 0; i < animations.size(); i++)
+    {
+      AnimationPackageAsset *m = animations[i];
+      write_animation_packlet(fp, m, tabs);
     }
 
     SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
@@ -826,6 +842,29 @@ void PackageBaker::write_skeleton_packlet(FILE *fp, SkeletonPackageAsset *s, std
   fwrite(s->name.c_str(), sizeof(char), name_length, fp);
   fwrite(s->fname.c_str(), sizeof(char), fname_length, fp);
   fwrite(s->bones, sizeof(Animation::Bone), s->num_bones, fp);
+}
+
+void PackageBaker::write_animation_packlet(FILE *fp, AnimationPackageAsset *a, std::string tabs)
+{
+  //header
+  write_packlet_header(fp, a);
+  
+  uint32_t num_tracks = a->anim.get_num_tracks();
+  fwrite(&num_tracks, sizeof(uint32_t), 1, fp);
+
+  uint32_t name_length = (a->name.size() + 1) * sizeof(char);
+  uint32_t fname_length = (a->fname.size() + 1) * sizeof(char);
+
+  //data
+  fwrite(a->name.c_str(), sizeof(char), name_length, fp);
+  fwrite(a->fname.c_str(), sizeof(char), fname_length, fp);
+
+  for (uint32_t i = 0; i < num_tracks; i++)
+  {
+    uint32_t num_pos_frames = a->anim._tracks._pos_frames.size();
+    uint32_t num_rot_frames = a->anim._tracks._rot_frames.size();
+    uint32_t num_scale_frames = a->anim._tracks._scale_frames.size();
+  }
 }
 
 void PackageBaker::write_ui_layout_packlet(FILE *fp, UILayoutPackageAsset *u, std::string tabs)
