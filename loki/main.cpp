@@ -289,6 +289,11 @@ static void ShowExampleAppCustomNodeGraph(bool* opened)
   ImGui::End();
 }
 
+void render_mesh()
+{
+  //render the currently loaded mesh to our FBO
+}
+
 int main(int argc, char **argv)
 {
   // Setup window
@@ -375,6 +380,11 @@ int main(int argc, char **argv)
         ImGui::EndMenuBar();
       }
 
+      //render the mesh
+      //TODO: grab tex_id from FBO & render mesh to FBO
+      ImTextureID tex_id = ImGui::GetIO().Fonts->TexID;
+      ImGui::Image(tex_id, ImVec2(100, 100), ImVec2(0, 0), ImVec2(1, 1), ImColor(255, 255, 255, 255), ImColor(255, 255, 255, 128));
+
       ImGui::End();
     }
 
@@ -396,6 +406,12 @@ int main(int argc, char **argv)
         }
         ImGui::EndMenuBar();
       }
+
+      //render the texture
+      //TODO: grab tex_id from FBO & render mesh to FBO
+      ImTextureID tex_id = ImGui::GetIO().Fonts->TexID;
+      ImGui::Image(tex_id, ImVec2(100, 100), ImVec2(0, 0), ImVec2(1, 1), ImColor(255, 255, 255, 255), ImColor(255, 255, 255, 128));
+
 
       ImGui::End();
     }

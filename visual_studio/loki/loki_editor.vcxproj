@@ -23,8 +23,31 @@
     <ClCompile Include="..\..\..\imgui\imgui.cpp" />
     <ClCompile Include="..\..\..\imgui\imgui_demo.cpp" />
     <ClCompile Include="..\..\..\imgui\imgui_draw.cpp" />
+    <ClCompile Include="..\..\graphics\src\camera.cpp" />
+    <ClCompile Include="..\..\graphics\src\material.cpp" />
+    <ClCompile Include="..\..\graphics\src\render_surface.cpp" />
+    <ClCompile Include="..\..\graphics\src\shader.cpp" />
+    <ClCompile Include="..\..\graphics\src\static_mesh.cpp" />
+    <ClCompile Include="..\..\graphics\src\texture.cpp" />
     <ClCompile Include="..\..\loki\imgui_impl_glfw_gl3.cpp" />
     <ClCompile Include="..\..\loki\main.cpp" />
+    <ClCompile Include="..\..\loki\views\mesh_viewer.cpp" />
+    <ClCompile Include="..\..\mathlib\src\aabb.cpp" />
+    <ClCompile Include="..\..\mathlib\src\curve.cpp" />
+    <ClCompile Include="..\..\mathlib\src\function.cpp" />
+    <ClCompile Include="..\..\mathlib\src\gpu_voronoi.cpp" />
+    <ClCompile Include="..\..\mathlib\src\math_utility.cpp" />
+    <ClCompile Include="..\..\mathlib\src\matrix.cpp" />
+    <ClCompile Include="..\..\mathlib\src\perlin.cpp" />
+    <ClCompile Include="..\..\mathlib\src\quaternion.cpp" />
+    <ClCompile Include="..\..\mathlib\src\raytrace.cpp" />
+    <ClCompile Include="..\..\mathlib\src\shapes.cpp" />
+    <ClCompile Include="..\..\mathlib\src\triangulation.cpp" />
+    <ClCompile Include="..\..\mathlib\src\triangulation_3d.cpp" />
+    <ClCompile Include="..\..\mathlib\src\triangulation_sphere.cpp" />
+    <ClCompile Include="..\..\mathlib\src\vector.cpp" />
+    <ClCompile Include="..\..\mathlib\src\voronoi.cpp" />
+    <ClCompile Include="..\..\mathlib\src\voronoi_sphere.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\gl3w\GL\gl3w.h" />
@@ -32,7 +55,47 @@
     <ClInclude Include="..\..\..\imgui\imconfig.h" />
     <ClInclude Include="..\..\..\imgui\imgui.h" />
     <ClInclude Include="..\..\..\imgui\imgui_internal.h" />
+    <ClInclude Include="..\..\graphics\include\camera.h" />
+    <ClInclude Include="..\..\graphics\include\draw_call.h" />
+    <ClInclude Include="..\..\graphics\include\font.h" />
+    <ClInclude Include="..\..\graphics\include\glutility.h" />
+    <ClInclude Include="..\..\graphics\include\gl_error.h" />
+    <ClInclude Include="..\..\graphics\include\gpu_hair_sim.h" />
+    <ClInclude Include="..\..\graphics\include\gpu_particle_system.h" />
+    <ClInclude Include="..\..\graphics\include\hdr_render_surface.h" />
+    <ClInclude Include="..\..\graphics\include\light.h" />
+    <ClInclude Include="..\..\graphics\include\material.h" />
+    <ClInclude Include="..\..\graphics\include\renderable.h" />
+    <ClInclude Include="..\..\graphics\include\render_context.h" />
+    <ClInclude Include="..\..\graphics\include\render_shepherd.h" />
+    <ClInclude Include="..\..\graphics\include\render_surface.h" />
+    <ClInclude Include="..\..\graphics\include\render_surface_combiner.h" />
+    <ClInclude Include="..\..\graphics\include\shader.h" />
+    <ClInclude Include="..\..\graphics\include\static_mesh.h" />
+    <ClInclude Include="..\..\graphics\include\texture.h" />
+    <ClInclude Include="..\..\graphics\include\vertex_formats.h" />
     <ClInclude Include="..\..\loki\imgui_impl_glfw_gl3.h" />
+    <ClInclude Include="..\..\loki\views\mesh_viewer.h" />
+    <ClInclude Include="..\..\mathlib\include\aabb.h" />
+    <ClInclude Include="..\..\mathlib\include\curve.h" />
+    <ClInclude Include="..\..\mathlib\include\function.h" />
+    <ClInclude Include="..\..\mathlib\include\geodesic_cell.h" />
+    <ClInclude Include="..\..\mathlib\include\geodesic_grid.h" />
+    <ClInclude Include="..\..\mathlib\include\gpu_voronoi.h" />
+    <ClInclude Include="..\..\mathlib\include\math_utility.h" />
+    <ClInclude Include="..\..\mathlib\include\matrix.h" />
+    <ClInclude Include="..\..\mathlib\include\perlin.h" />
+    <ClInclude Include="..\..\mathlib\include\polyhedron.h" />
+    <ClInclude Include="..\..\mathlib\include\quaternion.h" />
+    <ClInclude Include="..\..\mathlib\include\raytrace.h" />
+    <ClInclude Include="..\..\mathlib\include\shapes.h" />
+    <ClInclude Include="..\..\mathlib\include\topology.h" />
+    <ClInclude Include="..\..\mathlib\include\triangulation.h" />
+    <ClInclude Include="..\..\mathlib\include\triangulation_3d.h" />
+    <ClInclude Include="..\..\mathlib\include\triangulation_sphere.h" />
+    <ClInclude Include="..\..\mathlib\include\vector.h" />
+    <ClInclude Include="..\..\mathlib\include\voronoi.h" />
+    <ClInclude Include="..\..\mathlib\include\voronoi_sphere.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{1F09F28D-8DA0-4DA2-8276-A023F73ED5E4}</ProjectGuid>
@@ -104,13 +167,13 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\..\..\imgui;..\..\..\SDL2-2.0.4\include;..\..\..\gl3w;..\..\..\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\;..\..\..\imgui;..\..\..\SDL2-2.0.4\include;..\..\..\gl3w;..\..\..\SDL2_image-2.0.1\include\;..\..\..\glfw\include;..\..\..\glew-1.13.0\include;..\..\graphics\include;..\..\mathlib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\..\..\glfw\lib-vc2010-32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\..\glfw\lib-vc2010-32;..\..\..\glew-1.13.0\lib\Release\Win32\;..\..\..\SDL2_image-2.0.1\lib\x86\;..\..\..\SDL2-2.0.4\lib\x86\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32.lib;SDL2_Image.lib;SDL2main.lib;SDL2.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -135,15 +198,15 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\..\..\imgui;..\..\..\SDL2-2.0.4\include;..\..\..\gl3w;..\..\..\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\;..\..\..\imgui;..\..\..\SDL2-2.0.4\include;..\..\..\gl3w;..\..\..\SDL2_image-2.0.1\include\;..\..\..\glfw\include;..\..\..\glew-1.13.0\include;..\..\graphics\include;..\..\mathlib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\..\..\glfw\lib-vc2010-32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\..\glfw\lib-vc2010-32;..\..\..\glew-1.13.0\lib\Release\Win32\;..\..\..\SDL2_image-2.0.1\lib\x86\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32.lib;SDL2_Image.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
