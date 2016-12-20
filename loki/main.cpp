@@ -1,23 +1,28 @@
 #include <math.h>
-#include <imgui.h>
-#include "imgui_impl_glfw_gl3.h"
+
 #include <stdio.h>
 #include <stdlib.h>
+
 #include <GL/gl3w.h>    // This example is using gl3w to access OpenGL functions (because it is small). You may use glew/glad/glLoadGen/etc. whatever already works for you.
 #include <GLFW/glfw3.h>
+
+#include <imgui.h>
+#include "imgui_impl_glfw_gl3.h"
+
+#include "mesh_viewer.h"
+
+static MeshViewer mesh_viewer;
 
 static void error_callback(int error, const char* description)
 {
   fprintf(stderr, "Error %d: %s\n", error, description);
 }
 
-
 // NB: You can use math functions/operators on ImVec2 if you #define IMGUI_DEFINE_MATH_OPERATORS and #include "imgui_internal.h"
 // Here we only declare simple +/- operators so others don't leak into the demo code.
 static inline ImVec2 operator+(const ImVec2& lhs, const ImVec2& rhs) { return ImVec2(lhs.x + rhs.x, lhs.y + rhs.y); }
 static inline ImVec2 operator-(const ImVec2& lhs, const ImVec2& rhs) { return ImVec2(lhs.x - rhs.x, lhs.y - rhs.y); }
 
-static bool show_mesh_tools = false;
 static bool show_texture_tools = false;
 static bool show_animation_tools = true;
 static bool show_shader_tools = true;
@@ -52,7 +57,7 @@ static void ShowExampleAppMainMenuBar()
     {
       if (ImGui::MenuItem("Animation Tools", NULL, show_animation_tools)) { show_animation_tools ^= 1; }
       if (ImGui::MenuItem("Shader Tools", NULL, show_shader_tools)) { show_shader_tools ^= 1; }
-      if (ImGui::MenuItem("Mesh Tools", NULL, show_mesh_tools)) { show_mesh_tools ^= 1; }
+      if (ImGui::MenuItem("Mesh Tools", NULL, mesh_viewer.visible)) { mesh_viewer.visible ^= 1; }
       if (ImGui::MenuItem("Texture Tools", NULL, show_texture_tools)) { show_texture_tools ^= 1; }
       ImGui::EndMenu();
     }
@@ -289,11 +294,6 @@ static void ShowExampleAppCustomNodeGraph(bool* opened)
   ImGui::End();
 }
 
-void render_mesh()
-{
-  //render the currently loaded mesh to our FBO
-}
-
 int main(int argc, char **argv)
 {
   // Setup window
@@ -326,6 +326,8 @@ int main(int argc, char **argv)
   bool show_test_window = true;
   bool show_another_window = false;
   ImVec4 clear_color = ImColor(114, 144, 154);
+
+  mesh_viewer.init();
 
   while (!glfwWindowShouldClose(window))
   {
@@ -361,32 +363,7 @@ int main(int argc, char **argv)
       ImGui::End();
     }
 
-    if (show_mesh_tools)
-    {
-      ImGui::SetNextWindowSize(ImVec2(100, 100), ImGuiSetCond_FirstUseEver);
-      ImGui::Begin("Mesh Tools", &show_mesh_tools, ImGuiWindowFlags_MenuBar);
-      ImGui::Text("");
-
-      if (ImGui::BeginMenuBar())
-      {
-        if (ImGui::BeginMenu("File"))
-        {
-          if (ImGui::MenuItem("Open Mesh...", NULL, false))
-          {
-
-          }
-          ImGui::EndMenu();
-        }
-        ImGui::EndMenuBar();
-      }
-
-      //render the mesh
-      //TODO: grab tex_id from FBO & render mesh to FBO
-      ImTextureID tex_id = ImGui::GetIO().Fonts->TexID;
-      ImGui::Image(tex_id, ImVec2(100, 100), ImVec2(0, 0), ImVec2(1, 1), ImColor(255, 255, 255, 255), ImColor(255, 255, 255, 128));
-
-      ImGui::End();
-    }
+    mesh_viewer.render();
 
     if (show_texture_tools)
     {
@@ -416,6 +393,7 @@ int main(int argc, char **argv)
       ImGui::End();
     }
 
+    /*
     if (show_mesh_tools)
     {
       ImGui::SetNextWindowSize(ImVec2(100, 100), ImGuiSetCond_FirstUseEver);
@@ -423,6 +401,7 @@ int main(int argc, char **argv)
       ImGui::Text("");
       ImGui::End();
     }
+    */
 
     /*
     ImGui::SetNextWindowSize(ImVec2(100, 100), ImGuiSetCond_FirstUseEver);

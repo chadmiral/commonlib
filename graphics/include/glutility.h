@@ -1,14 +1,7 @@
 #ifndef _GL_UTILITY_H
 #define _GL_UTILITY_H
 
-#if defined (_WIN32)
-#include <Windows.h>
-#include <GL/glew.h>
-#endif
-
-#if defined(__APPLE__)
-#include <OpenGL/gl.h>
-#endif
+#include "platform_gl.h"
 
 namespace Graphics
 {

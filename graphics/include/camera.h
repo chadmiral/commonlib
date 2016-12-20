@@ -1,16 +1,7 @@
 #ifndef __CAMERA_H__
 #define __CAMERA_H__
 
-#if defined(__APPLE__)
-#include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
-#endif
-
-#if defined (_WIN32)
-#include <Windows.h>
-#include <GL/glew.h>
-#include <GL/glu.h>
-#endif
+#include "platform_gl.h"
 
 #include "math_utility.h"
 #include "matrix.h"

@@ -65,8 +65,6 @@ RenderSurface::RenderSurface(const int w, const int h)
   fbo_res[0] = w;
   fbo_res[1] = h;
 
-  //TEMP (we probably don't want to actually load a new shader for each render surface)
-  shader = new Shader;
   target_tex = new Texture2D(fbo_res[0], fbo_res[1]);
   depth_tex = new Texture2D(fbo_res[0], fbo_res[1]);
 }
@@ -74,45 +72,11 @@ RenderSurface::RenderSurface(const int w, const int h)
 RenderSurface::~RenderSurface()
 {
   deinit();
-  delete shader;
   delete target_tex;
-}
-
-void RenderSurface::set_shader_names(std::string vs, std::string fs)
-{
-  vertex_shader_name = vs;
-  fragment_shader_name = fs;
-}
-
-void RenderSurface::add_uniform_ptr(Float2 *u, std::string name)
-{
-  std::pair<Float2 *, std::string> uniform_pair(u, name);
-  uniforms.push_back(uniform_pair);
-}
-
-void RenderSurface::add_uniform(Float2 &v, std::string name)
-{
-  f2_uni_const.push_back(v);
-  Float2 *f2_ptr = &(f2_uni_const[f2_uni_const.size() - 1]);
-  std::pair<Float2 *, std::string> f2_pair(f2_ptr, name);
-  uniforms.push_back(f2_pair);
-  //mat.add_uniform_var();
-}
-
-void RenderSurface::add_uniform(Float3 &v, std::string name)
-{
-  std::pair<Float3, std::string> f3_pair(v, name);
-  float3_uniforms.push_back(f3_pair);
 }
 
 void RenderSurface::init()
 {
-  shader->set_shader_filenames(vertex_shader_name, fragment_shader_name);
-  shader->load_link_and_compile();
-  mat.set_shader(shader);
-
-  //mat.set_verbose(true);
-
   glGenBuffers(1, &vbo);
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_data), vertex_data, GL_STATIC_DRAW);
@@ -121,10 +85,6 @@ void RenderSurface::init()
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * 4, index_data, GL_STATIC_DRAW);
 
-  // create a color texture
-  //glGenTextures(1, &target_tex);
-  //glBindTexture(GL_TEXTURE_2D, target_tex);
-  //glTexImage2D(GL_TEXTURE_2D, 0, tex_internal_format, fbo_res[0], fbo_res[1], 0, tex_format, tex_type, 0);
   target_tex->set_tex_format(tex_format);
   target_tex->set_internal_format(tex_internal_format);
   target_tex->set_data_format(tex_type);
@@ -145,15 +105,23 @@ void RenderSurface::init()
     depth_tex->init();
   }
 
-  /*
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, tex_filter);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, tex_filter);
-  glBindTexture(GL_TEXTURE_2D, 0);*/
+  //Set up material
+  Matrix4x4 proj;
+  proj.ortho(-1.0f, 1.0f, -1.0f, 1.0f, -100.0f, 100.0f);
+  _projection_matrix.set_name("proj_mat");
+  _projection_matrix.set_loc(mat.get_shader());
+  _projection_matrix.set_var(proj);
 
-  //std::string tex_name("surface_tex");
-  //add_uniform_tex(target_tex, tex_name);
+  mat.add_uniform_var(&_projection_matrix);
+
+  Shader *s = mat.get_shader();
+  assert(s); //This should have been set already with set_shader()
+  _xyz_attrib.set_loc(s, "in_xyz", sizeof(RenderSurfaceVert), 3, 0 * sizeof(float));
+  _uv0_attrib.set_loc(s, "in_uv0", sizeof(RenderSurfaceVert), 2, 3 * sizeof(float));
+
+  mat.add_vertex_attrib(&_xyz_attrib);
+  mat.add_vertex_attrib(&_uv0_attrib);
+
   mat.add_texture(target_tex, std::string("surface_tex"));
 
   mat.enable_blending(false);
@@ -180,6 +148,7 @@ void RenderSurface::init()
     depth_fbo = 0;
   }*/
 
+
   // create FBO
   glGenFramebuffers(1, &target_fbo);
   glBindFramebuffer(GL_FRAMEBUFFER, target_fbo);
@@ -204,96 +173,41 @@ void RenderSurface::deinit()
 
 void RenderSurface::capture()
 {
-  gl_check_error();
-  //glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, target_fbo);
   glBindFramebuffer(GL_FRAMEBUFFER, target_fbo);
-  gl_check_error();
   glGetIntegerv(GL_VIEWPORT, win_viewport);
-  gl_check_error();
   glViewport(0, 0, fbo_res[0], fbo_res[1]);
-  gl_check_error();
 }
 
 void RenderSurface::release()
 {
-  //glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
   glViewport(win_viewport[0], win_viewport[1], win_viewport[2], win_viewport[3]);
 }
 
 void RenderSurface::render()
 {
-  //render the HDR render surface to a full-screen quad
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-  glOrtho(-1.0f, 1.0f, -1.0f, 1.0f, -100.0f, 100.0f);
-
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
+  glBindBuffer(GL_ARRAY_BUFFER, vbo);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 
   mat.render();
-  Shader *shader = mat.get_shader();
 
-  for(unsigned int i = 0; i < uniforms.size(); i++)
-  {
-    Float2 *uval = uniforms[i].first;
-    std::string uname = uniforms[i].second;
-    GLint uloc = glGetUniformLocation(shader->gl_shader_program, uname.c_str());
-    glUniform2f(uloc, (*uval)[0], (*uval)[1]);
-  }
-
+  /*
   glActiveTexture(GL_TEXTURE0); glDisable(GL_TEXTURE_2D);
   glActiveTexture(GL_TEXTURE1); glDisable(GL_TEXTURE_2D);
   glActiveTexture(GL_TEXTURE2); glDisable(GL_TEXTURE_2D);
   glActiveTexture(GL_TEXTURE3); glDisable(GL_TEXTURE_2D);
   glActiveTexture(GL_TEXTURE4); glDisable(GL_TEXTURE_2D);
-  
-
-  for(unsigned int i = 0; i < float3_uniforms.size(); i++)
-  {
-    Float3 uval = float3_uniforms[i].first;
-    std::string uname = float3_uniforms[i].second;
-    GLint uloc = glGetUniformLocation(shader->gl_shader_program, uname.c_str());
-    glUniform3f(uloc, uval[0], uval[1], uval[2]);
-  }
-
-/*
-  for(int i = 0; i < tex_uniforms.size(); i++)
-  {
-    GLuint tex_id = tex_uniforms[i].first;
-    std::string uname = tex_uniforms[i].second;
-
-    GLint uloc = glGetUniformLocation(shader->gl_shader_program, uname.c_str());
-    glUniform1i(uloc, i);
-
-    glActiveTexture(GL_TEXTURE0 + i);
-    glClientActiveTexture(GL_TEXTURE0 + i);
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, tex_id);
-  }
   */
 
-
-  glBindBuffer(GL_ARRAY_BUFFER, vbo);
+  //TODO: vertex attribs
+  /*
   glEnableClientState(GL_VERTEX_ARRAY);
   glVertexPointer(3, GL_FLOAT, sizeof(RenderSurfaceVert), (void *)0);
 
   glEnableClientState(GL_TEXTURE_COORD_ARRAY);
   glTexCoordPointer(2, GL_FLOAT, sizeof(RenderSurfaceVert), (void *)(sizeof(float) * 3));
-
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+  */
   glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, (void *)0);
 
   mat.cleanup();
-
-  //reset shader
-  //glUseProgram(0);
-
-  /*for(int i = 0; i < tex_uniforms.size(); i++)
-  {
-    glActiveTexture(GL_TEXTURE0 + i);
-    glClientActiveTexture(GL_TEXTURE0 + i);
-    glDisable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, 0);
-  }*/
 }

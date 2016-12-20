@@ -1,14 +1,7 @@
 #ifndef _SHADER_H_
 #define _SHADER_H_
 
-#if defined (_WIN32)
-#include <Windows.h>
-#include <GL/glew.h>
-#endif
-
-#if defined(__APPLE__)
-#include <OpenGL/gl.h>
-#endif
+#include "platform_gl.h"
 
 #include <iostream>
 #include <assert.h>
@@ -16,6 +9,7 @@
 #include "math_utility.h"
 #include "gl_error.h"
 #include "platform.h"
+#include "matrix.h"
 
 namespace Graphics
 {
@@ -68,7 +62,7 @@ namespace Graphics
         SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
         //assert(false);
       }
-      gl_check_error();
+      //gl_check_error();
     }
 
     virtual void render() const = 0;  //set uniform variables - to be called prior to Shader::render()
@@ -123,6 +117,28 @@ namespace Graphics
 
     virtual void render() const { glUniform3f(_loc, var._val[0], var._val[1], var._val[2]); gl_check_error(); }
     void set_var(const Math::Float3 v) { var = v; }
+  };
+
+  class ShaderUniformMatrix4x4 : public ShaderUniformVariable
+  {
+  private:
+    GLfloat var[16];
+  public:
+    ShaderUniformMatrix4x4() : ShaderUniformVariable() {}
+    ~ShaderUniformMatrix4x4() {}
+
+    virtual void render() const { glUniformMatrix4fv(_loc, 1, false, var); }
+    void set_var(const Math::Matrix4x4 &m)
+    {
+      uint32_t k = 0;
+      for (uint32_t i = 0; i < 4; i++)
+      {
+        for (uint32_t j = 0; j < 4; j++)
+        {
+          var[k++] = m(j, i);
+        }
+      }
+    }
   };
 
   //TODO

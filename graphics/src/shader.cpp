@@ -3,11 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include <GL/glew.h>
-
-#if defined(__APPLE__)
-#include <OpenGL/gl.h>
-#endif //__APPLE__
 
 #include "platform.h"
 #include "shader.h"
@@ -18,8 +13,6 @@ using namespace Graphics;
 
 Shader::Shader()
 {
-  //name[0] = '\0';
-
   gl_fragment_shader =  0;
   gl_vertex_shader =    0;
   gl_shader_program =   0;
@@ -35,9 +28,9 @@ Shader::~Shader()
 
 void Shader::deinit()
 {
-  glDeleteObjectARB(gl_shader_program);
-  glDeleteObjectARB(gl_vertex_shader);
-  glDeleteObjectARB(gl_fragment_shader);
+  glDeleteProgram(gl_shader_program);
+  glDeleteProgram(gl_vertex_shader);
+  glDeleteProgram(gl_fragment_shader);
 }
 
 void Shader::set_shader_filenames(std::string vs_fname, std::string fs_fname)
@@ -122,11 +115,11 @@ GLuint Shader::compile_shader_from_source(GLenum shader_type, const char *source
   }
 
   glAttachShader(gl_shader_program, my_shader);
-  if (shader_type == GL_VERTEX_SHADER_ARB || shader_type == GL_VERTEX_SHADER)
+  if (shader_type == GL_VERTEX_SHADER)
   {
     gl_vertex_shader = my_shader;
   }
-  else if (shader_type == GL_FRAGMENT_SHADER_ARB || shader_type == GL_FRAGMENT_SHADER)
+  else if (shader_type == GL_FRAGMENT_SHADER)
   {
     gl_fragment_shader = my_shader;
   }

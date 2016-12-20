@@ -1,10 +1,7 @@
 #ifndef __GL_ERROR_H__
 #define __GL_ERROR_H__
 
-#if defined (_WIN32)
-#include <Windows.h>
-#include <GL/glew.h>
-#endif
+#include "platform_gl.h"
 
 #if defined (_GL_DEBUG)
 namespace Graphics

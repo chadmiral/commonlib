@@ -56,8 +56,6 @@ void Camera::set_camera_parameters(const float fs, const float fd, const float f
 
 void Camera::render_setup(const float znear, const float zfar)
 {
-  gl_check_error();
-
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
 
@@ -69,8 +67,6 @@ void Camera::render_setup(const float znear, const float zfar)
   {
     gluPerspective(fov, window_dimensions[0] / window_dimensions[1], znear, zfar);
   }
-
-  gl_check_error();
 
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
@@ -86,8 +82,6 @@ void Camera::render_setup(const float znear, const float zfar)
               lookat_pos[0], lookat_pos[1], lookat_pos[2],
               up[0], up[1], up[2]);
   }
-
-  gl_check_error();
 }
 
 void Camera::render_cleanup()

@@ -1,3 +1,4 @@
+#include <math.h>
 #include "matrix.h"
 
 // look into using an optimized linear algebra library (usually waaaaay faster)
@@ -823,6 +824,67 @@ void Matrix3x3::rotation_from_quaternion(const Quaternion &q)
   m[2][2] = w2 - x2 - y2 + z2;
 }
 */
+
+void Matrix4x4::ortho(float left, float right, float bottom, float top, float near_clip, float far_clip)
+{
+  m[0][0] = 2.0f / (right - left);
+  m[0][1] = 0.0f;
+  m[0][2] = 0.0f;
+  m[0][3] = -(right + left) / (right - left);
+
+  m[1][0] = 0.0f;
+  m[1][1] = 2.0f / (top - bottom);
+  m[1][2] = 0.0f;
+  m[1][3] = -(top + bottom) / (top - bottom);
+
+  m[2][0] = 0.0f;
+  m[2][1] = 0.0f;
+  m[2][2] = -2.0f / (far_clip - near_clip);
+  m[2][3] = -(far_clip + near_clip) / (far_clip - near_clip);
+
+  m[3][0] = 0.0f;
+  m[3][1] = 0.0f;
+  m[3][2] = 0.0f;
+  m[3][3] = 1.0f;
+}
+
+void Matrix4x4::perspective(float fov, float aspect_ratio, float znear, float zfar)
+{
+  float xymax = znear * (float)tan(fov * M_PI / 360.0f);// PI_OVER_360);
+  float ymin = -xymax;
+  float xmin = -xymax;
+
+  float width = xymax - xmin;
+  float height = xymax - ymin;
+
+  float depth = zfar - znear;
+  float q = -(zfar + znear) / depth;
+  float qn = -2 * (zfar * znear) / depth;
+
+  float w = 2 * znear / width;
+  w = w / aspect_ratio;
+  float h = 2 * znear / height;
+
+  m[0][0] = w;
+  m[1][0] = 0;
+  m[2][0] = 0;
+  m[3][0] = 0;
+
+  m[0][1] = 0;
+  m[1][1] = h;
+  m[2][1] = 0;
+  m[3][1] = 0;
+
+  m[0][2] = 0;
+  m[1][2] = 0;
+  m[2][2] = q;
+  m[3][2] = -1.0f;
+
+  m[0][3] = 0;
+  m[1][3] = 0;
+  m[2][3] = qn;
+  m[3][3] = 0;
+}
 
 ostream& Math::operator<<(ostream &os, const Matrix2x2 &m)
 {
