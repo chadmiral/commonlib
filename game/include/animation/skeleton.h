@@ -89,28 +89,72 @@ namespace Animation
    // friend class BoneAnim;
   //private:
   public:
-    Bone                             *_bone;
+    Bone    *_bone;
+    
+    uint32_t _num_pos_frames;
+    uint32_t _num_rot_frames;
+    uint32_t _num_scale_frames;
+    
+    BoneTransformPos   *_pos_frames;
+    BoneTransformRot   *_rot_frames;
+    BoneTransformScale  *_scale_frames;
+    
+    /*
     std::vector<BoneTransformPos>     _pos_frames;
     std::vector<BoneTransformRot>     _rot_frames;
     std::vector<BoneTransformScale>   _scale_frames;
+     */
   public:
     BoneAnimTrack() {}
     ~BoneAnimTrack() {}
 
     void evaluate(const float x, BoneTransform *result);
   };
+  
+  //
+  // num_tracks
+  //    num_pos_frames * num_tracks
+  //    num_rot_frames * num_tracks
+  //    num_scale_frames * num_tracks
+  //
 
   class BoneAnim
   {
-  friend class PackageBaker;
-  private:
-    std::vector<BoneAnimTrack> _tracks;
+  //friend class PackageBaker;
+  //private:
   public:
+    //std::vector<BoneAnimTrack> _tracks;
+    
+    uint32_t _num_tracks;              // maps to (hopefully) one BoneAnimTrack per bone in the skeleton
+    BoneAnimTrack *_tracks;
+    
+    /*
+     Bone     **_bones;                    //array of bone pointers - 1 bone pointer per track.
+    uint32_t *_pos_frames_lengths;     // an array of position track frame counts, of length num_tracks
+    uint32_t *_rot_frames_lengths;     // an array of rotation track frame counts,  of length num_tracks
+    uint32_t *_scale_frames_lengths;   // an array of scale track frame counts, of length num_tracks
+    
+    
+    
+    BoneTransformPos     **_pos_frames;    // 2D array of pos frames, num_tracks x frames_length
+    BoneTransformRot     **_rot_frames;    // 2D array of rot frames, num_tracks x frames_length
+    BoneTransformScale   **_scale_frames;  // 2D array of scale frames, num_tracks x frames_length
+     */
+    
+    
     BoneAnim() {}
     ~BoneAnim() {}
-    
-    uint32_t get_num_tracks() const { return _tracks.size(); }
+
+    uint32_t get_num_tracks() const { return _num_tracks; }
     BoneAnimTrack *get_anim_track(const uint32_t idx) { return &_tracks[idx]; }
-    void add_track(BoneAnimTrack &bat) { _tracks.push_back(bat); }
+    void alloc_tracks(uint32_t num_tracks, BoneAnimTrack *tracks = NULL)
+    {
+      _tracks = new BoneAnimTrack[num_tracks];
+      if(tracks)
+      {
+        _num_tracks = num_tracks;
+        memcpy(_tracks, tracks, sizeof(BoneAnimTrack) * num_tracks);
+      }
+    }
   };
 };

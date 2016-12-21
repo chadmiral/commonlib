@@ -1,7 +1,7 @@
 CC=g++
 
 CFLAGS=-I./include -I../mathlib/include -I../graphics/include
-CFLAGS+=-I/usr/local/include -I../game/include
+CFLAGS+=-I/usr/local/include -I../game/include -I../game/include/animation
 CFLAGS+=-I./include/minilzo -I../
 CFLAGS+=$(shell pkg-config mxml --cflags)
 #CFLAGS+=-Ofast
@@ -15,6 +15,7 @@ SRCPATH=src/
 SRCS=src/static_mesh_baker.cpp src/bakery.cpp src/tool.cpp
 SRCS+=src/bphys_baker.cpp src/shader_baker.cpp
 SRCS+=src/minilzo/minilzo.cpp src/package_baker.cpp
+SRCS+=src/skeleton_baker.cpp src/animation_baker.cpp
 OBJS=$(SRCS:.cpp=.o)
 
 UNAME := $(shell uname)
@@ -61,6 +62,12 @@ $(BINPATH)bphys_baker.o: $(SRCPATH)bphys_baker.cpp
 
 $(BINPATH)shader_baker.o: $(SRCPATH)shader_baker.cpp
 	$(CC) $(CFLAGS) -c src/shader_baker.cpp -o $(BINPATH)shader_baker.o
+
+$(BINPATH)skeleton_baker.o: $(SRCPATH)skeleton_baker.cpp
+	$(CC) $(CFLAGS) -c src/skeleton_baker.cpp -o $(BINPATH)skeleton_baker.o
+
+$(BINPATH)animation_baker.o: $(SRCPATH)animation_baker.cpp
+	$(CC) $(CFLAGS) -c src/animation_baker.cpp -o $(BINPATH)animation_baker.o
 
 $(BINPATH)minilzo.o: $(SRCPATH)minilzo/minilzo.cpp
 	$(CC) $(CFLAGS) -c src/minilzo/minilzo.cpp -o $(BINPATH)minilzo.o
