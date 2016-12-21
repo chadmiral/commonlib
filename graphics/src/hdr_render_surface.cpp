@@ -4,33 +4,108 @@ using namespace std;
 using namespace Graphics;
 using namespace Math;
 
+static char passthrough_vs_src[] =
+"#version 120\n"
+"void main(void)\n"
+"{\n"
+"  gl_TexCoord[0] = gl_MultiTexCoord0;\n"
+"  gl_Position = ftransform();\n"
+"}\n";
+
+static char hdr_tone_map_fs_src[] =
+"#version 120\n"
+"\n"
+"uniform float exposure;\n"
+"uniform float bloom_threshold;\n"
+"\n"
+"uniform float weight[5] = float[](0.227027, 0.1945946, 0.1216216, 0.054054, 0.016216);\n"
+"\n"
+"uniform sampler2D surface_tex;\n"
+"uniform sampler3D lut_tex;\n"
+"\n"
+"void main()\n"
+"{\n"
+"  //const float exposure = 1.0;\n"
+"  const float gamma = 1.0;//0.4545;//2.2;\n"
+"  vec3 hdr_col = texture2D(surface_tex, gl_TexCoord[0].st).rgb;\n"
+"\n"
+"  float luminance = 0.2126 * hdr_col.r + 0.7152 * hdr_col.g + 0.0722 * hdr_col.b;\n"
+"\n"
+"  //exposure tone mapping\n"
+"  vec3 mapped = vec3(1.0) - exp(-hdr_col * exposure);\n"
+"\n"
+"  // Gamma correction\n"
+"  mapped = pow(mapped, vec3(1.0 / gamma));\n"
+"  vec3 color_graded = texture3D(lut_tex, mapped.rbg).rgb;\n"
+"  gl_FragColor = vec4(color_graded, 1.0);\n"
+"}\n";
+
+static char hdr_tone_map_clamp_fs_src[] =
+"#version 120\n"
+"\n"
+"uniform float exposure;\n"
+"uniform float bloom_threshold;\n"
+"\n"
+"uniform float weight[5] = float[](0.227027, 0.1945946, 0.1216216, 0.054054, 0.016216);\n"
+"\n"
+"uniform sampler2D surface_tex;\n"
+"uniform sampler3D lut_tex;\n"
+"\n"
+"void main()\n"
+"{\n"
+"  //const float exposure = 1.0;\n"
+"  const float gamma = 1.0;//0.4545;//2.2;\n"
+"  vec3 hdr_col = texture2D(surface_tex, gl_TexCoord[0].st).rgb;\n"
+"\n"
+"  float luminance = 0.2126 * hdr_col.r + 0.7152 * hdr_col.g + 0.0722 * hdr_col.b;\n"
+"  if (luminance < bloom_threshold)\n"
+"  {\n"
+"    hdr_col = vec3(0.0, 0.0, 0.0);\n"
+"  }\n"
+"\n"
+"  //exposure tone mapping\n"
+"  vec3 mapped = vec3(1.0) - exp(-hdr_col * exposure);\n"
+"\n"
+"  // Gamma correction\n"
+"  mapped = pow(mapped, vec3(1.0 / gamma));\n"
+"  vec3 color_graded = texture3D(lut_tex, mapped.rbg).rgb;\n"
+"  gl_FragColor = vec4(color_graded, 1.0);\n"
+"}\n";
+
 HDRRenderSurface::HDRRenderSurface(const int w, const int h) : RenderSurface(w, h)
 {
   exposure = 1.0f;
   bloom_threshold = 0.9f;
 
+  shader1 = new Shader;
   shader2 = new Shader;
 }
 
 HDRRenderSurface::~HDRRenderSurface()
 {
   deinit();
+  delete shader1;
   delete shader2;
 }
 
 void HDRRenderSurface::init()
 {
   //TODO: make these shader names safe
-  std::string vs_name("../data/shaders/passthrough.vs");
+  /*std::string vs_name("../data/shaders/passthrough.vs");
   std::string fs_name("../data/shaders/hdr_tone_map.fs");
   std::string fs_name2("../data/shaders/hdr_tone_map_clamp.fs");
   set_shader_names(vs_name, fs_name);
+  */
+
+  shader1->compile_and_link_from_source(passthrough_vs_src, hdr_tone_map_fs_src);
+  set_shader(shader1);
 
   set_internal_format(GL_RGBA16F_ARB);
   set_filtering_mode(GL_LINEAR);
 
-  shader2->set_shader_filenames(vs_name, fs_name2);
-  shader2->load_link_and_compile();
+  //shader2->set_shader_filenames(vs_name, fs_name2);
+  //shader2->load_link_and_compile();
+  shader2->compile_and_link_from_source(passthrough_vs_src, hdr_tone_map_clamp_fs_src);
   mat2.set_shader(shader2);
   mat2.add_texture(target_tex, "surface_tex");
   mat2.init();
@@ -45,8 +120,8 @@ void HDRRenderSurface::deinit()
 
 void HDRRenderSurface::render()
 {
-  Shader *shader = mat->get_shader();
-  mat->render(); //material needs to be bound for the uniforms to be set.
+  Shader *shader = mat.get_shader();
+  mat.render(); //material needs to be bound for the uniforms to be set.
 
   //TODO: make these uniforms not super hacky
   GLint exposure_loc = glGetUniformLocation(shader->gl_shader_program, "exposure");
@@ -83,13 +158,14 @@ void HDRRenderSurface::render_method_2()
 
   mat2.render();
 
-  for(unsigned int i = 0; i < uniforms.size(); i++)
+  /*
+  for(uint32_t i = 0; i < uniforms.size(); i++)
   {
     Float2 *uval = uniforms[i].first;
     std::string uname = uniforms[i].second;
     GLint uloc = glGetUniformLocation(shader->gl_shader_program, uname.c_str());
     glUniform2f(uloc, (*uval)[0], (*uval)[1]);
-  }
+  }*/
 
   /*for(int i = 0; i < tex_uniforms.size(); i++)
   {

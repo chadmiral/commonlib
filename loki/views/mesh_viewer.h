@@ -1,5 +1,7 @@
 #pragma once
 
+#include <imgui.h>
+
 #include "static_mesh.h"
 #include "render_surface.h"
 
@@ -18,6 +20,9 @@ private:
   Graphics::RenderSurface  _render_target;
   Graphics::Shader         _render_target_shader;
 
+  ImVec2                   _view_size;
+
+  void load_mesh();
   void render_mesh();
 
 public:

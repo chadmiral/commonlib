@@ -1,4 +1,3 @@
-#include <imgui.h>
 #include <Windows.h>
 #include "mesh_viewer.h"
 #include "texture.h"
@@ -62,18 +61,54 @@ MeshViewer::MeshViewer()
   _mesh = NULL;
   _mesh_mat = NULL;
   _mesh_shader = NULL;
+
+  visible = true;
+}
+
+void MeshViewer::load_mesh()
+{
+  char szFile[100];
+  OPENFILENAME ofn;
+
+  ZeroMemory(&ofn, sizeof(ofn));
+  ofn.lStructSize = sizeof(ofn);
+  ofn.hwndOwner = NULL;
+  ofn.lpstrFile = szFile;
+  ofn.lpstrFile[0] = '\0';
+  ofn.nMaxFile = sizeof(szFile);
+  ofn.lpstrFilter = "All\0*.*\0Text\0*.TXT\0";
+  ofn.nFilterIndex = 1;
+  ofn.lpstrFileTitle = NULL;
+  ofn.nMaxFileTitle = 0;
+  ofn.lpstrInitialDir = NULL;
+  ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+  GetOpenFileName(&ofn);
+
+  if (_mesh) { delete _mesh; }
+  _mesh = new StaticMesh;
+
+  FILE *f;
+  FOPEN(f, ofn.lpstrFile, "rb");
+  if (f)
+  {
+    _mesh->read_from_file(f);
+  }
+  _mesh->init();
 }
 
 void MeshViewer::render_mesh()
 {
+  //glViewport(0.0f, 0.0f, (GLsizei)_view_size.x, (GLsizei)_view_size.y);
+
   //set up model view transform
   Matrix4x4 model_view, projection;
-  projection.perspective(100.0f, 1.0f, 0.01f, 100.0f);
+  //projection.perspective(100.0f, 1.0f, 0.01f, 100.0f);
+  projection.ortho(-1.0f, 1.0f, -1.0f, 1.0f, 0.0f, 100.0f);
 
   _mesh_projection.set_var(projection);
   _mesh_modelview.set_var(model_view);
 
-  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+  glClearColor(0.2f, 0.2f, 0.25f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   if (!_mesh) { return; }
 
@@ -129,52 +164,34 @@ void MeshViewer::render()
     {
       if (ImGui::MenuItem("Open Mesh...", NULL, false))
       {
-        char szFile[100];
-        OPENFILENAME ofn;
-
-        ZeroMemory(&ofn, sizeof(ofn));
-        ofn.lStructSize = sizeof(ofn);
-        ofn.hwndOwner = NULL;
-        ofn.lpstrFile = szFile;
-        ofn.lpstrFile[0] = '\0';
-        ofn.nMaxFile = sizeof(szFile);
-        ofn.lpstrFilter = "All\0*.*\0Text\0*.TXT\0";
-        ofn.nFilterIndex = 1;
-        ofn.lpstrFileTitle = NULL;
-        ofn.nMaxFileTitle = 0;
-        ofn.lpstrInitialDir = NULL;
-        ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
-        GetOpenFileName(&ofn);
-
-        if (_mesh) { delete _mesh;  }
-        _mesh = new StaticMesh;
-
-        FILE *f;
-        FOPEN(f, ofn.lpstrFile, "rb");
-        if (f)
-        {
-          _mesh->read_from_file(f);
-        }
-        _mesh->init();
+        load_mesh();
       }
       ImGui::EndMenu();
     }
     ImGui::EndMenuBar();
   }
 
+  //calculate the size of the render view
+  _view_size = ImGui::GetWindowSize();
+  ImVec2 view_min = ImGui::GetWindowContentRegionMin();
+  ImVec2 view_max = ImGui::GetWindowContentRegionMax();
+  _view_size.x -= view_min.x + (_view_size.x - view_max.x) + 2;
+  _view_size.y -= view_min.y + (_view_size.y - view_max.y) + 20;
+
+  //ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(1, 1));
+  //ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+  //ImGui::PushStyleColor(ImGuiCol_ChildWindowBg, ImColor(60, 60, 70, 200));
+
   //render the mesh to the FBO
+  _render_target.set_fbo_res((int32_t)_view_size.x, (int32_t)_view_size.y);
   _render_target.capture();
     render_mesh();
   _render_target.release();
 
-  //TODO: grab tex_id from FBO & render mesh to FBO
   Texture2D *fbo_tex = _render_target.get_tex();
   int32_t t = fbo_tex->get_tex_id();
   ImTextureID tex_id = (ImTextureID)fbo_tex->get_tex_id();//ImGui::GetIO().Fonts->TexID;
-  ImVec2 view_size = ImGui::GetWindowSize();
-  view_size.x -= 20;
-  view_size.y -= 80;
-  ImGui::Image(tex_id, view_size, ImVec2(0, 0), ImVec2(1, 1), ImColor(255, 255, 255, 255), ImColor(255, 255, 255, 128));
+  ImGui::Image(tex_id, _view_size, ImVec2(0, 0), ImVec2(1, 1), ImColor(255, 255, 255, 255), ImColor(255, 255, 255, 128));
 
   ImGui::End();
 }

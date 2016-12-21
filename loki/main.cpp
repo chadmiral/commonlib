@@ -11,6 +11,8 @@
 
 #include "mesh_viewer.h"
 
+using namespace Math;
+
 static MeshViewer mesh_viewer;
 
 static void error_callback(int error, const char* description)
@@ -360,6 +362,24 @@ int main(int argc, char **argv)
         ImGui::EndMenuBar();
       }
 
+      float values[10] = {};
+      for (uint32_t i = 0; i < 10; i++)
+      {
+        values[i] = random(-1.0f, 1.0f);
+      }
+      ImTextureID tex_id = ImGui::GetIO().Fonts->TexID;
+      ImVec2 view_size = ImGui::GetWindowSize();
+      view_size.x -= 20;
+      view_size.y = 60;
+      ImGui::PlotLines("", values, 10, 0, "avg 0.0", -1.0f, 1.0f, view_size);
+      
+      //animation scrubber
+      static int i1 = 0;
+      //ImVec2 scrub_size(10, 10);
+      //ImGui::SetNextWindowSize(scrub_size);
+      ImGui::SliderInt("", &i1, 0, 100);
+      //ImGui::SameLine(); ShowHelpMarker("CTRL+click to input value.");
+
       ImGui::End();
     }
 
@@ -387,7 +407,10 @@ int main(int argc, char **argv)
       //render the texture
       //TODO: grab tex_id from FBO & render mesh to FBO
       ImTextureID tex_id = ImGui::GetIO().Fonts->TexID;
-      ImGui::Image(tex_id, ImVec2(100, 100), ImVec2(0, 0), ImVec2(1, 1), ImColor(255, 255, 255, 255), ImColor(255, 255, 255, 128));
+      ImVec2 view_size = ImGui::GetWindowSize();
+      view_size.x -= 20;
+      view_size.y -= 80;
+      ImGui::Image(tex_id, view_size, ImVec2(0, 0), ImVec2(1, 1), ImColor(255, 255, 255, 255), ImColor(255, 255, 255, 128));
 
 
       ImGui::End();

@@ -26,6 +26,7 @@ namespace Graphics
     float                  exposure;
     float                  bloom_threshold;
 
+    Shader                 *shader1;
     Shader                 *shader2;
     Material               mat2;
   };

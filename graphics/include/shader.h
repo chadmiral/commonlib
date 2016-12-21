@@ -60,9 +60,7 @@ namespace Graphics
         std::cerr << "\tshader: " << sp->gl_vertex_shader_fname.c_str() << ", " << sp->gl_fragment_shader_fname.c_str() << std::endl;
         std::cerr << "\tuniform name: " << _name.c_str() << std::endl;
         SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
-        //assert(false);
       }
-      //gl_check_error();
     }
 
     virtual void render() const = 0;  //set uniform variables - to be called prior to Shader::render()
@@ -135,7 +133,7 @@ namespace Graphics
       {
         for (uint32_t j = 0; j < 4; j++)
         {
-          var[k++] = m(j, i);
+          var[k++] = m(i, j);
         }
       }
     }
