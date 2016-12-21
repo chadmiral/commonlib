@@ -1,4 +1,3 @@
-#include <GL/glew.h>
 #include <iostream>
 #include <assert.h>
 #include <cstring>
@@ -173,8 +172,9 @@ void Material::render() const
     glBindTexture(GL_TEXTURE_3D, textures_3d[i].first->get_tex_id());
   }
 
-  if(lighting) { glEnable(GL_LIGHTING); }
-  else { glDisable(GL_LIGHTING); }
+  //obsolete (Fixed pipeline)
+  //if(lighting) { glEnable(GL_LIGHTING); }
+  //else { glDisable(GL_LIGHTING); }
 
   //TODO - we should really render all transparents
   //       at once... with back to front sorting... yeah.

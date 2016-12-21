@@ -3,12 +3,6 @@
 #include <assert.h>
 #include <string.h>
 
-//#include <GL/glew.h>
-
-#if defined(__APPLE__)
-#include <OpenGL/gl.h>
-#endif
-
 #include "static_mesh.h"
 #include "gl_error.h"
 
@@ -33,12 +27,12 @@ StaticMesh::~StaticMesh()
   if(_vertices)
   {
     delete _vertices;
-    glDeleteBuffersARB(1, &_vbo);
+    glDeleteBuffers(1, &_vbo);
   }
 
   if(_indices)
   {
-    glDeleteBuffersARB(1, &_ibo);
+    glDeleteBuffers(1, &_ibo);
     delete _indices;
   }
 }
@@ -104,8 +98,11 @@ void StaticMesh::render(Material *m, GLenum primitive_type)
   {
     m->render();
   }
+
+#ifndef __LOKI__
   else
   {
+    //TODO: vertex attribs
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(3, GL_FLOAT, sizeof(StaticMeshVertex), (void *)0);
     glEnableClientState(GL_COLOR_ARRAY);
@@ -118,6 +115,7 @@ void StaticMesh::render(Material *m, GLenum primitive_type)
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     glTexCoordPointer(2, GL_FLOAT, sizeof(StaticMeshVertex), (void *)(sizeof(float) * 9));
   }
+#endif //__LOKI__
   
   glDrawElements(primitive_type, _num_indices, GL_UNSIGNED_INT, (void *)0);
 
@@ -125,6 +123,8 @@ void StaticMesh::render(Material *m, GLenum primitive_type)
   {
     m->cleanup();
   }
+
+#ifndef __LOKI__
   else
   {
     glDisableClientState(GL_VERTEX_ARRAY);
@@ -133,6 +133,7 @@ void StaticMesh::render(Material *m, GLenum primitive_type)
 
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
   }
+#endif //__LOKI__
 
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);

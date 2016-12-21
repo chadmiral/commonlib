@@ -45,8 +45,8 @@ void HDRRenderSurface::deinit()
 
 void HDRRenderSurface::render()
 {
-  Shader *shader = mat.get_shader();
-  mat.render(); //material needs to be bound for the uniforms to be set.
+  Shader *shader = mat->get_shader();
+  mat->render(); //material needs to be bound for the uniforms to be set.
 
   //TODO: make these uniforms not super hacky
   GLint exposure_loc = glGetUniformLocation(shader->gl_shader_program, "exposure");

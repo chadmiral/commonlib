@@ -76,11 +76,13 @@ void Texture2D::init()
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter_mode);
 
   //for depth textures
+#ifndef __LOKI__
   if (internal_format == GL_DEPTH_COMPONENT || internal_format == GL_DEPTH_COMPONENT16 || internal_format == GL_DEPTH_COMPONENT24 || internal_format == GL_DEPTH_COMPONENT32)
   {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
   }
+#endif //__LOKI__
   
   glTexImage2D(GL_TEXTURE_2D,
                0,
@@ -185,16 +187,11 @@ bool Texture2D::load()
 //set up the texture for rendering
 void Texture2D::render_gl(GLuint tex_stage) const
 {
-  //return true;
   glActiveTexture(tex_stage);
   //glClientActiveTexture(GL_TEXTURE0);
   glEnable(GL_BLEND);
   glEnable(GL_TEXTURE_2D);
   glDisable(GL_TEXTURE_3D);
-
-  //glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-  glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-  //glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
   glBindTexture(GL_TEXTURE_2D, gl_texture);
 }
@@ -358,24 +355,12 @@ bool Texture3D::load(const unsigned int depth)
 //set up the texture for rendering
 bool Texture3D::render_gl(GLuint tex_stage) const
 {
-  gl_check_error();
-
   glActiveTexture(tex_stage);
   glEnable(GL_BLEND);
   glEnable(GL_TEXTURE_3D);
   glDisable(GL_TEXTURE_2D);
 
-  gl_check_error();
-
-  //glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-  glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);  //What does this do, really?
-  //glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-
-  gl_check_error();
-
   glBindTexture(GL_TEXTURE_3D, gl_texture);
-
-  gl_check_error();
 
   return true;
 }

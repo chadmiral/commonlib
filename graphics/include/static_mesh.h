@@ -3,14 +3,7 @@
 
 #include <vector>
 
-#if defined(_WIN32)
-#include <Windows.h>
-#include <GL/glew.h>
-#endif
-
-#if defined(__APPLE__)
-#include <OpenGL/gl.h>
-#endif
+#include "platform_gl.h"
 
 #include "math_utility.h"
 
@@ -27,6 +20,18 @@ namespace Graphics
     float u0, v0;
   };
 
+  /*
+  enum MeshVertexAttribs
+  {
+    MESH_VERTEX_ATTRIB_XYZ,
+    MESH_VERTEX_ATTRIB_RGB,
+    MESH_VERTEX_ATTRIB_NORMAL,
+    MESH_VERTEX_ATTRIB_UV0,
+
+    NUM_MESH_VERTEX_ATTRIBS
+  };
+  */
+
   class StaticMesh
   {
   public:
@@ -41,6 +46,8 @@ namespace Graphics
 
   protected:
     std::vector<DrawCall<StaticMeshVertex> > draw_calls;
+
+    //ShaderVertexAttrib      _vertex_attribs[NUM_MESH_VERTEX_ATTRIBS];
 
     uint32_t                _num_vertices;
     StaticMeshVertex       *_vertices;

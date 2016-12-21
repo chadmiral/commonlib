@@ -1,15 +1,7 @@
 #ifndef __FONT_H__
 #define __FONT_H__
 
-#if defined (_WIN32)
-#include <Windows.h>
-#include <GL/glew.h>
-#endif
-
-#if defined(__APPLE__)
-#include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
-#endif
+#include "platform_gl.h"
 
 #include <ft2build.h>
 #include <freetype.h>

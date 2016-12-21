@@ -1,17 +1,8 @@
 #ifndef _TEXTURE_H_
 #define _TEXTURE_H_
 
-#if defined(_WIN32)
-#include <Windows.h>
-#include <GL/glew.h>
-#include <GL/gl.h>
-#endif //_WIN32
-
+#include "platform_gl.h"
 #include <string>
-
-#if defined(__APPLE__)
-#include <OpenGL/gl.h>
-#endif
 
 namespace Graphics
 {

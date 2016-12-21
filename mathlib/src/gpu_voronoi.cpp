@@ -91,18 +91,18 @@ void GPUVoronoi2D::init()
 
   assert(glIsTexture(voronoi_diagram_tex) == GL_TRUE);
 
-  glGenRenderbuffersEXT(1, &depth_fbo);
-  glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, depth_fbo);
-  glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT24, fbo_res[0], fbo_res[1]);
+  glGenRenderbuffers(1, &depth_fbo);
+  glBindRenderbuffer(GL_RENDERBUFFER, depth_fbo);
+  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, fbo_res[0], fbo_res[1]);
 
-  glGenFramebuffersEXT(1, &voronoi_diagram_fbo);
-  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, voronoi_diagram_fbo);
+  glGenFramebuffers(1, &voronoi_diagram_fbo);
+  glBindFramebuffer(GL_FRAMEBUFFER, voronoi_diagram_fbo);
 
   assert(glIsFramebuffer(voronoi_diagram_fbo) == GL_TRUE);
 
-  glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, voronoi_diagram_tex, 0);
-  glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, depth_fbo);
-  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, voronoi_diagram_tex, 0);
+  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth_fbo);
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
   cpu_tex_data = new GLubyte[fbo_res[0] * fbo_res[1] * 4];
 }
@@ -127,7 +127,7 @@ void GPUVoronoi2D::build_voronoi_diagram()
 {
   //set up the render target
   GLint win_viewport[4];
-  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, voronoi_diagram_fbo);
+  glBindFramebuffer(GL_FRAMEBUFFER, voronoi_diagram_fbo);
   glGetIntegerv(GL_VIEWPORT, win_viewport);
   glViewport(0, 0, fbo_res[0], fbo_res[1]);
 

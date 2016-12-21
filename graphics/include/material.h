@@ -1,14 +1,7 @@
 #ifndef __MATERIAL_H__
 #define __MATERIAL_H__
 
-#if defined (_WIN32)
-#include <Windows.h>
-#include <GL/glew.h>
-#endif//_WIN32
-
-#if defined (__APPLE__)
-#include <OpenGL/gl.h>
-#endif
+#include "platform_gl.h"
 
 #include <vector>
 

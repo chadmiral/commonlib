@@ -549,9 +549,9 @@ void DebugConsole::tab_complete(int depth)
     return;
   }
 
-  if((last_tab_complete_idx + 1) < float_var_names.size())
+  if((last_tab_complete_idx + 1) < (int32_t)float_var_names.size())
   {
-    for(int32_t i = last_tab_complete_idx + 1; i < float_var_names.size(); i++)
+    for(int32_t i = last_tab_complete_idx + 1; i < (int32_t)float_var_names.size(); i++)
     {
       if(float_var_names[i].find(tab_complete_string) != std::string::npos)
       {
@@ -561,7 +561,6 @@ void DebugConsole::tab_complete(int depth)
       }
     }
   }
-
 
   //float2 variables
   int idx_offset = float_var_names.size();

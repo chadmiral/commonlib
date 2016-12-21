@@ -3,8 +3,13 @@
 
 #if defined(_WIN32)
 #include <Windows.h>
+#if defined __LOKI__
+#include <GL/gl3w.h>
+#include <GL/gl.h>
+#else
 #include <gl/glew.h>
-#endif
+#endif //__LOKI__
+#endif //_WIN32
 
 #if defined (__APPLE__)
 #include <OpenGL/GL.h>
