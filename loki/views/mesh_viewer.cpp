@@ -102,8 +102,9 @@ void MeshViewer::render_mesh()
 
   //set up model view transform
   Matrix4x4 model_view, projection;
-  //projection.perspective(100.0f, 1.0f, 0.01f, 100.0f);
-  projection.ortho(-1.0f, 1.0f, -1.0f, 1.0f, 0.0f, 100.0f);
+  model_view.identity();
+  _cam.set_window_dimensions(Float2(_view_size.x, _view_size.y));
+  _cam.get_projection_matrix(&projection);
 
   _mesh_projection.set_var(projection);
   _mesh_modelview.set_var(model_view);
@@ -117,6 +118,10 @@ void MeshViewer::render_mesh()
 
 void MeshViewer::init()
 {
+  _cam.set_pos(Float3(-100.0f, 0.0f, 0.0f));
+  _cam.set_lookat(Float3(1.0f, 0.0f, 0.0f));
+  _cam.set_up(Float3(0.0f, 1.0f, 0.0f));
+
   _render_target_shader.compile_and_link_from_source(vs_src_410, fs_src_410);
   _render_target.set_shader(&_render_target_shader);
   _render_target.init();
@@ -138,7 +143,7 @@ void MeshViewer::init()
   _mesh_modelview.set_loc(_mesh_shader);
   _mesh_mat->add_uniform_var(&_mesh_modelview);
 
-  _mesh_mat->enable_backface_culling(true);
+  _mesh_mat->enable_backface_culling(false);
   _mesh_mat->init();
 
   _mesh = NULL;
@@ -183,7 +188,13 @@ void MeshViewer::render()
   //ImGui::PushStyleColor(ImGuiCol_ChildWindowBg, ImColor(60, 60, 70, 200));
 
   //render the mesh to the FBO
-  _render_target.set_fbo_res((int32_t)_view_size.x, (int32_t)_view_size.y);
+  int32_t fbo_w, fbo_h;
+  _render_target.get_fbo_res(fbo_w, fbo_h);
+  if (fbo_w != (int32_t)_view_size.x || fbo_h != (int32_t)_view_size.y)
+  {
+    _render_target.resize((int32_t)_view_size.x, (int32_t)_view_size.y);
+  }
+  
   _render_target.capture();
     render_mesh();
   _render_target.release();

@@ -4,10 +4,6 @@
 // and the outlet shot out sparks and melted a spatula. (!!!)
 // I cannot describe my excitement the first time I got HDR bloom to work. :)
 
-#if defined(__APPLE__)
-#include <OpenGL/gl.h>
-#endif
-
 #include <assert.h>
 #include "render_surface.h"
 #include "texture.h"
@@ -65,14 +61,64 @@ RenderSurface::RenderSurface(const int w, const int h)
   fbo_res[0] = w;
   fbo_res[1] = h;
 
-  target_tex = new Texture2D(fbo_res[0], fbo_res[1]);
-  depth_tex = new Texture2D(fbo_res[0], fbo_res[1]);
+  depth_tex = NULL;
+  target_tex = NULL;
 }
 
 RenderSurface::~RenderSurface()
 {
   deinit();
-  delete target_tex;
+}
+
+void RenderSurface::create_target_texture()
+{
+  target_tex = new Texture2D(fbo_res[0], fbo_res[1]);
+
+  target_tex->set_tex_format(tex_format);
+  target_tex->set_internal_format(tex_internal_format);
+  target_tex->set_data_format(tex_type);
+  target_tex->set_filtering_mode(tex_filter);
+  target_tex->set_wrap_mode(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
+  target_tex->set_resolution(fbo_res[0], fbo_res[1]);
+
+  target_tex->init();
+}
+
+void RenderSurface::create_depth_texture()
+{
+  depth_tex = new Texture2D(fbo_res[0], fbo_res[1]);
+
+  depth_tex->set_tex_format(GL_DEPTH_COMPONENT);
+  depth_tex->set_internal_format(GL_DEPTH_COMPONENT32);
+  depth_tex->set_data_format(GL_FLOAT);//GL_UNSIGNED_BYTE);
+  depth_tex->set_filtering_mode(GL_LINEAR);
+  depth_tex->set_wrap_mode(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
+  depth_tex->set_resolution(fbo_res[0], fbo_res[1]);
+
+  depth_tex->init();
+}
+
+void RenderSurface::bind_textures_to_fbo()
+{
+  glBindFramebuffer(GL_FRAMEBUFFER, target_fbo);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, target_tex->get_tex_id(), 0);
+  if (use_depth)
+  {
+    //glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth_fbo);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depth_tex->get_tex_id(), 0);
+  }
+
+  GLuint status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+  assert(status == GL_FRAMEBUFFER_COMPLETE);
+
+  //undbind the hdr render target (so that we're not rendering to it by default)
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void RenderSurface::delete_frame_buffer_object()
+{
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  glDeleteFramebuffers(1, &target_fbo);
 }
 
 void RenderSurface::init()
@@ -85,37 +131,21 @@ void RenderSurface::init()
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * 4, index_data, GL_STATIC_DRAW);
 
-  target_tex->set_tex_format(tex_format);
-  target_tex->set_internal_format(tex_internal_format);
-  target_tex->set_data_format(tex_type);
-  target_tex->set_filtering_mode(tex_filter);
-  target_tex->set_wrap_mode(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
-  target_tex->set_resolution(fbo_res[0], fbo_res[1]);
-  target_tex->init();
-
-  //create depth texture
-  if (use_depth)
-  {
-    depth_tex->set_tex_format(GL_DEPTH_COMPONENT);
-    depth_tex->set_internal_format(GL_DEPTH_COMPONENT32);
-    depth_tex->set_data_format(GL_FLOAT);//GL_UNSIGNED_BYTE);
-    depth_tex->set_filtering_mode(GL_LINEAR);
-    depth_tex->set_wrap_mode(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
-    depth_tex->set_resolution(fbo_res[0], fbo_res[1]);
-    depth_tex->init();
-  }
+  create_target_texture();
+  if (use_depth) { create_depth_texture(); }
 
   //Set up material
   Matrix4x4 proj;
   proj.ortho(-1.0f, 1.0f, -1.0f, 1.0f, -100.0f, 100.0f);
   _projection_matrix.set_name("proj_mat");
-  _projection_matrix.set_loc(mat.get_shader());
+  //_projection_matrix.set_loc(mat.get_shader());
   _projection_matrix.set_var(proj);
 
   mat.add_uniform_var(&_projection_matrix);
 
   Shader *s = mat.get_shader();
   assert(s); //This should have been set already with set_shader()
+
   _xyz_attrib.set_loc(s, "in_xyz", sizeof(RenderSurfaceVert), 3, 0 * sizeof(float));
   _uv0_attrib.set_loc(s, "in_uv0", sizeof(RenderSurfaceVert), 2, 3 * sizeof(float));
 
@@ -148,27 +178,31 @@ void RenderSurface::init()
     depth_fbo = 0;
   }*/
 
-
-  // create FBO
   glGenFramebuffers(1, &target_fbo);
-  glBindFramebuffer(GL_FRAMEBUFFER, target_fbo);
-  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, target_tex->get_tex_id(), 0);
-  if(use_depth)
-  {
-    //glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth_fbo);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depth_tex->get_tex_id(), 0);
-  }
-
-  GLuint status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-  assert(status == GL_FRAMEBUFFER_COMPLETE);
-
-  //undbind the hdr render target (so that we're not rendering to it by default)
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  bind_textures_to_fbo();
 }
 
 void RenderSurface::deinit()
 {
+  delete_frame_buffer_object();
 
+  if (depth_tex) { delete depth_tex; }
+  if (target_tex) { delete target_tex; }
+}
+
+void RenderSurface::resize(const uint32_t w, const uint32_t h)
+{
+  fbo_res[0] = w;
+  fbo_res[1] = h;
+
+  //delete_frame_buffer_object();
+  if (depth_tex) { delete depth_tex; }
+  if (target_tex) { delete target_tex; }
+
+  if (use_depth) { create_depth_texture(); }
+  create_target_texture();
+
+  bind_textures_to_fbo();
 }
 
 void RenderSurface::capture()

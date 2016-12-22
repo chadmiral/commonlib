@@ -482,70 +482,20 @@ void Matrix4x4::ortho(float left, float right, float bottom, float top, float ne
 
 void Matrix4x4::perspective(float fovy, float aspect, float zNear, float zFar)
 {
-
-  /*
-  void gluPerspective( GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar )
-  double f = 1.0 / tan(fovy * M_PI / 360);  // convert degrees to radians and divide by 2
-  double xform[16] =
-  {
-    f / aspect, 0, 0, 0,
-    0,          f, 0, 0,
-    0,          0, (zFar + zNear) / (zFar - zNear), -1,
-    0,          0, 2 * zFar*zNear / (zFar - zNear), 0
-  };
-  */
-
-  double f = 1.0 / tan(fovy * M_PI / 360);  // convert degrees to radians and divide by 2
-  m[0][0] = (float)(f / aspect);
-  m[0][1] = 0.0f;
-  m[0][2] = 0.0f;
-  m[0][3] = 0.0f;
-
-  m[1][0] = 0.0f;
-  m[1][1] = (float)f;
-  m[1][2] = 0.0f;
-  m[1][3] = 0.0f;
-
-  m[2][0] = 0.0f;
-  m[2][1] = 0.0f;
-  m[2][2] = (zFar + zNear) / (zFar - zNear);
-  m[2][3] = 2.0f * zFar * zNear / (zFar - zNear);
-
-  m[3][0] = 0.0f;
-  m[3][1] = 0.0f;
-  m[3][2] = -1.0f;
-  m[3][3] = 0.0f;
-
-  /*
-  void gluPerspective( GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar )
-  {
-  GLdouble xmin, xmax, ymin, ymax;
-
-  ymax = zNear * tan( fovy * M_PI / 360.0 );
-  ymin = -ymax;
-  xmin = ymin * aspect;
-  xmax = ymax * aspect;
-
-  glFrustum( xmin, xmax, ymin, ymax, zNear, zFar );
-  }
-
-  */
-
-  /*
-  float xymax = znear * (float)tan(fov * M_PI / 360.0f);// PI_OVER_360);
+  float xymax = zNear * (float)tan(fovy * M_PI / 360.0f);// PI_OVER_360);
   float ymin = -xymax;
   float xmin = -xymax;
 
   float width = xymax - xmin;
   float height = xymax - ymin;
 
-  float depth = zfar - znear;
-  float q = -(zfar + znear) / depth;
-  float qn = -2 * (zfar * znear) / depth;
+  float depth = zFar - zNear;
+  float q = -(zFar + zNear) / depth;
+  float qn = -2 * (zFar * zNear) / depth;
 
-  float w = 2 * znear / width;
-  w = w / aspect_ratio;
-  float h = 2 * znear / height;
+  float w = 2 * zNear / width;
+  w = w / aspect;
+  float h = 2 * zNear / height;
 
   m[0][0] = w;
   m[0][1] = 0;
@@ -566,7 +516,12 @@ void Matrix4x4::perspective(float fovy, float aspect, float zNear, float zFar)
   m[3][1] = 0;
   m[3][2] = qn;
   m[3][3] = 0;
-  */
+}
+
+void Matrix4x4::look_at(Float3 &pos, Float3 &look_at_pos, Float3 &up)
+{
+  //assert(false);
+  //m[0][0] = 
 }
 
 ostream& Math::operator<<(ostream &os, const Matrix2x2 &m)

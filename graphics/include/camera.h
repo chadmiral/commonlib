@@ -25,6 +25,9 @@ namespace Graphics
     void set_projection_matrix(GLfloat *proj);
     void set_model_view_matrix(GLfloat *proj);
 
+    void get_projection_matrix(Math::Matrix4x4 *m, const float znear = 0.05f, const float zfar = 100.0f);
+    void get_model_view_matrix(Math::Matrix4x4 *m);
+
     void transform(const Math::Matrix3x3 &m);
     void rotate_in_place(const Math::Matrix3x3 &m);
 

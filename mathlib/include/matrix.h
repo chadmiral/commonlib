@@ -82,8 +82,13 @@ namespace Math {
     void invert();
     void transpose();
     //void rotation_from_quaternion(const Quaternion &q);
+    
+    //projection matrices
     void ortho(float left, float right, float bottom, float top, float near_clip, float far_clip);
     void perspective(float fov, float aspect_ratio, float znear, float zfar);
+
+    //camera helpers
+    void look_at(Float3 &pos, Float3 &look_at_pos, Float3 &up);
   private:
     float m[4][4];
   };

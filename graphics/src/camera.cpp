@@ -46,6 +46,18 @@ void Camera::set_model_view_matrix(GLfloat *proj)
   memcpy(model_view_mat, proj, sizeof(GLfloat) * 16);
 }
 
+void Camera::get_projection_matrix(Matrix4x4 *m, float znear, float zfar)
+{
+  //TODO: only compute this once per frame, instead of once every time we query
+  m->perspective(fov, window_dimensions[0] / window_dimensions[1], znear, zfar);
+}
+
+void Camera::get_model_view_matrix(Matrix4x4 *m)
+{
+  Float3 lookat_pos = pos + lookat;
+  m->look_at(pos, lookat_pos, up);
+}
+
 void Camera::set_camera_parameters(const float fs, const float fd, const float fl, const float ss)
 {
   f_stop = fs;
@@ -56,6 +68,7 @@ void Camera::set_camera_parameters(const float fs, const float fd, const float f
 
 void Camera::render_setup(const float znear, const float zfar)
 {
+#ifndef __LOKI__
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
 
@@ -82,6 +95,7 @@ void Camera::render_setup(const float znear, const float zfar)
               lookat_pos[0], lookat_pos[1], lookat_pos[2],
               up[0], up[1], up[2]);
   }
+#endif //__LOKI__
 }
 
 void Camera::render_cleanup()

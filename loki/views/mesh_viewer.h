@@ -4,10 +4,13 @@
 
 #include "static_mesh.h"
 #include "render_surface.h"
+#include "camera.h"
 
 class MeshViewer
 {
 private:
+  Graphics::Camera         _cam;
+
   Graphics::StaticMesh    *_mesh;
   Graphics::Material      *_mesh_mat;
   Graphics::Shader        *_mesh_shader;

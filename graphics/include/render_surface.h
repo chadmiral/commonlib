@@ -18,26 +18,6 @@ namespace Graphics
 
   class RenderSurface
   {
-  public:
-    RenderSurface(const int w = 256, const int h = 256);
-    ~RenderSurface();
-
-    void set_fbo_res(const int w, const int h) { fbo_res[0] = w; fbo_res[1] = h; }
-    void set_internal_format(GLenum f) { tex_internal_format = f; }
-    void set_format(GLenum f) { tex_format = f; }
-    void set_filtering_mode(GLenum f) { tex_filter = f; }
-
-    Texture2D *get_tex() const { return target_tex; }
-    Material *get_mat() { return &mat; }
-    void set_shader(Graphics::Shader *s) { mat.set_shader(s); }
-
-    virtual void init();
-    virtual void deinit();
-    virtual void render();
-
-    void capture();
-    void release();
-
   protected:
     uint32_t               index_data[4];
     RenderSurfaceVert      vertex_data[4];
@@ -65,11 +45,34 @@ namespace Graphics
     ShaderVertexAttrib     _uv0_attrib;
 
     Material                mat;
+  private:
+    void create_target_texture();
+    void create_depth_texture();
+    void bind_textures_to_fbo();
 
-    //TODO: clean all this uniform BS up - this should just use the Material / Shader system
-    //std::vector<Math::Float2>                                f2_uni_const;
-    //std::vector<std::pair<Math::Float2 *, std::string> >     uniforms;
-    //std::vector<std::pair<Math::Float3, std::string> >       float3_uniforms;
+    void delete_frame_buffer_object();
+  public:
+    RenderSurface(const int w = 256, const int h = 256);
+    ~RenderSurface();
+
+    void set_fbo_res(const int w, const int h) { fbo_res[0] = w; fbo_res[1] = h; }
+    void get_fbo_res(int &w, int &h) { w = fbo_res[0]; h = fbo_res[1]; }
+    void set_internal_format(GLenum f) { tex_internal_format = f; }
+    void set_format(GLenum f) { tex_format = f; }
+    void set_filtering_mode(GLenum f) { tex_filter = f; }
+
+    Texture2D *get_tex() const { return target_tex; }
+    Material *get_mat() { return &mat; }
+    void set_shader(Graphics::Shader *s) { mat.set_shader(s); }
+
+    virtual void init();
+    virtual void deinit();
+    virtual void render();
+
+    void resize(const uint32_t w, const uint32_t h);
+
+    void capture();
+    void release();
   };
 };
 
