@@ -46,6 +46,7 @@ namespace Graphics
 
     std::vector<Material *>  _materials; //a material for each render method
     std::vector<std::string> _method_names;
+    std::vector<bool>        _add_surface_textures;
   private:
     void create_target_texture();
     void create_depth_texture();
@@ -63,10 +64,11 @@ namespace Graphics
     void set_filtering_mode(GLenum f) { tex_filter = f; }
 
     Texture2D *get_tex() const { return target_tex; }
+    Texture2D *get_depth_tex() const { return depth_tex; }
     Material *get_mat(const uint16_t method = 0) { return _materials[method]; }
     uint16_t get_num_methods() const { return (uint16_t)_method_names.size(); }
     std::string get_method_name(const uint16_t method) const { return _method_names[method]; }
-    Material *add_shader(Graphics::Shader *s, std::string name = "<none>");
+    Material *add_shader(Graphics::Shader *s, std::string name = "<none>", bool add_surface_tex = true);
 
     virtual void init();
     virtual void deinit();

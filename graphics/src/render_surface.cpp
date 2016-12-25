@@ -70,7 +70,7 @@ RenderSurface::~RenderSurface()
   deinit();
 }
 
-Material *RenderSurface::add_shader(Shader *s, std::string name)
+Material *RenderSurface::add_shader(Shader *s, std::string name, bool add_surface_tex)
 {
   Material *m = new Material;
 
@@ -82,8 +82,6 @@ Material *RenderSurface::add_shader(Shader *s, std::string name)
   uv0_sva.set_loc(s, "in_uv0", sizeof(RenderSurfaceVert), 2, 3 * sizeof(float));
   _xyz_attribs.push_back(xyz_sva);
   _uv0_attribs.push_back(uv0_sva);
-  //m->add_vertex_attrib(&_xyz_attribs[_xyz_attribs.size() - 1]);
-  //m->add_vertex_attrib(&_uv0_attribs[_uv0_attribs.size() - 1]);
 
   //add shader uniforms (used by every method)
   ShaderUniformMatrix4x4 proj_uniform;
@@ -92,8 +90,6 @@ Material *RenderSurface::add_shader(Shader *s, std::string name)
   proj_uniform.set_name("proj_mat");
   proj_uniform.set_var(proj_mat);
   _projection_matrices.push_back(proj_uniform);
-
-  //m->add_uniform_var(&(_projection_matrices[_projection_matrices.size() - 1]));
 
   m->enable_blending(false);
   m->enable_depth_write(false);
@@ -104,6 +100,7 @@ Material *RenderSurface::add_shader(Shader *s, std::string name)
 
   _materials.push_back(m);
   _method_names.push_back(name);
+  _add_surface_textures.push_back(add_surface_tex);
 
   return m;
 }
@@ -175,7 +172,10 @@ void RenderSurface::init()
   //this needs to happen *after* the target texture has been created
   for (uint16_t i = 0; i < _materials.size(); i++)
   {
-    _materials[i]->add_texture(target_tex, std::string("surface_tex"));
+    if(_add_surface_textures[i])
+    {
+      _materials[i]->add_texture(target_tex, std::string("surface_tex"));
+    }
     _materials[i]->add_vertex_attrib(&_xyz_attribs[i]);
     _materials[i]->add_vertex_attrib(&_uv0_attribs[i]);
     _materials[i]->add_uniform_var(&_projection_matrices[i]);
