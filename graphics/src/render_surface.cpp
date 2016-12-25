@@ -13,7 +13,7 @@ using namespace std;
 using namespace Graphics;
 using namespace Math;
 
-RenderSurface::RenderSurface(const int w, const int h)
+RenderSurface::RenderSurface(const uint16_t w, const uint16_t h)
 {
   index_data[0] = 0;
   index_data[1] = 1;
@@ -68,6 +68,44 @@ RenderSurface::RenderSurface(const int w, const int h)
 RenderSurface::~RenderSurface()
 {
   deinit();
+}
+
+Material *RenderSurface::add_shader(Shader *s, std::string name)
+{
+  Material *m = new Material;
+
+  m->set_shader(s);
+
+  //add vertex attributes (used by every method)
+  ShaderVertexAttrib xyz_sva, uv0_sva;
+  xyz_sva.set_loc(s, "in_xyz", sizeof(RenderSurfaceVert), 3, 0 * sizeof(float));
+  uv0_sva.set_loc(s, "in_uv0", sizeof(RenderSurfaceVert), 2, 3 * sizeof(float));
+  _xyz_attribs.push_back(xyz_sva);
+  _uv0_attribs.push_back(uv0_sva);
+  //m->add_vertex_attrib(&_xyz_attribs[_xyz_attribs.size() - 1]);
+  //m->add_vertex_attrib(&_uv0_attribs[_uv0_attribs.size() - 1]);
+
+  //add shader uniforms (used by every method)
+  ShaderUniformMatrix4x4 proj_uniform;
+  Matrix4x4 proj_mat;
+  proj_mat.ortho(-1.0f, 1.0f, -1.0f, 1.0f, -100.0f, 100.0f);
+  proj_uniform.set_name("proj_mat");
+  proj_uniform.set_var(proj_mat);
+  _projection_matrices.push_back(proj_uniform);
+
+  //m->add_uniform_var(&(_projection_matrices[_projection_matrices.size() - 1]));
+
+  m->enable_blending(false);
+  m->enable_depth_write(false);
+  m->enable_depth_read(false);
+  m->enable_lighting(false);
+  m->set_depth_range(Float2(0.0f, 1.0f));
+  m->enable_backface_culling(false);
+
+  _materials.push_back(m);
+  _method_names.push_back(name);
+
+  return m;
 }
 
 void RenderSurface::create_target_texture()
@@ -134,49 +172,15 @@ void RenderSurface::init()
   create_target_texture();
   if (use_depth) { create_depth_texture(); }
 
-  //Set up material
-  Matrix4x4 proj;
-  proj.ortho(-1.0f, 1.0f, -1.0f, 1.0f, -100.0f, 100.0f);
-  _projection_matrix.set_name("proj_mat");
-  //_projection_matrix.set_loc(mat.get_shader());
-  _projection_matrix.set_var(proj);
-
-  mat.add_uniform_var(&_projection_matrix);
-
-  Shader *s = mat.get_shader();
-  assert(s); //This should have been set already with set_shader()
-
-  _xyz_attrib.set_loc(s, "in_xyz", sizeof(RenderSurfaceVert), 3, 0 * sizeof(float));
-  _uv0_attrib.set_loc(s, "in_uv0", sizeof(RenderSurfaceVert), 2, 3 * sizeof(float));
-
-  mat.add_vertex_attrib(&_xyz_attrib);
-  mat.add_vertex_attrib(&_uv0_attrib);
-
-  mat.add_texture(target_tex, std::string("surface_tex"));
-
-  mat.enable_blending(false);
-  mat.enable_depth_write(false);
-  mat.enable_depth_read(false);
-  mat.enable_lighting(false);
-  mat.set_depth_range(Float2(0.0f, 1.0f));
-  mat.enable_backface_culling(false);
-
-  mat.init();
-
-  //use_depth = false;
-
-  // create depth renderbuffer
-  /*if(use_depth)
+  //this needs to happen *after* the target texture has been created
+  for (uint16_t i = 0; i < _materials.size(); i++)
   {
-    glGenRenderbuffers(1, &depth_fbo);
-    glBindRenderbuffer(GL_RENDERBUFFER, depth_fbo);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, fbo_res[0], fbo_res[1]);
-    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+    _materials[i]->add_texture(target_tex, std::string("surface_tex"));
+    _materials[i]->add_vertex_attrib(&_xyz_attribs[i]);
+    _materials[i]->add_vertex_attrib(&_uv0_attribs[i]);
+    _materials[i]->add_uniform_var(&_projection_matrices[i]);
+    _materials[i]->init();
   }
-  else
-  {
-    depth_fbo = 0;
-  }*/
 
   glGenFramebuffers(1, &target_fbo);
   bind_textures_to_fbo();
@@ -190,7 +194,7 @@ void RenderSurface::deinit()
   if (target_tex) { delete target_tex; }
 }
 
-void RenderSurface::resize(const uint32_t w, const uint32_t h)
+void RenderSurface::resize(const uint16_t w, const uint16_t h)
 {
   fbo_res[0] = w;
   fbo_res[1] = h;
@@ -218,30 +222,16 @@ void RenderSurface::release()
   glViewport(win_viewport[0], win_viewport[1], win_viewport[2], win_viewport[3]);
 }
 
-void RenderSurface::render()
+void RenderSurface::render(const uint16_t method)
 {
+  //TODO: eliminate need for fixed pipeline matrices entirely
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
+
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 
-  mat.render();
-
-  /*
-  glActiveTexture(GL_TEXTURE0); glDisable(GL_TEXTURE_2D);
-  glActiveTexture(GL_TEXTURE1); glDisable(GL_TEXTURE_2D);
-  glActiveTexture(GL_TEXTURE2); glDisable(GL_TEXTURE_2D);
-  glActiveTexture(GL_TEXTURE3); glDisable(GL_TEXTURE_2D);
-  glActiveTexture(GL_TEXTURE4); glDisable(GL_TEXTURE_2D);
-  */
-
-  //TODO: vertex attribs
-  /*
-  glEnableClientState(GL_VERTEX_ARRAY);
-  glVertexPointer(3, GL_FLOAT, sizeof(RenderSurfaceVert), (void *)0);
-
-  glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-  glTexCoordPointer(2, GL_FLOAT, sizeof(RenderSurfaceVert), (void *)(sizeof(float) * 3));
-  */
+  _materials[method]->render();
   glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, (void *)0);
-
-  mat.cleanup();
+  _materials[method]->cleanup();
 }

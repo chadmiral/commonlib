@@ -74,12 +74,24 @@ void RenderSurfaceCombiner::init()
   }
   mat.set_shader(shader);
 
+  Matrix4x4 proj_mat;
+  proj_mat.ortho(-1.0f, 1.0f, -1.0f, 1.0f, -10.0f, 10.0f);
+  _proj_mat_uniform.set_name("proj_mat");
+  _proj_mat_uniform.set_var(proj_mat);
+
   gpu_texel_size.set_name("texel_size");
   gpu_texel_size.set_var(Float2(1.0f / (float)fbo_res[0], 1.0f / (float)fbo_res[1]));
   mat.add_uniform_var(&gpu_texel_size);
+  mat.add_uniform_var(&_proj_mat_uniform);
 
   mat.add_texture(vignette, "vignette_tex");
   //mat.add_texture(lut3D, "lut_tex_3D");
+
+  _xyz_attrib.set_loc(shader, "in_xyz", sizeof(RenderSurfaceVert), 3, 0 * sizeof(float));
+  _uv0_attrib.set_loc(shader, "in_uv0", sizeof(RenderSurfaceVert), 2, 3 * sizeof(float));
+
+  mat.add_vertex_attrib(&_xyz_attrib);
+  mat.add_vertex_attrib(&_uv0_attrib);
 
   mat.enable_backface_culling(false);
   mat.enable_depth_read(false);
@@ -111,11 +123,15 @@ void RenderSurfaceCombiner::render()
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glDisable(GL_DEPTH_TEST);
 
-  //render the HDR render surface to a full-screen quad
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-  glOrtho(-1.0f, 1.0f, -1.0f, 1.0f, -10.0f, 10.0f);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+  glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
+  //render the HDR render surface to a full-screen quad
+  //glMatrixMode(GL_PROJECTION);
+  //glLoadIdentity();
+  //glOrtho(-1.0f, 1.0f, -1.0f, 1.0f, -10.0f, 10.0f);
+
+  //TODO: make obsolete
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
@@ -123,6 +139,7 @@ void RenderSurfaceCombiner::render()
 
   mat.render();
 
+  /*
   int tex_slot_offset = mat.get_num_textures();
 
   //TODO: clean all this up (move into Material somehow)
@@ -150,24 +167,24 @@ void RenderSurfaceCombiner::render()
   glActiveTexture(GL_TEXTURE0 + tex_slot_offset + 3);
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, d->get_tex()->get_tex_id());
+  */
 
-  glBindBuffer(GL_ARRAY_BUFFER, vbo);
-  glEnableClientState(GL_VERTEX_ARRAY);
-  glVertexPointer(3, GL_FLOAT, sizeof(RenderSurfaceVert), (void *)0);
+  //glEnableClientState(GL_VERTEX_ARRAY);
+  //glVertexPointer(3, GL_FLOAT, sizeof(RenderSurfaceVert), (void *)0);
 
-  glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-  glTexCoordPointer(2, GL_FLOAT, sizeof(RenderSurfaceVert), (void *)(sizeof(float) * 3));
+  //glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+  //glTexCoordPointer(2, GL_FLOAT, sizeof(RenderSurfaceVert), (void *)(sizeof(float) * 3));
 
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
   glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, (void *)0);
 
   mat.cleanup();
 
   //reset 3D API
-  for(int i = 0; i < 4; i++)
+  /*for(int i = 0; i < 4; i++)
   {
     glActiveTexture(GL_TEXTURE0 + tex_slot_offset + i);
     glDisable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, 0);
   }
+  */
 }

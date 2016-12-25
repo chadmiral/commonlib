@@ -6,10 +6,16 @@ using namespace Math;
 
 static char passthrough_vs_src[] =
 "#version 120\n"
+"\n"
+"attribute vec3 in_xyz;\n"
+"attribute vec2 in_uv0;\n"
+"\n"
+"varying vec2 uv0;\n"
+"\n"
 "void main(void)\n"
 "{\n"
-"  gl_TexCoord[0] = gl_MultiTexCoord0;\n"
-"  gl_Position = ftransform();\n"
+"  uv0 = in_uv0;\n"
+"  gl_Position = gl_ModelViewProjectionMatrix * vec4(in_xyz, 1.0);\n"
 "}\n";
 
 static char hdr_tone_map_fs_src[] =
@@ -23,11 +29,13 @@ static char hdr_tone_map_fs_src[] =
 "uniform sampler2D surface_tex;\n"
 "uniform sampler3D lut_tex;\n"
 "\n"
+"varying vec2 uv0;\n"
+"\n"
 "void main()\n"
 "{\n"
 "  //const float exposure = 1.0;\n"
 "  const float gamma = 1.0;//0.4545;//2.2;\n"
-"  vec3 hdr_col = texture2D(surface_tex, gl_TexCoord[0].st).rgb;\n"
+"  vec3 hdr_col = texture2D(surface_tex, uv0.st).rgb;\n"
 "\n"
 "  float luminance = 0.2126 * hdr_col.r + 0.7152 * hdr_col.g + 0.0722 * hdr_col.b;\n"
 "\n"
@@ -97,8 +105,13 @@ void HDRRenderSurface::init()
   set_shader_names(vs_name, fs_name);
   */
 
+  //TODO: make these shaders loaded through asset library
   shader1->compile_and_link_from_source(passthrough_vs_src, hdr_tone_map_fs_src);
-  set_shader(shader1);
+  shader1->set_shader_filenames("internal_passthrough_hdr", "internal_tone_map_hdr");
+  add_shader(shader1);
+
+  //needs to happen after set_shader() call, but before we set up the second material
+  RenderSurface::init();
 
   set_internal_format(GL_RGBA16F_ARB);
   set_filtering_mode(GL_LINEAR);
@@ -106,11 +119,11 @@ void HDRRenderSurface::init()
   //shader2->set_shader_filenames(vs_name, fs_name2);
   //shader2->load_link_and_compile();
   shader2->compile_and_link_from_source(passthrough_vs_src, hdr_tone_map_clamp_fs_src);
+  shader2->set_shader_filenames("internal_passthrough_hdr", "internal_tone_map_clamp_hdr");
+  
   mat2.set_shader(shader2);
   mat2.add_texture(target_tex, "surface_tex");
   mat2.init();
-
-  RenderSurface::init();
 }
 
 void HDRRenderSurface::deinit()
@@ -120,14 +133,22 @@ void HDRRenderSurface::deinit()
 
 void HDRRenderSurface::render()
 {
-  Shader *shader = mat.get_shader();
-  mat.render(); //material needs to be bound for the uniforms to be set.
+  Shader *shader = _mat.get_shader();
+  _mat.render(); //material needs to be bound for the uniforms to be set.
 
   //TODO: make these uniforms not super hacky
   GLint exposure_loc = glGetUniformLocation(shader->gl_shader_program, "exposure");
   glUniform1f(exposure_loc, exposure);
   GLint bloom_threshold_loc = glGetUniformLocation(shader->gl_shader_program, "bloom_threshold");
   glUniform1f(bloom_threshold_loc, bloom_threshold);
+
+  //TODO: shader uniforms
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  glOrtho(-1.0f, 1.0f, -1.0f, 1.0f, -10.0f, 10.0f);
+
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
 
   RenderSurface::render();
 }
@@ -137,6 +158,7 @@ void HDRRenderSurface::render_method_2()
   Shader *shader = mat2.get_shader();
   mat2.render(); //material needs to be bound for the uniforms to be set.
 
+  //TODO: add all these uniforms via ShaderUniform system
   GLint exposure_loc = glGetUniformLocation(shader->gl_shader_program, "exposure");
   glUniform1f(exposure_loc, exposure);
   GLint bloom_threshold_loc = glGetUniformLocation(shader->gl_shader_program, "bloom_threshold");
@@ -182,6 +204,7 @@ void HDRRenderSurface::render_method_2()
   }*/
 
 
+  /*
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
   glEnableClientState(GL_VERTEX_ARRAY);
   glVertexPointer(3, GL_FLOAT, sizeof(RenderSurfaceVert), (void *)0);
@@ -191,6 +214,7 @@ void HDRRenderSurface::render_method_2()
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
   glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, (void *)0);
+  */
 
   //reset shader
   glUseProgram(0);

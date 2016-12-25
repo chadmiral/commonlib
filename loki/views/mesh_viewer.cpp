@@ -63,6 +63,8 @@ MeshViewer::MeshViewer()
   _mesh_shader = NULL;
 
   visible = true;
+
+  _data_root = "c:\\cygwin64\\home\\chandra\\code\\mundus\\data";
 }
 
 void MeshViewer::load_mesh()
@@ -92,24 +94,26 @@ void MeshViewer::load_mesh()
   if (f)
   {
     _mesh->read_from_file(f);
+    _mesh_fname = ofn.lpstrFile + _data_root.length();
   }
   _mesh->init();
 }
 
 void MeshViewer::render_mesh()
 {
-  //glViewport(0.0f, 0.0f, (GLsizei)_view_size.x, (GLsizei)_view_size.y);
-
   //set up model view transform
   Matrix4x4 model_view, projection;
   model_view.identity();
   _cam.set_window_dimensions(Float2(_view_size.x, _view_size.y));
-  _cam.get_projection_matrix(&projection);
+  _cam.get_projection_matrix(&projection, 0.1f, 100.0f);
 
   _mesh_projection.set_var(projection);
   _mesh_modelview.set_var(model_view);
 
-  glClearColor(0.2f, 0.2f, 0.25f, 1.0f);
+  Float3 clear_color(0.2f, 0.2f, 0.25f);
+  //clear_color[0] = random(0.0f, 1.0f);
+
+  glClearColor(clear_color[0], clear_color[1], clear_color[2], 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   if (!_mesh) { return; }
 
@@ -198,6 +202,11 @@ void MeshViewer::render()
   _render_target.capture();
     render_mesh();
   _render_target.release();
+
+  if (_mesh)
+  {
+    ImGui::Text(_mesh_fname.c_str());
+  }
 
   Texture2D *fbo_tex = _render_target.get_tex();
   int32_t t = fbo_tex->get_tex_id();

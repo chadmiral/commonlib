@@ -18,6 +18,8 @@ namespace Graphics
     void set_shader_names(std::string vs, std::string fs);
     void set_shader(Shader *s) { shader = s; }
 
+    Material *get_mat() { return &mat; }
+
     //void set_lut_texture(Texture3D *lt) { lut3D = lt; }
     void set_vignette_texture(Texture2D *vt) { vignette = vt; }
 
@@ -30,10 +32,10 @@ namespace Graphics
     std::string vertex_shader_name;
     std::string fragment_shader_name;
 
-    int                    fbo_res[2];
+    uint16_t               fbo_res[2];
 
     //quad data
-    unsigned int           index_data[4];
+    uint32_t               index_data[4];
     RenderSurfaceVert      vertex_data[4];
     GLuint                 vbo;
     GLuint                 ibo;
@@ -43,7 +45,11 @@ namespace Graphics
     //Texture3D              *lut3D;
     Texture2D              *vignette;
 
+    ShaderUniformMatrix4x4 _proj_mat_uniform;
     ShaderUniformFloat2    gpu_texel_size;
+
+    ShaderVertexAttrib     _xyz_attrib;
+    ShaderVertexAttrib     _uv0_attrib;
   };
 };
 

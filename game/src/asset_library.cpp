@@ -134,6 +134,16 @@ Skeleton *AssetLibrary::retrieve_skeleton(std::string name)
   return skeleton_asset->s;
 }
 
+BoneAnim *AssetLibrary::retrieve_animation(std::string name)
+{
+  AnimationAsset *anim_asset = (AnimationAsset *)retrieve_asset(name);
+  assert(anim_asset);
+  if (!anim_asset) { return NULL; }
+  assert(anim_asset->type == ANIMATION_ASSET);
+  assert(anim_asset->a);
+  return anim_asset->a;
+}
+
 void ShaderAsset::reload_from_disk()
 {
   cout << "Reloading shader from disk" << endl;

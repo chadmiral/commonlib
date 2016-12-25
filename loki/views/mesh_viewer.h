@@ -5,12 +5,15 @@
 #include "static_mesh.h"
 #include "render_surface.h"
 #include "camera.h"
+#include "string.h"
 
 class MeshViewer
 {
 private:
   Graphics::Camera         _cam;
 
+  std::string              _data_root; //TODO: app level variable
+  std::string              _mesh_fname;
   Graphics::StaticMesh    *_mesh;
   Graphics::Material      *_mesh_mat;
   Graphics::Shader        *_mesh_shader;

@@ -21,6 +21,7 @@ namespace Game
     TEXTURE_ASSET,
     MESH_ASSET,
     SKELETON_ASSET,
+    ANIMATION_ASSET,
     UI_LAYOUT_ASSET,
     AUDIO_ASSET
   };
@@ -88,6 +89,16 @@ namespace Game
     Animation::Skeleton *s;
   };
 
+  class AnimationAsset : public GameAsset
+  {
+  public:
+    AnimationAsset() : GameAsset(ANIMATION_ASSET) {}
+    ~AnimationAsset() {}
+
+    virtual void reload_from_disk() { assert(false); }
+    Animation::BoneAnim *a;
+  };
+
   class UILayoutAsset : public GameAsset
   {
   public:
@@ -115,6 +126,7 @@ namespace Game
     Graphics::Texture2D *retrieve_texture(std::string name);
     Graphics::StaticMesh *retrieve_mesh(std::string name);
     Animation::Skeleton *retrieve_skeleton(std::string name);
+    Animation::BoneAnim *retrieve_animation(std::string name);
 
     void init();
     void simulate(const double game_time, const double frame_time);

@@ -31,20 +31,21 @@ namespace Graphics
     bool                   use_depth;
     GLuint                 depth_fbo;
 
-    int                    fbo_res[2];
+    uint16_t               fbo_res[2];
     GLint                  win_viewport[4];
     GLenum                 tex_internal_format;
     GLenum                 tex_format;
     GLenum                 tex_type;
     GLenum                 tex_filter;
 
-    ShaderUniformMatrix4x4 _projection_matrix;
+    std::vector<ShaderUniformMatrix4x4> _projection_matrices;
     //ShaderUniformMatrix4x4 _modelview_matrix; //Identity
 
-    ShaderVertexAttrib     _xyz_attrib;
-    ShaderVertexAttrib     _uv0_attrib;
+    std::vector<ShaderVertexAttrib>     _xyz_attribs;
+    std::vector<ShaderVertexAttrib>     _uv0_attribs;
 
-    Material                mat;
+    std::vector<Material *>  _materials; //a material for each render method
+    std::vector<std::string> _method_names;
   private:
     void create_target_texture();
     void create_depth_texture();
@@ -52,24 +53,26 @@ namespace Graphics
 
     void delete_frame_buffer_object();
   public:
-    RenderSurface(const int w = 256, const int h = 256);
+    RenderSurface(const uint16_t w = 256, const uint16_t h = 256);
     ~RenderSurface();
 
-    void set_fbo_res(const int w, const int h) { fbo_res[0] = w; fbo_res[1] = h; }
+    void set_fbo_res(const uint16_t w, const uint16_t h) { fbo_res[0] = w; fbo_res[1] = h; }
     void get_fbo_res(int &w, int &h) { w = fbo_res[0]; h = fbo_res[1]; }
     void set_internal_format(GLenum f) { tex_internal_format = f; }
     void set_format(GLenum f) { tex_format = f; }
     void set_filtering_mode(GLenum f) { tex_filter = f; }
 
     Texture2D *get_tex() const { return target_tex; }
-    Material *get_mat() { return &mat; }
-    void set_shader(Graphics::Shader *s) { mat.set_shader(s); }
+    Material *get_mat(const uint16_t method = 0) { return _materials[method]; }
+    uint16_t get_num_methods() const { return (uint16_t)_method_names.size(); }
+    std::string get_method_name(const uint16_t method) const { return _method_names[method]; }
+    Material *add_shader(Graphics::Shader *s, std::string name = "<none>");
 
     virtual void init();
     virtual void deinit();
-    virtual void render();
+    virtual void render(const uint16_t method = 1);
 
-    void resize(const uint32_t w, const uint32_t h);
+    void resize(const uint16_t w, const uint16_t h);
 
     void capture();
     void release();
