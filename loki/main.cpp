@@ -365,6 +365,14 @@ int main(int argc, char **argv)
 
       if (ImGui::TreeNode("Assets"))
       {
+        if (ImGui::TreeNode("Shaders"))
+        {
+          ImGui::TreePop();
+        }
+        if (ImGui::TreeNode("Textures"))
+        {
+          ImGui::TreePop();
+        }
         ImGui::TreePop();
       }
 

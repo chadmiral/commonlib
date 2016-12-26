@@ -17,7 +17,7 @@ const char *get_xml_opaque_safe(mxml_node_t *parent, mxml_node_t *root, const ch
     const char *buffer = mxmlGetOpaque(n);
     if (buffer)
     {
-      cout << "\t" << tag_name << ": " << buffer << endl;
+      //cout << "\t" << tag_name << ": " << buffer << endl;
       return buffer;
     }
   }
@@ -29,10 +29,11 @@ void parse_layout_template_xml(LayoutWidgetTemplate *wt, mxml_node_t *widget_nod
   const char *buffer = NULL;
 
   buffer = mxmlElementGetAttr(widget_node, "name");
-  if (buffer)
+  /*if (buffer)
   {
     cout << "\tname: " << buffer << endl;
   }
+  */
 
   uint32_t x = 100;
   uint32_t y = 100;
@@ -55,8 +56,8 @@ void parse_layout_template_xml(LayoutWidgetTemplate *wt, mxml_node_t *widget_nod
   buffer = mxmlElementGetAttr(widget_node, "orientation");
   if (buffer && !stricmp(buffer, "vertical")) { wt->flags |= UI_LAYOUT_FLAG_VERTICAL; }
   
-  cout << "\tdim: (" << width << ", " << height << ")" << endl;
-  cout << "\toffset: " << x << ", " << y << ")" << endl;
+  //cout << "\tdim: (" << width << ", " << height << ")" << endl;
+  //cout << "\toffset: " << x << ", " << y << ")" << endl;
   wt->dim = Float2((float)width, (float)height);
   wt->offset = Float2((float)x, (float)y);
 
@@ -86,14 +87,14 @@ void parse_layout_template_xml(LayoutWidgetTemplate *wt, mxml_node_t *widget_nod
 
   if (parent)
   {
-    cout << "\tparent detected..." << endl;
+    //cout << "\tparent detected..." << endl;
     parent->children.push_back(wt);
     wt->parent = parent;
   }
 
   if (radio_group)
   {
-    cout << "\tradio group detected..." << endl;
+    //cout << "\tradio group detected..." << endl;
     radio_group->children.push_back(wt);
   }
 }

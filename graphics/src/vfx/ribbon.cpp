@@ -123,9 +123,11 @@ void Ribbon::simulate(const double gt, const double dt)
 
 void Ribbon::render(const double game_time)
 {
-  material->render();
-
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+
+  material->render();
+  
   glEnableClientState(GL_VERTEX_ARRAY);
   glVertexPointer(3, GL_FLOAT, sizeof(RibbonVertex), (void *)0);
 
@@ -138,8 +140,18 @@ void Ribbon::render(const double game_time)
   glEnableClientState(GL_TEXTURE_COORD_ARRAY);
   glTexCoordPointer(2, GL_FLOAT, sizeof(RibbonVertex), (void *)(sizeof(float) * 9));
 
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+
   glDrawElements(geo_mode, num_indices, GL_UNSIGNED_INT, (void *)0);
 
   material->cleanup();
+
+  glDisableClientState(GL_VERTEX_ARRAY);
+  glDisableClientState(GL_NORMAL_ARRAY);
+  glDisableClientState(GL_COLOR_ARRAY);
+
+  glClientActiveTexture(GL_TEXTURE0);
+  glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
