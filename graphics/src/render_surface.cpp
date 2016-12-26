@@ -201,9 +201,11 @@ void RenderSurface::resize(const uint16_t w, const uint16_t h)
 
 void RenderSurface::attach_depth_buffer(Texture2D *d_tex)
 {
+  glBindFramebuffer(GL_FRAMEBUFFER, _target_fbo);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, d_tex->get_tex_id(), 0);
   _use_depth = true;
   _depth_buffer_is_mine = false;
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void RenderSurface::capture()
