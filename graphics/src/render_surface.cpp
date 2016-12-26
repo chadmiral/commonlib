@@ -50,8 +50,8 @@ RenderSurface::RenderSurface(const uint16_t w, const uint16_t h)
   _target_fbo = 0;
   _target_tex = 0;
 
+  _depth_buffer_is_mine = true;
   _use_depth = true;
-  _depth_fbo = 0;
 
   _tex_internal_format =  GL_RGB;//GL_RGBA16F_ARB;
   _tex_format =           GL_RGB;
@@ -116,7 +116,7 @@ void RenderSurface::create_depth_texture()
   _depth_tex = new Texture2D(_fbo_res[0], _fbo_res[1]);
 
   _depth_tex->set_tex_format(GL_DEPTH_COMPONENT);
-  _depth_tex->set_internal_format(GL_DEPTH_COMPONENT32);
+  _depth_tex->set_internal_format(GL_DEPTH_COMPONENT32F);
   _depth_tex->set_data_format(GL_FLOAT);//GL_UNSIGNED_BYTE);
   _depth_tex->set_filtering_mode(GL_LINEAR);
   _depth_tex->set_wrap_mode(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
@@ -181,7 +181,7 @@ void RenderSurface::deinit()
 {
   delete_frame_buffer_object();
 
-  if (_depth_tex) { delete _depth_tex; }
+  if (_depth_tex && _depth_buffer_is_mine) { delete _depth_tex; }
   if (_target_tex) { delete _target_tex; }
 }
 
@@ -191,13 +191,19 @@ void RenderSurface::resize(const uint16_t w, const uint16_t h)
   _fbo_res[1] = h;
 
   //delete_frame_buffer_object();
-  if (_depth_tex) { delete _depth_tex; }
+  if (_depth_tex && _depth_buffer_is_mine) { delete _depth_tex; }
   if (_target_tex) { delete _target_tex; }
 
-  if (_use_depth) { create_depth_texture(); }
+  if (_use_depth && _depth_buffer_is_mine) { create_depth_texture(); }
   create_target_texture();
-
   bind_textures_to_fbo();
+}
+
+void RenderSurface::attach_depth_buffer(Texture2D *d_tex)
+{
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, d_tex->get_tex_id(), 0);
+  _use_depth = true;
+  _depth_buffer_is_mine = false;
 }
 
 void RenderSurface::capture()
@@ -219,6 +225,6 @@ void RenderSurface::render(const uint16_t method)
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ibo);
 
   _materials[method]->render();
-  glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, (void *)0);
+    glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, (void *)0);
   _materials[method]->cleanup();
 }

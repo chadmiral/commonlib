@@ -28,8 +28,9 @@ namespace Graphics
     Texture2D             *_target_tex;
     Texture2D             *_depth_tex;
 
+    bool                   _depth_buffer_is_mine;
     bool                   _use_depth;
-    GLuint                 _depth_fbo;
+    //GLuint                 _depth_fbo;
 
     uint16_t               _fbo_res[2];
     GLint                  _win_viewport[4];
@@ -61,7 +62,7 @@ namespace Graphics
     void set_filtering_mode(GLenum f) { _tex_filter = f; }
     void use_depth(const bool d) { _use_depth = d; }
     
-    void attach_depth_buffer(GLuint depth_fbo, Texture2D *depth_tex);
+    void attach_depth_buffer(Texture2D *depth_tex);
 
     Texture2D *get_tex() const { return _target_tex; }
     Texture2D *get_depth_tex() const { return _depth_tex; }

@@ -27,7 +27,9 @@ static inline ImVec2 operator-(const ImVec2& lhs, const ImVec2& rhs) { return Im
 
 static bool show_texture_tools = false;
 static bool show_animation_tools = true;
+static bool show_package_builder = false;
 static bool show_shader_tools = true;
+static bool show_post_tools = false;
 
 static void ShowExampleMenuFile()
 { 
@@ -57,6 +59,7 @@ static void ShowExampleAppMainMenuBar()
     }
     if (ImGui::BeginMenu("View"))
     {
+      if (ImGui::MenuItem("Package Builder", NULL, show_package_builder)) { show_package_builder ^= 1; }
       if (ImGui::MenuItem("Animation Tools", NULL, show_animation_tools)) { show_animation_tools ^= 1; }
       if (ImGui::MenuItem("Shader Tools", NULL, show_shader_tools)) { show_shader_tools ^= 1; }
       if (ImGui::MenuItem("Mesh Tools", NULL, mesh_viewer.visible)) { mesh_viewer.visible ^= 1; }
@@ -308,7 +311,7 @@ int main(int argc, char **argv)
 #if __APPLE__
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
-  GLFWwindow* window = glfwCreateWindow(1280, 720, "Loki", NULL, NULL);
+  GLFWwindow* window = glfwCreateWindow(1680, 1050, "Loki", NULL, NULL);
   glfwMakeContextCurrent(window);
   gl3wInit();
 
@@ -341,6 +344,31 @@ int main(int argc, char **argv)
     if (show_shader_tools)
     {
       ShowExampleAppCustomNodeGraph(&show_shader_tools);
+    }
+
+    if (show_package_builder)
+    {
+      ImGui::SetNextWindowSize(ImVec2(100, 100), ImGuiSetCond_FirstUseEver);
+      ImGui::Begin("Package Builder", &show_package_builder, ImGuiWindowFlags_MenuBar);
+      if (ImGui::BeginMenuBar())
+      {
+        if (ImGui::BeginMenu("File"))
+        {
+          if (ImGui::MenuItem("Open Package File...", NULL, false))
+          {
+
+          }
+          ImGui::EndMenu();
+        }
+        ImGui::EndMenuBar();
+      }
+
+      if (ImGui::TreeNode("Assets"))
+      {
+        ImGui::TreePop();
+      }
+
+      ImGui::End();
     }
     
     if (show_animation_tools)
