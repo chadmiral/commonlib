@@ -15,54 +15,54 @@ using namespace Math;
 
 RenderSurface::RenderSurface(const uint16_t w, const uint16_t h)
 {
-  index_data[0] = 0;
-  index_data[1] = 1;
-  index_data[2] = 2;
-  index_data[3] = 3;
+  _index_data[0] = 0;
+  _index_data[1] = 1;
+  _index_data[2] = 2;
+  _index_data[3] = 3;
 
-  vertex_data[0].x =  -1.0f;
-  vertex_data[0].y =  -1.0f;
-  vertex_data[0].z =   0.0f;
-  vertex_data[0].u =   0.0f;
-  vertex_data[0].v =   0.0f;
+  _vertex_data[0].x =  -1.0f;
+  _vertex_data[0].y =  -1.0f;
+  _vertex_data[0].z =   0.0f;
+  _vertex_data[0].u =   0.0f;
+  _vertex_data[0].v =   0.0f;
 
-  vertex_data[1].x =   1.0f;
-  vertex_data[1].y =  -1.0f;
-  vertex_data[1].z =   0.0f;
-  vertex_data[1].u =   1.0f;
-  vertex_data[1].v =   0.0f;
+  _vertex_data[1].x =   1.0f;
+  _vertex_data[1].y =  -1.0f;
+  _vertex_data[1].z =   0.0f;
+  _vertex_data[1].u =   1.0f;
+  _vertex_data[1].v =   0.0f;
 
-  vertex_data[2].x =   1.0f;
-  vertex_data[2].y =   1.0f;
-  vertex_data[2].z =   0.0f;
-  vertex_data[2].u =   1.0f;
-  vertex_data[2].v =   1.0f;
+  _vertex_data[2].x =   1.0f;
+  _vertex_data[2].y =   1.0f;
+  _vertex_data[2].z =   0.0f;
+  _vertex_data[2].u =   1.0f;
+  _vertex_data[2].v =   1.0f;
 
-  vertex_data[3].x =  -1.0f;
-  vertex_data[3].y =   1.0f;
-  vertex_data[3].z =   0.0f;
-  vertex_data[3].u =   0.0f;
-  vertex_data[3].v =   1.0f;
+  _vertex_data[3].x =  -1.0f;
+  _vertex_data[3].y =   1.0f;
+  _vertex_data[3].z =   0.0f;
+  _vertex_data[3].u =   0.0f;
+  _vertex_data[3].v =   1.0f;
 
-  vbo = 0;
-  ibo = 0;
+  _vbo = 0;
+  _ibo = 0;
 
-  target_fbo = 0;
-  target_tex = 0;
+  _target_fbo = 0;
+  _target_tex = 0;
 
-  use_depth = true;
-  depth_fbo = 0;
+  _use_depth = true;
+  _depth_fbo = 0;
 
-  tex_internal_format =  GL_RGB;//GL_RGBA16F_ARB;
-  tex_format =           GL_RGB;
-  tex_type =             GL_UNSIGNED_BYTE;//GL_HALF_FLOAT_ARB; //GL_FLOAT;
-  tex_filter =           GL_LINEAR;
+  _tex_internal_format =  GL_RGB;//GL_RGBA16F_ARB;
+  _tex_format =           GL_RGB;
+  _tex_type =             GL_UNSIGNED_BYTE;//GL_HALF_FLOAT_ARB; //GL_FLOAT;
+  _tex_filter =           GL_LINEAR;
 
-  fbo_res[0] = w;
-  fbo_res[1] = h;
+  _fbo_res[0] = w;
+  _fbo_res[1] = h;
 
-  depth_tex = NULL;
-  target_tex = NULL;
+  _depth_tex = NULL;
+  _target_tex = NULL;
 }
 
 RenderSurface::~RenderSurface()
@@ -107,40 +107,40 @@ Material *RenderSurface::add_shader(Shader *s, std::string name, bool add_surfac
 
 void RenderSurface::create_target_texture()
 {
-  target_tex = new Texture2D(fbo_res[0], fbo_res[1]);
+  _target_tex = new Texture2D(_fbo_res[0], _fbo_res[1]);
 
-  target_tex->set_tex_format(tex_format);
-  target_tex->set_internal_format(tex_internal_format);
-  target_tex->set_data_format(tex_type);
-  target_tex->set_filtering_mode(tex_filter);
-  target_tex->set_wrap_mode(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
-  target_tex->set_resolution(fbo_res[0], fbo_res[1]);
+  _target_tex->set_tex_format(_tex_format);
+  _target_tex->set_internal_format(_tex_internal_format);
+  _target_tex->set_data_format(_tex_type);
+  _target_tex->set_filtering_mode(_tex_filter);
+  _target_tex->set_wrap_mode(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
+  _target_tex->set_resolution(_fbo_res[0], _fbo_res[1]);
 
-  target_tex->init();
+  _target_tex->init();
 }
 
 void RenderSurface::create_depth_texture()
 {
-  depth_tex = new Texture2D(fbo_res[0], fbo_res[1]);
+  _depth_tex = new Texture2D(_fbo_res[0], _fbo_res[1]);
 
-  depth_tex->set_tex_format(GL_DEPTH_COMPONENT);
-  depth_tex->set_internal_format(GL_DEPTH_COMPONENT32);
-  depth_tex->set_data_format(GL_FLOAT);//GL_UNSIGNED_BYTE);
-  depth_tex->set_filtering_mode(GL_LINEAR);
-  depth_tex->set_wrap_mode(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
-  depth_tex->set_resolution(fbo_res[0], fbo_res[1]);
+  _depth_tex->set_tex_format(GL_DEPTH_COMPONENT);
+  _depth_tex->set_internal_format(GL_DEPTH_COMPONENT32);
+  _depth_tex->set_data_format(GL_FLOAT);//GL_UNSIGNED_BYTE);
+  _depth_tex->set_filtering_mode(GL_LINEAR);
+  _depth_tex->set_wrap_mode(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
+  _depth_tex->set_resolution(_fbo_res[0], _fbo_res[1]);
 
-  depth_tex->init();
+  _depth_tex->init();
 }
 
 void RenderSurface::bind_textures_to_fbo()
 {
-  glBindFramebuffer(GL_FRAMEBUFFER, target_fbo);
-  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, target_tex->get_tex_id(), 0);
-  if (use_depth)
+  glBindFramebuffer(GL_FRAMEBUFFER, _target_fbo);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, _target_tex->get_tex_id(), 0);
+  if (_use_depth)
   {
     //glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth_fbo);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depth_tex->get_tex_id(), 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, _depth_tex->get_tex_id(), 0);
   }
 
   GLuint status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
@@ -153,28 +153,28 @@ void RenderSurface::bind_textures_to_fbo()
 void RenderSurface::delete_frame_buffer_object()
 {
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
-  glDeleteFramebuffers(1, &target_fbo);
+  glDeleteFramebuffers(1, &_target_fbo);
 }
 
 void RenderSurface::init()
 {
-  glGenBuffers(1, &vbo);
-  glBindBuffer(GL_ARRAY_BUFFER, vbo);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_data), vertex_data, GL_STATIC_DRAW);
+  glGenBuffers(1, &_vbo);
+  glBindBuffer(GL_ARRAY_BUFFER, _vbo);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(_vertex_data), _vertex_data, GL_STATIC_DRAW);
 
-  glGenBuffers(1, &ibo);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * 4, index_data, GL_STATIC_DRAW);
+  glGenBuffers(1, &_ibo);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ibo);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * 4, _index_data, GL_STATIC_DRAW);
 
   create_target_texture();
-  if (use_depth) { create_depth_texture(); }
+  if (_use_depth) { create_depth_texture(); }
 
   //this needs to happen *after* the target texture has been created
   for (uint16_t i = 0; i < _materials.size(); i++)
   {
     if(_add_surface_textures[i])
     {
-      _materials[i]->add_texture(target_tex, std::string("surface_tex"));
+      _materials[i]->add_texture(_target_tex, std::string("surface_tex"));
     }
     _materials[i]->add_vertex_attrib(&_xyz_attribs[i]);
     _materials[i]->add_vertex_attrib(&_uv0_attribs[i]);
@@ -182,7 +182,7 @@ void RenderSurface::init()
     _materials[i]->init();
   }
 
-  glGenFramebuffers(1, &target_fbo);
+  glGenFramebuffers(1, &_target_fbo);
   bind_textures_to_fbo();
 }
 
@@ -190,20 +190,20 @@ void RenderSurface::deinit()
 {
   delete_frame_buffer_object();
 
-  if (depth_tex) { delete depth_tex; }
-  if (target_tex) { delete target_tex; }
+  if (_depth_tex) { delete _depth_tex; }
+  if (_target_tex) { delete _target_tex; }
 }
 
 void RenderSurface::resize(const uint16_t w, const uint16_t h)
 {
-  fbo_res[0] = w;
-  fbo_res[1] = h;
+  _fbo_res[0] = w;
+  _fbo_res[1] = h;
 
   //delete_frame_buffer_object();
-  if (depth_tex) { delete depth_tex; }
-  if (target_tex) { delete target_tex; }
+  if (_depth_tex) { delete _depth_tex; }
+  if (_target_tex) { delete _target_tex; }
 
-  if (use_depth) { create_depth_texture(); }
+  if (_use_depth) { create_depth_texture(); }
   create_target_texture();
 
   bind_textures_to_fbo();
@@ -211,15 +211,15 @@ void RenderSurface::resize(const uint16_t w, const uint16_t h)
 
 void RenderSurface::capture()
 {
-  glBindFramebuffer(GL_FRAMEBUFFER, target_fbo);
-  glGetIntegerv(GL_VIEWPORT, win_viewport);
-  glViewport(0, 0, fbo_res[0], fbo_res[1]);
+  glBindFramebuffer(GL_FRAMEBUFFER, _target_fbo);
+  glGetIntegerv(GL_VIEWPORT, _win_viewport);
+  glViewport(0, 0, _fbo_res[0], _fbo_res[1]);
 }
 
 void RenderSurface::release()
 {
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
-  glViewport(win_viewport[0], win_viewport[1], win_viewport[2], win_viewport[3]);
+  glViewport(_win_viewport[0], _win_viewport[1], _win_viewport[2], _win_viewport[3]);
 }
 
 void RenderSurface::render(const uint16_t method)
@@ -228,8 +228,8 @@ void RenderSurface::render(const uint16_t method)
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
-  glBindBuffer(GL_ARRAY_BUFFER, vbo);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+  glBindBuffer(GL_ARRAY_BUFFER, _vbo);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ibo);
 
   _materials[method]->render();
   glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, (void *)0);
