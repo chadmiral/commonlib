@@ -14,21 +14,22 @@ namespace Graphics
 
     void set_fbo_res(const int w, const int h) { fbo_res[0] = w; fbo_res[1] = h; }
 
-    void set_surfaces(RenderSurface *_a, RenderSurface *_b, RenderSurface *_c, RenderSurface *_d);
     void set_shader_names(std::string vs, std::string fs);
     void set_shader(Shader *s) { shader = s; }
 
     Material *get_mat() { return &mat; }
 
     //void set_lut_texture(Texture3D *lt) { lut3D = lt; }
-    void set_vignette_texture(Texture2D *vt) { vignette = vt; }
+    //void set_vignette_texture(Texture2D *vt) { vignette = vt; }
 
     void init();
     void deinit();
     void render();
 
   private:
-    RenderSurface *a, *b, *c, *d;
+    std::vector<RenderSurface *> _inputs;
+    std::vector<RenderSurface *> _outputs;
+
     std::string vertex_shader_name;
     std::string fragment_shader_name;
 
@@ -43,7 +44,7 @@ namespace Graphics
     Material               mat;
     Shader                 *shader;
     //Texture3D              *lut3D;
-    Texture2D              *vignette;
+    //Texture2D              *vignette;
 
     ShaderUniformMatrix4x4 _proj_mat_uniform;
     ShaderUniformFloat2    gpu_texel_size;

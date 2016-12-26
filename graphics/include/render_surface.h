@@ -38,9 +38,6 @@ namespace Graphics
     GLenum                 _tex_type;
     GLenum                 _tex_filter;
 
-    std::vector<ShaderUniformMatrix4x4> _projection_matrices;
-    //ShaderUniformMatrix4x4 _modelview_matrix; //Identity
-
     std::vector<ShaderVertexAttrib>     _xyz_attribs;
     std::vector<ShaderVertexAttrib>     _uv0_attribs;
 

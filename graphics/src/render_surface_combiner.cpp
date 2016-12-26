@@ -5,8 +5,6 @@ using namespace Math;
 
 RenderSurfaceCombiner::RenderSurfaceCombiner()
 {
- a = b = c = d = NULL;
-
  index_data[0] = 0;
  index_data[1] = 1;
  index_data[2] = 2;
@@ -40,7 +38,7 @@ RenderSurfaceCombiner::RenderSurfaceCombiner()
  ibo = 0;
 
  //lut3D = NULL;
- vignette = NULL;
+ //vignette = NULL;
  shader = NULL;
 }
 
@@ -49,13 +47,6 @@ RenderSurfaceCombiner::~RenderSurfaceCombiner()
   deinit();
 }
 
-void RenderSurfaceCombiner::set_surfaces(RenderSurface *_a, RenderSurface *_b, RenderSurface *_c, RenderSurface *_d)
-{
-  a = _a;
-  b = _b;
-  c = _c;
-  d = _d;
-}
 
 void RenderSurfaceCombiner::set_shader_names(std::string vs, std::string fs)
 {
@@ -74,18 +65,12 @@ void RenderSurfaceCombiner::init()
   }
   mat.set_shader(shader);
 
-  Matrix4x4 proj_mat;
-  proj_mat.ortho(-1.0f, 1.0f, -1.0f, 1.0f, -10.0f, 10.0f);
-  _proj_mat_uniform.set_name("proj_mat");
-  _proj_mat_uniform.set_var(proj_mat);
-
   gpu_texel_size.set_name("texel_size");
   gpu_texel_size.set_var(Float2(1.0f / (float)fbo_res[0], 1.0f / (float)fbo_res[1]));
   mat.add_uniform_var(&gpu_texel_size);
-  mat.add_uniform_var(&_proj_mat_uniform);
 
-  mat.add_texture(vignette, "vignette_tex");
-  //mat.add_texture(lut3D, "lut_tex_3D");
+  //TODO: generalize this
+  //mat.add_texture(vignette, "vignette_tex");
 
   _xyz_attrib.set_loc(shader, "in_xyz", sizeof(RenderSurfaceVert), 3, 0 * sizeof(float));
   _uv0_attrib.set_loc(shader, "in_uv0", sizeof(RenderSurfaceVert), 2, 3 * sizeof(float));
@@ -126,65 +111,10 @@ void RenderSurfaceCombiner::render()
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
-  //render the HDR render surface to a full-screen quad
-  //glMatrixMode(GL_PROJECTION);
-  //glLoadIdentity();
-  //glOrtho(-1.0f, 1.0f, -1.0f, 1.0f, -10.0f, 10.0f);
-
-  //TODO: make obsolete
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
-
   Shader *shader = mat.get_shader();
 
   mat.render();
-
-  /*
-  int tex_slot_offset = mat.get_num_textures();
-
-  //TODO: clean all this up (move into Material somehow)
-  GLint aloc = glGetUniformLocation(shader->gl_shader_program, "tex_a");
-  glUniform1i(aloc, tex_slot_offset);
-  GLint bloc = glGetUniformLocation(shader->gl_shader_program, "tex_b");
-  glUniform1i(bloc, tex_slot_offset + 1);
-  GLint cloc = glGetUniformLocation(shader->gl_shader_program, "tex_c");
-  glUniform1i(cloc, tex_slot_offset + 2);
-  GLint dloc = glGetUniformLocation(shader->gl_shader_program, "tex_d");
-  glUniform1i(dloc, tex_slot_offset + 3);
-
-  glActiveTexture(GL_TEXTURE0 + tex_slot_offset);
-  glEnable(GL_TEXTURE_2D);
-  glBindTexture(GL_TEXTURE_2D, a->get_tex()->get_tex_id());
-
-  glActiveTexture(GL_TEXTURE0 + tex_slot_offset + 1);
-  glEnable(GL_TEXTURE_2D);
-  glBindTexture(GL_TEXTURE_2D, b->get_tex()->get_tex_id());
-
-  glActiveTexture(GL_TEXTURE0 + tex_slot_offset + 2);
-  glEnable(GL_TEXTURE_2D);
-  glBindTexture(GL_TEXTURE_2D, c->get_tex()->get_tex_id());
-
-  glActiveTexture(GL_TEXTURE0 + tex_slot_offset + 3);
-  glEnable(GL_TEXTURE_2D);
-  glBindTexture(GL_TEXTURE_2D, d->get_tex()->get_tex_id());
-  */
-
-  //glEnableClientState(GL_VERTEX_ARRAY);
-  //glVertexPointer(3, GL_FLOAT, sizeof(RenderSurfaceVert), (void *)0);
-
-  //glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-  //glTexCoordPointer(2, GL_FLOAT, sizeof(RenderSurfaceVert), (void *)(sizeof(float) * 3));
-
   glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, (void *)0);
 
   mat.cleanup();
-
-  //reset 3D API
-  /*for(int i = 0; i < 4; i++)
-  {
-    glActiveTexture(GL_TEXTURE0 + tex_slot_offset + i);
-    glDisable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, 0);
-  }
-  */
 }

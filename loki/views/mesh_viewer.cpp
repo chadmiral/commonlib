@@ -127,7 +127,7 @@ void MeshViewer::init()
   _cam.set_up(Float3(0.0f, 1.0f, 0.0f));
 
   _render_target_shader.compile_and_link_from_source(vs_src_410, fs_src_410);
-  _render_target.set_shader(&_render_target_shader);
+  _render_target.add_shader(&_render_target_shader);
   _render_target.init();
 
   _mesh_shader = new Shader;

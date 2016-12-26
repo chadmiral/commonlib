@@ -83,14 +83,6 @@ Material *RenderSurface::add_shader(Shader *s, std::string name, bool add_surfac
   _xyz_attribs.push_back(xyz_sva);
   _uv0_attribs.push_back(uv0_sva);
 
-  //add shader uniforms (used by every method)
-  ShaderUniformMatrix4x4 proj_uniform;
-  Matrix4x4 proj_mat;
-  proj_mat.ortho(-1.0f, 1.0f, -1.0f, 1.0f, -100.0f, 100.0f);
-  proj_uniform.set_name("proj_mat");
-  proj_uniform.set_var(proj_mat);
-  _projection_matrices.push_back(proj_uniform);
-
   m->enable_blending(false);
   m->enable_depth_write(false);
   m->enable_depth_read(false);
@@ -178,7 +170,6 @@ void RenderSurface::init()
     }
     _materials[i]->add_vertex_attrib(&_xyz_attribs[i]);
     _materials[i]->add_vertex_attrib(&_uv0_attribs[i]);
-    _materials[i]->add_uniform_var(&_projection_matrices[i]);
     _materials[i]->init();
   }
 
@@ -224,10 +215,6 @@ void RenderSurface::release()
 
 void RenderSurface::render(const uint16_t method)
 {
-  //TODO: eliminate need for fixed pipeline matrices entirely
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
-
   glBindBuffer(GL_ARRAY_BUFFER, _vbo);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ibo);
 
