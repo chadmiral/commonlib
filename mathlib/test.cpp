@@ -404,8 +404,8 @@ int main(int argc, char **argv)
   float x = remap_range(0.3f, 0.0f, 1.0f, -10.0f, 10.0f);
   cout<<"remap: "<<x<<endl;
 
-  //app.init();
-  //app.run();
+  app.init();
+  app.run();
 
   Matrix4x4 mat(3.0f, 7.0f, 2.0f, 5.0f,
                 1.0f, 8.0f, 4.0f, 2.0f,
