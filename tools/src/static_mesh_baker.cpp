@@ -48,6 +48,7 @@ void StaticMeshBaker::bake(mxml_node_t *tree, std::string output_fname, std::str
 
   //read all the vertices
   std::vector<Float3> vertex_xyz;
+  std::vector<Float3> vertex_normal;
   mxml_node_t *vert_node = NULL;
   start_node = tree;
   do
@@ -64,6 +65,7 @@ void StaticMeshBaker::bake(mxml_node_t *tree, std::string output_fname, std::str
       mxml_node_t *norm_node = mxmlFindElement(vert_node, vert_node, "normal", NULL, NULL, MXML_DESCEND);
       assert(norm_node);
       Float3 vert_normal = mxml_read_float3(norm_node->child);
+      vertex_normal.push_back(vert_normal);
       //cout<<"\tn: "<<vert_normal<<endl;
 
       start_node = vert_node;
@@ -164,9 +166,9 @@ void StaticMeshBaker::bake(mxml_node_t *tree, std::string output_fname, std::str
       render_verts[rvi].g = mf->rgb[j][1];
       render_verts[rvi].b = mf->rgb[j][2];
 
-      render_verts[rvi].nx = mf->normal[0];
-      render_verts[rvi].ny = mf->normal[1];
-      render_verts[rvi].nz = mf->normal[2];
+      render_verts[rvi].nx = vertex_normal[vert_idx][0];//mf->normal[0];
+      render_verts[rvi].ny = vertex_normal[vert_idx][1];//mf->normal[1];
+      render_verts[rvi].nz = vertex_normal[vert_idx][2];//mf->normal[2];
 
       render_verts[rvi].u0 = mf->uvs[j][0];
       render_verts[rvi].v0 = mf->uvs[j][1];

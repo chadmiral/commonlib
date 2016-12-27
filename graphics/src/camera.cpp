@@ -49,7 +49,17 @@ void Camera::set_model_view_matrix(GLfloat *proj)
 void Camera::get_projection_matrix(Matrix4x4 *m, float znear, float zfar)
 {
   //TODO: only compute this once per frame, instead of once every time we query
-  m->perspective(fov, window_dimensions[0] / window_dimensions[1], znear, zfar);
+  if (use_proj_mat)
+  {
+    *m = Matrix4x4(proj_mat[0], proj_mat[1], proj_mat[2], proj_mat[3],
+                   proj_mat[4], proj_mat[5], proj_mat[6], proj_mat[7],
+                   proj_mat[8], proj_mat[9], proj_mat[10], proj_mat[11],
+                   proj_mat[12], proj_mat[13], proj_mat[14], proj_mat[15]);
+  }
+  else
+  {
+    m->perspective(fov, window_dimensions[0] / window_dimensions[1], znear, zfar);
+  }
 }
 
 void Camera::get_model_view_matrix(Matrix4x4 *m)
