@@ -543,31 +543,30 @@ void PackageBaker::read_animation_file(mxml_node_t *anim_node, std::string tabs)
     uint32_t num_tracks;
     fread(&num_tracks, sizeof(uint32_t), 1, fp);
 
-    std::vector<BoneAnimTrack> tracks;
+    //std::vector<BoneAnimTrack> tracks;
     for (uint32_t i = 0; i < num_tracks; i++)
     {
       BoneAnimTrack bat;
 
       uint32_t hash_id;
-      fread(&hash_id, sizeof(uint32_t), 1, fp);
-      bat._bone = (Bone *)hash_id;
+      fread(&bat._bone_id, sizeof(uint32_t), 1, fp);
 
-      //uint32_t num_pos_frames, num_rot_frames, num_scale_frames;
-      fread(&bat._num_pos_frames, sizeof(uint32_t), 1, fp);
-      fread(&bat._num_rot_frames, sizeof(uint32_t), 1, fp);
-      fread(&bat._num_scale_frames, sizeof(uint32_t), 1, fp);
+      uint32_t num_pos_frames, num_rot_frames, num_scale_frames;
+      fread(&num_pos_frames, sizeof(uint32_t), 1, fp);
+      fread(&num_rot_frames, sizeof(uint32_t), 1, fp);
+      fread(&num_scale_frames, sizeof(uint32_t), 1, fp);
 
-      bat._pos_frames = new BoneTransformPos[bat._num_pos_frames];
-      bat._rot_frames = new BoneTransformRot[bat._num_rot_frames];
-      bat._scale_frames = new BoneTransformScale[bat._num_scale_frames];
+      bat._pos_frames.resize(num_pos_frames);
+      bat._rot_frames.resize(num_rot_frames);
+      bat._scale_frames.resize(num_scale_frames);
 
-      fread(bat._pos_frames, sizeof(BoneTransformPos), bat._num_pos_frames, fp);
-      fread(bat._rot_frames, sizeof(BoneTransformRot), bat._num_rot_frames, fp);
-      fread(bat._scale_frames, sizeof(BoneTransformScale), bat._num_scale_frames, fp);
+      fread(bat._pos_frames.data(), sizeof(BoneTransformPos), num_pos_frames, fp);
+      fread(bat._rot_frames.data(), sizeof(BoneTransformRot), num_rot_frames, fp);
+      fread(bat._scale_frames.data(), sizeof(BoneTransformScale), num_scale_frames, fp);
 
-      tracks.push_back(bat);
+      animation_asset->anim._tracks.push_back(bat);
     }
-    animation_asset->anim.alloc_tracks(tracks.size(), tracks.data());
+    //animation_asset->anim.alloc_tracks(tracks.size(), tracks.data());
     fclose(fp);
   }
 }
@@ -864,16 +863,19 @@ void PackageBaker::write_animation_packlet(FILE *fp, AnimationPackageAsset *a, s
 
   for (uint32_t i = 0; i < num_tracks; i++)
   {
-    uint32_t bone_id = (uint64_t)a->anim._tracks[i]._bone;
-    fwrite(&bone_id, sizeof(uint32_t), 1, fp);
+    fwrite(&a->anim._tracks[i]._bone_id, sizeof(uint32_t), 1, fp);
 
-    fwrite(&a->anim._tracks[i]._num_pos_frames, sizeof(uint32_t), 1, fp);
-    fwrite(&a->anim._tracks[i]._num_rot_frames, sizeof(uint32_t), 1, fp);
-    fwrite(&a->anim._tracks[i]._num_scale_frames, sizeof(uint32_t), 1, fp);
+    uint32_t num_pos_frames = a->anim._tracks[i]._pos_frames.size();
+    uint32_t num_rot_frames = a->anim._tracks[i]._rot_frames.size();
+    uint32_t num_scale_frames = a->anim._tracks[i]._scale_frames.size();
 
-    fwrite(a->anim._tracks[i]._pos_frames, sizeof(BoneTransformPos), a->anim._tracks[i]._num_pos_frames, fp);
-    fwrite(a->anim._tracks[i]._rot_frames, sizeof(BoneTransformRot), a->anim._tracks[i]._num_rot_frames, fp);
-    fwrite(a->anim._tracks[i]._scale_frames, sizeof(BoneTransformScale), a->anim._tracks[i]._num_scale_frames, fp);
+    fwrite(&num_pos_frames, sizeof(uint32_t), 1, fp);
+    fwrite(&num_rot_frames, sizeof(uint32_t), 1, fp);
+    fwrite(&num_scale_frames, sizeof(uint32_t), 1, fp);
+
+    fwrite(a->anim._tracks[i]._pos_frames.data(), sizeof(BoneTransformPos), num_pos_frames, fp);
+    fwrite(a->anim._tracks[i]._rot_frames.data(), sizeof(BoneTransformRot), num_rot_frames, fp);
+    fwrite(a->anim._tracks[i]._scale_frames.data(), sizeof(BoneTransformScale), num_scale_frames, fp);
   }
 }
 

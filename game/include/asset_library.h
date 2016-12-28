@@ -96,7 +96,7 @@ namespace Game
     ~AnimationAsset() {}
 
     virtual void reload_from_disk() { assert(false); }
-    Animation::BoneAnim *a;
+    Animation::SkeletonAnimation *a;
   };
 
   class UILayoutAsset : public GameAsset
@@ -126,7 +126,7 @@ namespace Game
     Graphics::Texture2D *retrieve_texture(std::string name);
     Graphics::StaticMesh *retrieve_mesh(std::string name);
     Animation::Skeleton *retrieve_skeleton(std::string name);
-    Animation::BoneAnim *retrieve_animation(std::string name);
+    Animation::SkeletonAnimation *retrieve_animation(std::string name);
 
     void init();
     void simulate(const double game_time, const double frame_time);

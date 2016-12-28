@@ -346,6 +346,14 @@ int main(int argc, char **argv)
       ShowExampleAppCustomNodeGraph(&show_shader_tools);
     }
 
+    static bool show_gradient_animation_tool = true;
+    if (show_gradient_animation_tool)
+    {
+      ImGui::SetNextWindowSize(ImVec2(100, 100), ImGuiSetCond_FirstUseEver);
+      ImGui::Begin("Gradient Animator", &show_gradient_animation_tool, ImGuiWindowFlags_MenuBar);
+      ImGui::End();
+    }
+
     if (show_package_builder)
     {
       ImGui::SetNextWindowSize(ImVec2(100, 100), ImGuiSetCond_FirstUseEver);

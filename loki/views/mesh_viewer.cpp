@@ -164,8 +164,15 @@ void MeshViewer::render()
 {
   if (!visible) { return; }
   ImGui::SetNextWindowSize(ImVec2(100, 100), ImGuiSetCond_FirstUseEver);
-  ImGui::Begin("Mesh Tools", &visible, ImGuiWindowFlags_MenuBar);
-  ImGui::Text("");
+
+  uint32_t win_flags = ImGuiWindowFlags_NoTitleBar |
+                       //ImGuiWindowFlags_NoMove |
+                       //ImGuiWindowFlags_NoResize |
+                       ImGuiWindowFlags_NoCollapse |
+                       ImGuiWindowFlags_MenuBar;
+
+  ImGui::Begin("Mesh Tools", &visible, win_flags);
+  //ImGui::Text("");
 
   if (ImGui::BeginMenuBar())
   {
@@ -184,8 +191,8 @@ void MeshViewer::render()
   _view_size = ImGui::GetWindowSize();
   ImVec2 view_min = ImGui::GetWindowContentRegionMin();
   ImVec2 view_max = ImGui::GetWindowContentRegionMax();
-  _view_size.x -= view_min.x + (_view_size.x - view_max.x) + 2;
-  _view_size.y -= view_min.y + (_view_size.y - view_max.y) + 20;
+  //_view_size.x -= view_min.x + (_view_size.x - view_max.x) + 2;
+  //_view_size.y -= view_min.y + (_view_size.y - view_max.y) + 20;
 
   //ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(1, 1));
   //ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
@@ -196,7 +203,7 @@ void MeshViewer::render()
   _render_target.get_fbo_res(fbo_w, fbo_h);
   if (fbo_w != (int32_t)_view_size.x || fbo_h != (int32_t)_view_size.y)
   {
-    _render_target.resize((int32_t)_view_size.x, (int32_t)_view_size.y);
+    _render_target.resize((uint32_t)_view_size.x, (uint32_t)_view_size.y);
   }
   
   _render_target.capture();

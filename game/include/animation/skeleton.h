@@ -6,7 +6,7 @@
 
 namespace Animation
 {
-  class BoneAnim;
+  class SkeletonAnimation;
 
   struct Bone
   {
@@ -20,6 +20,7 @@ namespace Animation
 
   class Skeleton
   {
+    friend class SkeletonAnimation;
   private:
     std::string   _name;
     BoneList      _bones; //name, bone
@@ -31,14 +32,13 @@ namespace Animation
     uint32_t get_num_bones() const { return _bones.size(); }
     Bone *get_bone(const uint32_t idx) { return &(_bones[idx]); }
 
-    void add_bone(std::string name, Bone *bone)
+    void add_bone(Bone *bone)
     {
-      bone->_hash_id = Math::hash_value_from_string(name.c_str());
       _bones.push_back(*bone);
     }
 
-    void transform(const float t, BoneAnim *anim);
-    void render_debug(BoneAnim *animation = NULL, float anim_pct = 0.0f);
+    void transform(const float t, SkeletonAnimation *anim);
+    void render_debug(SkeletonAnimation *animation = NULL, float anim_pct = 0.0f);
   };
 
   //typedef std::pair<Math::Quaternion, Math::Float3> BoneTransform;
@@ -90,62 +90,72 @@ namespace Animation
 
   class BoneAnimTrack
   {
-   // friend class BoneAnim;
+   // friend class SkeletonAnimation;
   //private:
   public:
     Bone    *_bone;
-    
-    uint32_t _num_pos_frames;
-    uint32_t _num_rot_frames;
-    uint32_t _num_scale_frames;
-    
-    BoneTransformPos    *_pos_frames;
-    BoneTransformRot    *_rot_frames;
-    BoneTransformScale  *_scale_frames;
-    
-    /*
+    uint32_t _bone_id;
+
     std::vector<BoneTransformPos>     _pos_frames;
     std::vector<BoneTransformRot>     _rot_frames;
     std::vector<BoneTransformScale>   _scale_frames;
-     */
   public:
-    BoneAnimTrack() {}
+    BoneAnimTrack() { _bone = NULL; _bone_id = 666; }
     ~BoneAnimTrack() {}
 
-    void evaluate(const float x, BoneTransform *result);
+    void evaluate(const float x, BoneTransform *result)
+    {
+      for (uint32_t i = 0; i < _pos_frames.size(); i++)
+      {
+        if (_pos_frames[i]._x > x)
+        {
+          result->_pos = _pos_frames[i];
+          break;
+        }
+      }
+      for (uint32_t i = 0; i < _rot_frames.size(); i++)
+      {
+        if (_rot_frames[i]._x > x)
+        {
+          result->_rot = _rot_frames[i];
+        }
+      }
+      for (uint32_t i = 0; i < _scale_frames.size(); i++)
+      {
+        if (_scale_frames[i]._x > x)
+        {
+          result->_scale = _scale_frames[i];
+        }
+      }
+    }
   };
-  
-  //
-  // num_tracks
-  //    num_pos_frames * num_tracks
-  //    num_rot_frames * num_tracks
-  //    num_scale_frames * num_tracks
-  //
 
-  class BoneAnim
+  class SkeletonAnimation
   {
   //friend class PackageBaker;
   //private:
   public:
-    //std::vector<BoneAnimTrack> _tracks;
+    std::vector<BoneAnimTrack> _tracks;
     
-    uint32_t _num_tracks;              // maps to (hopefully) one BoneAnimTrack per bone in the skeleton
-    BoneAnimTrack *_tracks;
-    
-    BoneAnim() {}
-    ~BoneAnim() {}
+    SkeletonAnimation() {}
+    ~SkeletonAnimation() {}
 
-    uint32_t get_num_tracks() const { return _num_tracks; }
-    BoneAnimTrack *get_anim_track(const uint32_t idx) { return &_tracks[idx]; }
-
-    void alloc_tracks(uint32_t num_tracks, BoneAnimTrack *tracks = NULL)
+    void bind(Skeleton *s)
     {
-      _tracks = new BoneAnimTrack[num_tracks];
-      if(tracks)
+      for (uint32_t i = 0; i < s->_bones.size(); i++)
       {
-        _num_tracks = num_tracks;
-        memcpy(_tracks, tracks, sizeof(BoneAnimTrack) * num_tracks);
+        Bone *b = &s->_bones[i];
+        for (uint32_t j = 0; j < _tracks.size(); j++)
+        {
+          if (b->_hash_id == (uint32_t)_tracks[j]._bone_id)
+          {
+            _tracks[j]._bone = b;
+          }
+        }
       }
     }
+
+    uint32_t get_num_tracks() const { return _tracks.size(); }
+    BoneAnimTrack *get_anim_track(const uint32_t idx) { return &_tracks[idx]; }
   };
 };

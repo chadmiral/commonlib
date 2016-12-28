@@ -134,7 +134,7 @@ Skeleton *AssetLibrary::retrieve_skeleton(std::string name)
   return skeleton_asset->s;
 }
 
-BoneAnim *AssetLibrary::retrieve_animation(std::string name)
+SkeletonAnimation *AssetLibrary::retrieve_animation(std::string name)
 {
   AnimationAsset *anim_asset = (AnimationAsset *)retrieve_asset(name);
   assert(anim_asset);

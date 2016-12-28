@@ -114,7 +114,7 @@ namespace Tool
     AnimationPackageAsset() : PackageAsset(PACKAGE_ASSET_ANIMATION) {  }
     ~AnimationPackageAsset() { }
 
-    Animation::BoneAnim anim;
+    Animation::SkeletonAnimation anim;
   };
 
   class UILayoutPackageAsset : public PackageAsset

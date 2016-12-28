@@ -133,17 +133,16 @@ void AnimationBaker::bake(mxml_node_t *tree, std::string output_fname, std::stri
   } while (curve_node);
 
   //ok - pack that sweet sweet data into our game format
-  BoneAnim bone_animation;
+  SkeletonAnimation bone_animation;
   std::vector<BoneAnimTrack> bone_anim_tracks;
   for (uint32_t i = 0; i < bone_names.size(); i++)
   {
     BoneAnimTrack bat;
-    uint64_t bone_name_hash_id = Math::hash_value_from_string(bone_names[i].c_str());
-    bat._bone = (Bone *)bone_name_hash_id;
+    bat._bone_id = Math::hash_value_from_string(bone_names[i].c_str());
 
-    std::vector<BoneTransformPos>    pos_frames;
-    std::vector<BoneTransformRot>    rot_frames;
-    std::vector<BoneTransformScale>  scale_frames;
+    //std::vector<BoneTransformPos>    pos_frames;
+    //std::vector<BoneTransformRot>    rot_frames;
+    //std::vector<BoneTransformScale>  scale_frames;
 
     for (uint32_t j = 0; j < tracks.size(); j++)
     {
@@ -153,43 +152,43 @@ void AnimationBaker::bake(mxml_node_t *tree, std::string output_fname, std::stri
         {
         case BONE_TRANSFORM_LOC:
         {
-          if (tracks[j]._frames.size() > pos_frames.size())
+          if (tracks[j]._frames.size() > bat._pos_frames.size())
           {
-            pos_frames.resize(tracks[j]._frames.size());
+            bat._pos_frames.resize(tracks[j]._frames.size());
           }
           for (uint32_t k = 0; k < tracks[j]._frames.size(); k++)
           {
             uint32_t axis = (uint32_t)(tracks[j]._transform_axis);
-            pos_frames[k]._x = tracks[j]._frames[k][0];
-            pos_frames[k]._pos[axis] = tracks[j]._frames[k][1];
+            bat._pos_frames[k]._x = tracks[j]._frames[k][0];
+            bat._pos_frames[k]._pos[axis] = tracks[j]._frames[k][1];
           }
           break;
         }
         case BONE_TRANSFORM_ROT_QUAT:
         {
-          if (tracks[j]._frames.size() > rot_frames.size())
+          if (tracks[j]._frames.size() > bat._rot_frames.size())
           {
-            rot_frames.resize(tracks[j]._frames.size());
+            bat._rot_frames.resize(tracks[j]._frames.size());
           }
           for (uint32_t k = 0; k < tracks[j]._frames.size(); k++)
           {
             uint32_t axis = (uint32_t)(tracks[j]._transform_axis);
-            rot_frames[k]._x = tracks[j]._frames[k][0];
-            rot_frames[k]._rot.q[axis] = tracks[j]._frames[k][1];
+            bat._rot_frames[k]._x = tracks[j]._frames[k][0];
+            bat._rot_frames[k]._rot.q[axis] = tracks[j]._frames[k][1];
           }
           break;
         }
         case BONE_TRANSFORM_SCALE:
         {
-          if (tracks[j]._frames.size() > scale_frames.size())
+          if (tracks[j]._frames.size() > bat._scale_frames.size())
           {
-            scale_frames.resize(tracks[j]._frames.size());
+            bat._scale_frames.resize(tracks[j]._frames.size());
           }
           for (uint32_t k = 0; k < tracks[j]._frames.size(); k++)
           {
             uint32_t axis = (uint32_t)(tracks[j]._transform_axis);
-            scale_frames[k]._x = tracks[j]._frames[k][0];
-            scale_frames[k]._scale[axis] = tracks[j]._frames[k][1];
+            bat._scale_frames[k]._x = tracks[j]._frames[k][0];
+            bat._scale_frames[k]._scale[axis] = tracks[j]._frames[k][1];
           }
           break;
         }
@@ -200,7 +199,8 @@ void AnimationBaker::bake(mxml_node_t *tree, std::string output_fname, std::stri
       }
     }
 
-    bat._pos_frames = new BoneTransformPos[pos_frames.size()];
+    /*
+    bat._pos_frames.resize( = new BoneTransformPos[pos_frames.size()];
     bat._rot_frames = new BoneTransformRot[rot_frames.size()];
     bat._scale_frames = new BoneTransformScale[scale_frames.size()];
 
@@ -211,14 +211,15 @@ void AnimationBaker::bake(mxml_node_t *tree, std::string output_fname, std::stri
     memcpy(bat._pos_frames, pos_frames.data(), sizeof(BoneTransformPos) * bat._num_pos_frames);
     memcpy(bat._rot_frames, rot_frames.data(), sizeof(BoneTransformRot) * bat._num_rot_frames);
     memcpy(bat._scale_frames, scale_frames.data(), sizeof(BoneTransformScale) * bat._num_scale_frames);
-
+    */
     //bone_animation.add_track(bat);
-    bone_anim_tracks.push_back(bat);
+    bone_animation._tracks.push_back(bat);
   }
 
-  bone_animation._num_tracks = bone_anim_tracks.size();
-  bone_animation._tracks = new BoneAnimTrack[bone_animation._num_tracks];
-  memcpy(bone_animation._tracks, bone_anim_tracks.data(), sizeof(BoneAnimTrack) * bone_animation._num_tracks);
+  //bone_animation._num_tracks = bone_anim_tracks.size();
+  //bone_animation._tracks = new BoneAnimTrack[bone_animation._num_tracks];
+  //memcpy(bone_animation._tracks, bone_anim_tracks.data(), sizeof(BoneAnimTrack) * bone_animation._num_tracks);
+  //bone_animation._tracks.push_back(bone)
 
   cout << tabs.c_str() << "unique bone names: " << endl;
   for (uint32_t i = 0; i < bone_names.size(); i++)
@@ -247,16 +248,19 @@ void AnimationBaker::bake(mxml_node_t *tree, std::string output_fname, std::stri
   {
     BoneAnimTrack *bat = bone_animation.get_anim_track(i);
 
-    uint32_t bone_hash_id = (uint64_t)bat->_bone;
-    fwrite(&bone_hash_id, sizeof(uint32_t), 1, f);
+    fwrite(&bat->_bone_id, sizeof(uint32_t), 1, f);
 
-    fwrite(&bat->_num_pos_frames, sizeof(uint32_t), 1, f);
-    fwrite(&bat->_num_rot_frames, sizeof(uint32_t), 1, f);
-    fwrite(&bat->_num_scale_frames, sizeof(uint32_t), 1, f);
+    uint32_t num_pos_frames = bat->_pos_frames.size();
+    uint32_t num_rot_frames = bat->_rot_frames.size();
+    uint32_t num_scale_frames = bat->_scale_frames.size();
 
-    fwrite(bat->_pos_frames, sizeof(BoneTransformPos), bat->_num_pos_frames, f);
-    fwrite(bat->_rot_frames, sizeof(BoneTransformRot), bat->_num_rot_frames, f);
-    fwrite(bat->_scale_frames, sizeof(BoneTransformScale), bat->_num_scale_frames, f);
+    fwrite(&num_pos_frames, sizeof(uint32_t), 1, f);
+    fwrite(&num_rot_frames, sizeof(uint32_t), 1, f);
+    fwrite(&num_scale_frames, sizeof(uint32_t), 1, f);
+
+    fwrite(bat->_pos_frames.data(), sizeof(BoneTransformPos), num_pos_frames, f);
+    fwrite(bat->_rot_frames.data(), sizeof(BoneTransformRot), num_rot_frames, f);
+    fwrite(bat->_scale_frames.data(), sizeof(BoneTransformScale), num_scale_frames, f);
   }
 
   fclose(f);

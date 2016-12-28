@@ -44,12 +44,15 @@ void SkeletonBaker::bake(mxml_node_t *tree, std::string output_fname, std::strin
         if (bone_node)
         {
           Animation::Bone new_bone;
+          memset(&new_bone, 0, sizeof(Animation::Bone));
+          new_bone._hash_id = 666;
           new_bone._parent_idx = -1;
 
           //retrieve bone name
           buffer = mxmlElementGetAttr(bone_node, "name");
           cout << tabs.c_str() << "Bone: " << buffer << endl;
           bone_names.push_back(buffer);
+          new_bone._hash_id = Math::hash_value_from_string(buffer);
 
           //retrieve bone parent (if it exists)
           buffer = mxmlElementGetAttr(bone_node, "parent");
