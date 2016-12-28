@@ -105,6 +105,7 @@ namespace Animation
 
     void evaluate(const float x, BoneTransform *result)
     {
+      //TODO: optimize the shit out of this
       for (uint32_t i = 0; i < _pos_frames.size(); i++)
       {
         if (_pos_frames[i]._x > x)

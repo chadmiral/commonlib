@@ -42,8 +42,12 @@ void Skeleton::render_debug(SkeletonAnimation *animation, float anim_pct)
       }
     }
 
-    Float3 head = _bones[i]._head_pos + bt._pos._pos;
-    Float3 tail = _bones[i]._tail_pos + bt._pos._pos;
+    Matrix3x3 rotation;
+    bt._rot._rot.normalize();
+    rotation.rotation_from_quaternion(bt._rot._rot);
+
+    Float3 head = (rotation * _bones[i]._head_pos) + bt._pos._pos;
+    Float3 tail = (rotation * _bones[i]._tail_pos) + bt._pos._pos;
     glVertex3f(head[0], head[2], head[1]);
     glVertex3f(tail[0], tail[2], tail[1]);
   }
