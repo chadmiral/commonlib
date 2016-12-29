@@ -24,6 +24,9 @@ namespace Math {
     Quaternion operator-() const;
     Quaternion operator~() const; // Conjugate
 
+    inline float &operator[](const int idx) { return q[idx]; }
+    inline float operator[](const int idx) const { return q[idx]; }
+
 
     float norm_squared() const;
     void normalize();

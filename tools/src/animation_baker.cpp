@@ -105,11 +105,18 @@ void AnimationBaker::bake(mxml_node_t *tree, std::string output_fname, std::stri
       {
         tac._transform_axis = BONE_TRANSFORM_AXIS_Z;
       }
-      else if (axis.compare("w") == 0)
+      else if (axis.compare("w") == 0 || axis.compare("q") == 0)
       {
         tac._transform_axis = BONE_TRANSFORM_AXIS_W;
       }
       assert(tac._transform_axis != BONE_TRANSFORM_AXIS_INVALID);
+
+      //we actually have our "w" in the 0 location for our quaternions, so fix
+      //up those axes
+      if (tac._transform_type == BONE_TRANSFORM_ROT_QUAT)
+      {
+        tac._transform_axis = (BoneTransformAxis)(((uint32_t)tac._transform_axis + 1) % NUM_BONE_TRANSFORM_AXES);
+      }
 
       mxml_node_t *frame_node = NULL;
       start_node = curve_node;
@@ -199,27 +206,8 @@ void AnimationBaker::bake(mxml_node_t *tree, std::string output_fname, std::stri
       }
     }
 
-    /*
-    bat._pos_frames.resize( = new BoneTransformPos[pos_frames.size()];
-    bat._rot_frames = new BoneTransformRot[rot_frames.size()];
-    bat._scale_frames = new BoneTransformScale[scale_frames.size()];
-
-    bat._num_pos_frames = pos_frames.size();
-    bat._num_rot_frames = rot_frames.size();
-    bat._num_scale_frames = rot_frames.size();
-
-    memcpy(bat._pos_frames, pos_frames.data(), sizeof(BoneTransformPos) * bat._num_pos_frames);
-    memcpy(bat._rot_frames, rot_frames.data(), sizeof(BoneTransformRot) * bat._num_rot_frames);
-    memcpy(bat._scale_frames, scale_frames.data(), sizeof(BoneTransformScale) * bat._num_scale_frames);
-    */
-    //bone_animation.add_track(bat);
     bone_animation._tracks.push_back(bat);
   }
-
-  //bone_animation._num_tracks = bone_anim_tracks.size();
-  //bone_animation._tracks = new BoneAnimTrack[bone_animation._num_tracks];
-  //memcpy(bone_animation._tracks, bone_anim_tracks.data(), sizeof(BoneAnimTrack) * bone_animation._num_tracks);
-  //bone_animation._tracks.push_back(bone)
 
   cout << tabs.c_str() << "unique bone names: " << endl;
   for (uint32_t i = 0; i < bone_names.size(); i++)

@@ -29,18 +29,22 @@ def write(filepath,
 			transform_name = tmp[-1] #last element
 
 			axis_name = ['x', 'y', 'z', 'w'][curve.array_index]
+			axis_name_quat = ['q', 'x', 'y', 'z'][curve.array_index]
 
 			file.write("\t<anim_curve bone=\"")
 			file.write(bone_name)
 			file.write("\" data_type=\"")
 			file.write(transform_name)
 			file.write("\" axis=\"")
-			file.write(axis_name)
+			if transform_name == "rotation_quaternion":
+				file.write(axis_name_quat)
+			else:
+				file.write(axis_name)
 			file.write("\">\n")
 
 			#TODO
 			"""
-			#write out the keyframes
+			#write out the keyframes (so we know which frames can't be optimized away)
 			for kp in curve.keyframe_points:
 				#kp.co : vec2
 				file.write("\t\t<key_frame>\n")
@@ -55,7 +59,7 @@ def write(filepath,
 
 				#transform into [0,1] range
 				x = (frame - scene.frame_start) / (scene.frame_end - scene.frame_start)
-				file.write("\t\t<frame>%.6f %.6f</frame>\n" % (x, y))
+				file.write("\t\t<frame number=\"%d\">%.6f %.6f</frame>\n" % (frame, x, y))
 			file.write("\t</anim_curve>\n")
 
 	file.write("</animation>\n")

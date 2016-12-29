@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdio.h>
 #include <vector>
 #include "vector.h"
 #include "quaternion.h"
@@ -79,13 +80,13 @@ namespace Animation
 
   enum BoneTransformAxis
   {
-    BONE_TRANSFORM_AXIS_X,
-    BONE_TRANSFORM_AXIS_Y,
-    BONE_TRANSFORM_AXIS_Z,
-    BONE_TRANSFORM_AXIS_W,
+    BONE_TRANSFORM_AXIS_INVALID = -1,
+    BONE_TRANSFORM_AXIS_X = 0,
+    BONE_TRANSFORM_AXIS_Y = 1,
+    BONE_TRANSFORM_AXIS_Z = 2,
+    BONE_TRANSFORM_AXIS_W = 3,
 
-    BONE_TRANSFORM_AXIS_INVALID,
-    NUM_BONE_TRANSFORM_AXES
+    NUM_BONE_TRANSFORM_AXES = 4
   };
 
   class BoneAnimTrack
@@ -134,12 +135,17 @@ namespace Animation
   class SkeletonAnimation
   {
   //friend class PackageBaker;
-  //private:
+  private:
+    uint32_t                   _num_frames;
+    uint16_t                   _frame_rate_fps;
   public:
     std::vector<BoneAnimTrack> _tracks;
     
     SkeletonAnimation() {}
     ~SkeletonAnimation() {}
+
+    void read_from_file(FILE *f);
+    uint8_t *read_from_memory(uint8_t *data_ptr, uint32_t num_tracks);
 
     void bind(Skeleton *s)
     {

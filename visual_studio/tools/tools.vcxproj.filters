@@ -25,6 +25,15 @@
     <Filter Include="Data Files">
       <UniqueIdentifier>{6a86d08e-fad9-4c9d-bcc2-922c777f96c7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\commonlib">
+      <UniqueIdentifier>{7a98e8e7-397a-4ada-960a-cb777ba02d46}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\commonlib\game">
+      <UniqueIdentifier>{3cfe8cec-3837-47e8-ace1-57a9d316fb73}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\commonlib\game\animation">
+      <UniqueIdentifier>{8e978a86-4f59-4c01-a678-c475d2229d25}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\tools\include\bakery.h">

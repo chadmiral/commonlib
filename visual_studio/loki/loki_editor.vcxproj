@@ -23,6 +23,7 @@
     <ClCompile Include="..\..\..\imgui\imgui.cpp" />
     <ClCompile Include="..\..\..\imgui\imgui_demo.cpp" />
     <ClCompile Include="..\..\..\imgui\imgui_draw.cpp" />
+    <ClCompile Include="..\..\game\src\animation\skeleton.cpp" />
     <ClCompile Include="..\..\graphics\src\camera.cpp" />
     <ClCompile Include="..\..\graphics\src\material.cpp" />
     <ClCompile Include="..\..\graphics\src\render_surface.cpp" />
@@ -31,6 +32,7 @@
     <ClCompile Include="..\..\graphics\src\texture.cpp" />
     <ClCompile Include="..\..\loki\imgui_impl_glfw_gl3.cpp" />
     <ClCompile Include="..\..\loki\main.cpp" />
+    <ClCompile Include="..\..\loki\views\animation_tool.cpp" />
     <ClCompile Include="..\..\loki\views\mesh_viewer.cpp" />
     <ClCompile Include="..\..\mathlib\src\aabb.cpp" />
     <ClCompile Include="..\..\mathlib\src\curve.cpp" />
@@ -54,6 +56,7 @@
     <ClInclude Include="..\..\..\imgui\imconfig.h" />
     <ClInclude Include="..\..\..\imgui\imgui.h" />
     <ClInclude Include="..\..\..\imgui\imgui_internal.h" />
+    <ClInclude Include="..\..\game\include\animation\skeleton.h" />
     <ClInclude Include="..\..\graphics\include\camera.h" />
     <ClInclude Include="..\..\graphics\include\draw_call.h" />
     <ClInclude Include="..\..\graphics\include\font.h" />
@@ -74,6 +77,7 @@
     <ClInclude Include="..\..\graphics\include\texture.h" />
     <ClInclude Include="..\..\graphics\include\vertex_formats.h" />
     <ClInclude Include="..\..\loki\imgui_impl_glfw_gl3.h" />
+    <ClInclude Include="..\..\loki\views\animation_tool.h" />
     <ClInclude Include="..\..\loki\views\mesh_viewer.h" />
     <ClInclude Include="..\..\mathlib\include\aabb.h" />
     <ClInclude Include="..\..\mathlib\include\curve.h" />
@@ -167,7 +171,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;__LOKI__;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\..\;..\..\..\imgui;..\..\..\SDL2-2.0.4\include;..\..\..\gl3w;..\..\..\SDL2_image-2.0.1\include\;..\..\..\glfw\include;..\..\graphics\include;..\..\mathlib\include;..\..\loki\views;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\;..\..\..\imgui;..\..\..\SDL2-2.0.4\include;..\..\..\gl3w;..\..\..\SDL2_image-2.0.1\include\;..\..\..\glfw\include;..\..\graphics\include;..\..\mathlib\include;..\..\loki\views;..\..\game\include\animation;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -198,7 +202,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;__LOKI__;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\..\;..\..\..\imgui;..\..\..\SDL2-2.0.4\include;..\..\..\gl3w;..\..\..\SDL2_image-2.0.1\include\;..\..\..\glfw\include;..\..\graphics\include;..\..\mathlib\include;..\..\loki\views;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\;..\..\..\imgui;..\..\..\SDL2-2.0.4\include;..\..\..\gl3w;..\..\..\SDL2_image-2.0.1\include\;..\..\..\glfw\include;..\..\graphics\include;..\..\mathlib\include;..\..\loki\views;..\..\game\include\animation;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

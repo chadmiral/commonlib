@@ -537,6 +537,7 @@ void PackageBaker::read_animation_file(mxml_node_t *anim_node, std::string tabs)
   fp = fopen(output_fname.c_str(), "rb");
   if (fp)
   {
+    //animation_asset->anim.read_from_file(fp);
     int version;
     fread(&version, sizeof(int), 1, fp);
 

@@ -10,10 +10,12 @@
 #include "imgui_impl_glfw_gl3.h"
 
 #include "mesh_viewer.h"
+#include "animation_tool.h"
 
 using namespace Math;
 
 static MeshViewer mesh_viewer;
+static AnimationTool animation_tool;
 
 static void error_callback(int error, const char* description)
 {
@@ -26,7 +28,6 @@ static inline ImVec2 operator+(const ImVec2& lhs, const ImVec2& rhs) { return Im
 static inline ImVec2 operator-(const ImVec2& lhs, const ImVec2& rhs) { return ImVec2(lhs.x - rhs.x, lhs.y - rhs.y); }
 
 static bool show_texture_tools = false;
-static bool show_animation_tools = true;
 static bool show_package_builder = false;
 static bool show_shader_tools = true;
 static bool show_post_tools = false;
@@ -60,7 +61,7 @@ static void ShowExampleAppMainMenuBar()
     if (ImGui::BeginMenu("View"))
     {
       if (ImGui::MenuItem("Package Builder", NULL, show_package_builder)) { show_package_builder ^= 1; }
-      if (ImGui::MenuItem("Animation Tools", NULL, show_animation_tools)) { show_animation_tools ^= 1; }
+      if (ImGui::MenuItem("Animation Tools", NULL, animation_tool._visible)) { animation_tool._visible ^= 1; }
       if (ImGui::MenuItem("Shader Tools", NULL, show_shader_tools)) { show_shader_tools ^= 1; }
       if (ImGui::MenuItem("Mesh Tools", NULL, mesh_viewer.visible)) { mesh_viewer.visible ^= 1; }
       if (ImGui::MenuItem("Texture Tools", NULL, show_texture_tools)) { show_texture_tools ^= 1; }
@@ -387,46 +388,7 @@ int main(int argc, char **argv)
       ImGui::End();
     }
     
-    if (show_animation_tools)
-    {
-      ImGui::SetNextWindowSize(ImVec2(100, 100), ImGuiSetCond_FirstUseEver);
-      ImGui::Begin("Animation Tools", &show_animation_tools, ImGuiWindowFlags_MenuBar);
-      ImGui::Text("");
-
-      if (ImGui::BeginMenuBar())
-      {
-        if (ImGui::BeginMenu("File"))
-        {
-          if (ImGui::MenuItem("Open Animation...", NULL, false))
-          {
-
-          }
-          ImGui::EndMenu();
-        }
-        ImGui::EndMenuBar();
-      }
-
-      float values[10] = {};
-      for (uint32_t i = 0; i < 10; i++)
-      {
-        values[i] = random(-1.0f, 1.0f);
-      }
-      ImTextureID tex_id = ImGui::GetIO().Fonts->TexID;
-      ImVec2 view_size = ImGui::GetWindowSize();
-      view_size.x -= 20;
-      view_size.y = 60;
-      ImGui::PlotLines("", values, 10, 0, "avg 0.0", -1.0f, 1.0f, view_size);
-      
-      //animation scrubber
-      static int i1 = 0;
-      //ImVec2 scrub_size(10, 10);
-      //ImGui::SetNextWindowSize(scrub_size);
-      ImGui::SliderInt("", &i1, 0, 100);
-      //ImGui::SameLine(); ShowHelpMarker("CTRL+click to input value.");
-
-      ImGui::End();
-    }
-
+    animation_tool.render();
     mesh_viewer.render();
 
     if (show_texture_tools)
