@@ -62,7 +62,7 @@ void Material::init()
       texture_uniforms.push_back(sui);
     }
 
-    gl_check_error();
+    gl_check_error(std::cout);
 
     for (uint32_t i = 0; i < textures_3d.size(); i++)
     {
@@ -74,7 +74,7 @@ void Material::init()
       texture_uniforms.push_back(sui);
     }
 
-    gl_check_error();
+    gl_check_error(std::cout);
 
     //collect all the uniform variable locations
     for (uint32_t i = 0; i < shader_uniforms.size(); i++)
@@ -83,7 +83,7 @@ void Material::init()
     }
   }
 
-  gl_check_error();
+  gl_check_error(std::cout);
 
 #ifdef __DEBUG__
   if(verbose)
@@ -204,7 +204,7 @@ void Material::render() const
     glFrontFace(backface_cull_winding);
   }
   else { glDisable(GL_CULL_FACE); }
-  gl_check_error();
+  gl_check_error(std::cout);
 }
 
 void Material::cleanup() const

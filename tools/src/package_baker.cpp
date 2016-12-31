@@ -100,12 +100,25 @@ void PackageBaker::bake(mxml_node_t *tree, std::string output_filename, std::str
   }
 
   //read all the shader assets
+  start_node = tree;
   do
   {
     asset_node = mxmlFindElement(start_node, tree, "shader", NULL, NULL, MXML_DESCEND);
     if (asset_node)
     {
       read_shader_file(asset_node);
+    }
+    start_node = asset_node;
+  } while (asset_node);
+
+  //read all the material assets
+  start_node = tree;
+  do
+  {
+    asset_node = mxmlFindElement(start_node, tree, "material", NULL, NULL, MXML_DESCEND);
+    if (asset_node)
+    {
+      read_material_file(asset_node);
     }
     start_node = asset_node;
   } while (asset_node);
@@ -330,8 +343,57 @@ void PackageBaker::read_shader_file(mxml_node_t *shader_node, std::string tabs)
   shader_asset->parse_source(shader_asset->fs_source, &shader_asset->fs_source);
 
   //TODO - test compile to make sure there are no errors
-  //Shader s;
-  //s.compile_and_link_from_source(shader_asset->vs_source.c_str(), shader_asset->fs_source.c_str());
+  Shader s;
+  s.compile_and_link_from_source(shader_asset->vs_source.c_str(), shader_asset->fs_source.c_str(), cout);
+}
+
+void PackageBaker::read_material_file(mxml_node_t *mat_node, std::string tabs, std::ostream &log)
+{
+  tabs += "\t";
+  const char *buffer = NULL;
+  MaterialPackageAsset *mat_asset = new MaterialPackageAsset;
+  assets.push_back(mat_asset);
+
+  SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
+  log << tabs.c_str() << "Loading material \"";
+  buffer = mxmlElementGetAttr(mat_node, "name");
+  log << buffer << "\"" << endl;
+  SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
+
+  mat_asset->set_name(buffer);
+
+  buffer = mxmlGetText(mat_node, NULL);
+  mat_asset->fname = buffer;
+  log << tabs.c_str() << "\tsource file: " << buffer << " ... " << endl;
+
+  std::string output_fname = mat_asset->fname + ".bin";
+  FILE *fp = fopen(mat_asset->fname.c_str(), "r");
+  if (fp)
+  {
+    mxml_node_t *tree = mxmlLoadFile(NULL, fp, MXML_TEXT_CALLBACK);
+    assert(tree);
+
+    //don't need the file anymore now that we have the xml tree
+    fclose(fp);
+
+    MaterialBaker mb;
+    mb.bake(tree, output_fname, tabs);
+  }
+
+  //and now open the binary file, read it and add it to the asset
+  fp = fopen(output_fname.c_str(), "rb");
+  if (fp)
+  {
+    fseek(fp, 0, SEEK_END);
+    long int file_size = ftell(fp);
+    rewind(fp);
+
+    //allocate a byte array of the appropriate size
+    mat_asset->_file_size = file_size;
+    mat_asset->_file_data = new uint8_t[file_size];// (unsigned char *)malloc(file_size);
+    fread(mat_asset->_file_data, file_size, 1, fp);
+    fclose(fp);
+  }
 }
 
 void PackageBaker::read_texture_file(mxml_node_t *texture_node, std::string tabs)
@@ -548,8 +610,6 @@ void PackageBaker::read_animation_file(mxml_node_t *anim_node, std::string tabs)
     for (uint32_t i = 0; i < num_tracks; i++)
     {
       BoneAnimTrack bat;
-
-      uint32_t hash_id;
       fread(&bat._bone_id, sizeof(uint32_t), 1, fp);
 
       uint32_t num_pos_frames, num_rot_frames, num_scale_frames;
@@ -618,9 +678,9 @@ void PackageBaker::read_ui_layout_file(mxml_node_t *layout_node, std::string tab
   }
 }
 
-void PackageBaker::write_package(std::string output_filename, std::string tabs)
+void PackageBaker::write_package(std::string output_filename, std::string tabs, std::ostream &log)
 {
-  cout << endl << tabs.c_str() <<"Writing game package to " << output_filename.c_str() << endl;
+  log << endl << tabs.c_str() <<"Writing game package to " << output_filename.c_str() << endl;
   FILE *fp;
   FOPEN(fp, output_filename.c_str(), "wb");
   if (fp)
@@ -628,6 +688,7 @@ void PackageBaker::write_package(std::string output_filename, std::string tabs)
     //collect and count each asset type
     std::vector<ShaderPackageAsset *>    shaders;
     std::vector<TexturePackageAsset *>   textures;
+    std::vector<MaterialPackageAsset *>  materials;
     std::vector<MeshPackageAsset *>      meshes;
     std::vector<SkeletonPackageAsset *>  skeletons;
     std::vector<AnimationPackageAsset *> animations;
@@ -642,6 +703,9 @@ void PackageBaker::write_package(std::string output_filename, std::string tabs)
         break;
       case PACKAGE_ASSET_TEXTURE:
         textures.push_back((TexturePackageAsset *)assets[i]);
+        break;
+      case PACKAGE_ASSET_MATERIAL:
+        materials.push_back((MaterialPackageAsset *)assets[i]);
         break;
       case PACKAGE_ASSET_MESH:
         meshes.push_back((MeshPackageAsset *)assets[i]);
@@ -659,29 +723,32 @@ void PackageBaker::write_package(std::string output_filename, std::string tabs)
     }
     uint32_t shader_count = shaders.size();
     uint32_t texture_count = textures.size();
+    uint32_t material_count = materials.size();
     uint32_t mesh_count = meshes.size();
     uint32_t skeleton_count = skeletons.size();
     uint32_t animation_count = animations.size();
     uint32_t ui_layout_count = ui_layouts.size();
 
-    cout << tabs.c_str() << "Packaging " << shader_count << " shaders..." << endl;
-    cout << tabs.c_str() << "Packaging " << texture_count << " textures..." << endl;
-    cout << tabs.c_str() << "Packaging " << mesh_count << " meshes..." << endl;
-    cout << tabs.c_str() << "Packaging " << skeleton_count << " skeletons..." << endl;
-    cout << tabs.c_str() << "Packaging " << animation_count << " animations..." << endl;
-    cout << tabs.c_str() << "Packaging " << ui_layout_count << " ui layouts..." << endl;
+    log << tabs.c_str() << "Packaging " << shader_count << " shaders..." << endl;
+    log << tabs.c_str() << "Packaging " << texture_count << " textures..." << endl;
+    log << tabs.c_str() << "Packaging " << material_count << " materials..." << endl;
+    log << tabs.c_str() << "Packaging " << mesh_count << " meshes..." << endl;
+    log << tabs.c_str() << "Packaging " << skeleton_count << " skeletons..." << endl;
+    log << tabs.c_str() << "Packaging " << animation_count << " animations..." << endl;
+    log << tabs.c_str() << "Packaging " << ui_layout_count << " ui layouts..." << endl;
 
     //file header
     fwrite(&file_version, sizeof(uint32_t), 1, fp);
     fwrite(&shader_count, sizeof(uint32_t), 1, fp);
     fwrite(&texture_count, sizeof(uint32_t), 1, fp);
+    fwrite(&material_count, sizeof(uint32_t), 1, fp);
     fwrite(&mesh_count, sizeof(uint32_t), 1, fp);
     fwrite(&skeleton_count, sizeof(uint32_t), 1, fp);
     fwrite(&animation_count, sizeof(uint32_t), 1, fp);
     fwrite(&ui_layout_count, sizeof(uint32_t), 1, fp);
 
     SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
-    cout << tabs.c_str() << "Writing shader packlets..." << endl;
+    log << tabs.c_str() << "Writing shader packlets..." << endl;
     SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
     for (uint32_t i = 0; i < shaders.size(); i++)
     {
@@ -690,7 +757,7 @@ void PackageBaker::write_package(std::string output_filename, std::string tabs)
     }
 
     SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
-    cout << tabs.c_str() << "Writing texture packlets..." << endl;
+    log << tabs.c_str() << "Writing texture packlets..." << endl;
     SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
     for (uint32_t i = 0; i < textures.size(); i++)
     {
@@ -699,7 +766,16 @@ void PackageBaker::write_package(std::string output_filename, std::string tabs)
     }
 
     SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
-    cout << tabs.c_str() << "Writing mesh packlets..." << endl;
+    log << tabs.c_str() << "Writing material packlets..." << endl;
+    SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
+    for (uint32_t i = 0; i < materials.size(); i++)
+    {
+      MaterialPackageAsset *m = materials[i];
+      write_material_packlet(fp, m, tabs);
+    }
+
+    SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
+    log << tabs.c_str() << "Writing mesh packlets..." << endl;
     SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
     for (uint32_t i = 0; i < meshes.size(); i++)
     {
@@ -708,7 +784,7 @@ void PackageBaker::write_package(std::string output_filename, std::string tabs)
     }
 
     SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
-    cout << tabs.c_str() << "Writing skeleton packlets..." << endl;
+    log << tabs.c_str() << "Writing skeleton packlets..." << endl;
     SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
     for (uint32_t i = 0; i < skeletons.size(); i++)
     {
@@ -717,7 +793,7 @@ void PackageBaker::write_package(std::string output_filename, std::string tabs)
     }
 
     SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
-    cout << tabs.c_str() << "Writing animation packlets..." << endl;
+    log << tabs.c_str() << "Writing animation packlets..." << endl;
     SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
     for (uint32_t i = 0; i < animations.size(); i++)
     {
@@ -726,7 +802,7 @@ void PackageBaker::write_package(std::string output_filename, std::string tabs)
     }
 
     SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
-    cout << tabs.c_str() << "Writing ui layout packlets..." << endl;
+    log << tabs.c_str() << "Writing ui layout packlets..." << endl;
     SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
     for (uint32_t i = 0; i < ui_layouts.size(); i++)
     {
@@ -739,15 +815,15 @@ void PackageBaker::write_package(std::string output_filename, std::string tabs)
   else
   {
     SET_TEXT_COLOR(CONSOLE_COLOR_RED);
-    cerr << tabs.c_str() << "Could not open file for writing!!!" << endl;
+    log << tabs.c_str() << "Could not open file for writing!!!" << endl;
     SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
   }
 }
 
-void PackageBaker::write_packlet_header(FILE *fp, PackageAsset *a, std::string tabs)
+void PackageBaker::write_packlet_header(FILE *fp, PackageAsset *a, std::ostream &log)
 {
   uint32_t hash_id = Math::hash_value_from_string(a->get_name().c_str());
-  cout << tabs.c_str() << "\"" << a->get_name().c_str() << "\"" << " -> " << hash_id << endl;
+  log << "\"" << a->get_name().c_str() << "\"" << " -> " << hash_id << endl;
 
   uint32_t name_length = (a->name.size() + 1) * sizeof(char);
   uint32_t fname_length = (a->fname.size() + 1) * sizeof(char);
@@ -757,11 +833,11 @@ void PackageBaker::write_packlet_header(FILE *fp, PackageAsset *a, std::string t
   fwrite(&fname_length, sizeof(uint32_t), 1, fp);
 }
 
-void PackageBaker::write_shader_packlet(FILE *fp, ShaderPackageAsset *s, std::string tabs)
+void PackageBaker::write_shader_packlet(FILE *fp, ShaderPackageAsset *s, std::string tabs, std::ostream &log)
 {
   //convert name to hash id
   uint32_t hash_id = Math::hash_value_from_string(s->get_name().c_str());
-  cout << tabs.c_str() << "\"" << s->get_name().c_str() << "\"" << " -> " << hash_id << endl;
+  log << tabs.c_str() << "\"" << s->get_name().c_str() << "\"" << " -> " << hash_id << endl;
 
   uint32_t name_length = (s->name.size() + 1) * sizeof(char);
   uint32_t vs_fname_length = (s->vs_fname.size() + 1) * sizeof(char);
@@ -786,24 +862,13 @@ void PackageBaker::write_shader_packlet(FILE *fp, ShaderPackageAsset *s, std::st
   fwrite(s->fs_source.c_str(), sizeof(char), fs_length, fp);
 }
 
-void PackageBaker::write_texture_packlet(FILE *fp, TexturePackageAsset *t, std::string tabs)
+void PackageBaker::write_texture_packlet(FILE *fp, TexturePackageAsset *t, std::string tabs, std::ostream &log)
 {
-  uint32_t hash_id = Math::hash_value_from_string(t->get_name().c_str());
-  cout << tabs.c_str() << "\"" << t->get_name().c_str() << "\"" << " -> " << hash_id << endl;
+  write_packlet_header(fp, t, log);
 
   uint32_t name_length = (t->name.size() + 1) * sizeof(char);
   uint32_t fname_length = (t->fname.size() + 1) * sizeof(char);
 
-  //cout << "\tbpp: " << t->bpp << endl;
-  //cout << "\twidth: " << t->width << endl;
-  //cout << "\theight: " << t->height << endl;
-  //cout << "\tdata size: " << t->tex_data_size << endl;
-  //cout << "\twrap_u: " << t->wrap_u << endl;
-  //cout << "\twrap_v: " << t->wrap_v << endl;
-
-  fwrite(&hash_id, sizeof(uint32_t), 1, fp);
-  fwrite(&name_length, sizeof(uint32_t), 1, fp);
-  fwrite(&fname_length, sizeof(uint32_t), 1, fp);
   fwrite(&t->bpp, sizeof(uint32_t), 1, fp);
   fwrite(&t->width, sizeof(uint32_t), 1, fp);
   fwrite(&t->height, sizeof(uint32_t), 1, fp);
@@ -817,9 +882,22 @@ void PackageBaker::write_texture_packlet(FILE *fp, TexturePackageAsset *t, std::
   fwrite(t->tex_data, t->tex_data_size, 1, fp);
 }
 
-void PackageBaker::write_mesh_packlet(FILE *fp, MeshPackageAsset *m, std::string tabs)
+void PackageBaker::write_material_packlet(FILE *fp, MaterialPackageAsset *m, std::string tabs, std::ostream &log)
 {
-  write_packlet_header(fp, m);
+  write_packlet_header(fp, m, log);
+
+  uint32_t name_length = (m->name.size() + 1) * sizeof(char);
+  uint32_t fname_length = (m->fname.size() + 1) * sizeof(char);
+  fwrite(&m->_file_size, sizeof(uint32_t), 1, fp);
+
+  fwrite(m->name.c_str(), sizeof(char), name_length, fp);
+  fwrite(m->fname.c_str(), sizeof(char), fname_length, fp);
+  fwrite(m->_file_data, sizeof(uint8_t), m->_file_size, fp);
+}
+
+void PackageBaker::write_mesh_packlet(FILE *fp, MeshPackageAsset *m, std::string tabs, std::ostream &log)
+{
+  write_packlet_header(fp, m, log);
   fwrite(&m->num_verts, sizeof(uint32_t), 1, fp);
   fwrite(&m->num_indices, sizeof(uint32_t), 1, fp);
 
@@ -831,10 +909,10 @@ void PackageBaker::write_mesh_packlet(FILE *fp, MeshPackageAsset *m, std::string
   fwrite(m->indices, sizeof(uint32_t), m->num_indices, fp);
 }
 
-void PackageBaker::write_skeleton_packlet(FILE *fp, SkeletonPackageAsset *s, std::string tabs)
+void PackageBaker::write_skeleton_packlet(FILE *fp, SkeletonPackageAsset *s, std::string tabs, std::ostream &log)
 {
   //header
-  write_packlet_header(fp, s);
+  write_packlet_header(fp, s, log);
   fwrite(&s->num_bones, sizeof(uint32_t), 1, fp);
 
   uint32_t name_length = (s->name.size() + 1) * sizeof(char);
@@ -846,13 +924,13 @@ void PackageBaker::write_skeleton_packlet(FILE *fp, SkeletonPackageAsset *s, std
   fwrite(s->bones, sizeof(Animation::Bone), s->num_bones, fp);
 }
 
-void PackageBaker::write_animation_packlet(FILE *fp, AnimationPackageAsset *a, std::string tabs)
+void PackageBaker::write_animation_packlet(FILE *fp, AnimationPackageAsset *a, std::string tabs, std::ostream &log)
 {
   //header
-  write_packlet_header(fp, a);
+  write_packlet_header(fp, a, log);
 
   uint32_t num_tracks = a->anim.get_num_tracks();
-  cout << tabs.c_str() << "num tracks: " << num_tracks << endl;
+  log << tabs.c_str() << "num tracks: " << num_tracks << endl;
   fwrite(&num_tracks, sizeof(uint32_t), 1, fp);
 
   uint32_t name_length = (a->name.size() + 1) * sizeof(char);
@@ -880,18 +958,21 @@ void PackageBaker::write_animation_packlet(FILE *fp, AnimationPackageAsset *a, s
   }
 }
 
-void PackageBaker::write_ui_layout_packlet(FILE *fp, UILayoutPackageAsset *u, std::string tabs)
+void PackageBaker::write_ui_layout_packlet(FILE *fp, UILayoutPackageAsset *u, std::string tabs, std::ostream &log)
 {
-  uint32_t hash_id = Math::hash_value_from_string(u->get_name().c_str());
-  cout << tabs.c_str() << "\"" << u->get_name().c_str() << "\"" << " -> " << hash_id << endl;
+  //uint32_t hash_id = Math::hash_value_from_string(u->get_name().c_str());
+  //log << tabs.c_str() << "\"" << u->get_name().c_str() << "\"" << " -> " << hash_id << endl;
+
+  write_packlet_header(fp, u, log);
 
   uint32_t name_length = (u->name.size() + 1) * sizeof(char);
   uint32_t fname_length = (u->fname.size() + 1) * sizeof(char);
   uint32_t xml_length = (u->xml_source.size() + 1) * sizeof(char);
 
-  fwrite(&hash_id, sizeof(uint32_t), 1, fp);
-  fwrite(&name_length, sizeof(uint32_t), 1, fp);
-  fwrite(&fname_length, sizeof(uint32_t), 1, fp);
+  //fwrite(&hash_id, sizeof(uint32_t), 1, fp);
+  //fwrite(&name_length, sizeof(uint32_t), 1, fp);
+  //fwrite(&fname_length, sizeof(uint32_t), 1, fp);
+
   fwrite(&xml_length, sizeof(uint32_t), 1, fp);
 
   fwrite(u->name.c_str(), sizeof(char), name_length, fp);

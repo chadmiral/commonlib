@@ -54,6 +54,9 @@
     <ClInclude Include="..\..\game\include\animation\skeleton.h">
       <Filter>Header Files\animation</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\game\include\html_logger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\game\src\console.cpp">

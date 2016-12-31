@@ -397,7 +397,7 @@ void BPhysBaker::write_tga_from_pixels(std::string fname, int tex_width, int tex
   int xb = (tex_width - xa) / 256;
   int ya = tex_height % 256;
   int yb = (tex_height - ya) / 256;
-  unsigned char header[18] = {0,0,2,0,0,0,0,0,0,0,0,0,(char)xa,(char)xb,(char)ya,(char)yb,24,0};
+  unsigned char header[18] = {0,0,2,0,0,0,0,0,0,0,0,0,(unsigned char)xa,(unsigned char)xb,(unsigned char)ya,(unsigned char)yb,24,0};
 
   //write header and data to file
   FILE *f = fopen(fname.c_str(), "wb");
