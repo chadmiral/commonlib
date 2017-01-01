@@ -22,14 +22,8 @@ namespace Tool
   {
     std::string    _name;
     TmpUniformType _type;
-    
-    /*
-    float             _val_float;
-    Math::Float2      _val_float2;
-    Math::Float3      _val_float3;
-    Math::Float4      _val_float4;
-    Math::Matrix4x4   _val_mat4x4;
-    */
+ 
+    float         *_val;
   };
 
   struct TmpAttrib

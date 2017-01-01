@@ -50,6 +50,9 @@ void TmpMaterial::write_to_file(FILE *f)
 
     uint32_t type = (uint32_t)_uniforms[i]._type;
     fwrite(&type, sizeof(uint32_t), 1, f);
+
+    //TODO: allow for default values for float2, float3, etc...
+    fwrite(_uniforms[i]._val, sizeof(float), 1, f);
   }
 
   //write all the vertex attribs 
@@ -168,8 +171,19 @@ void MaterialBaker::bake(mxml_node_t *tree, string output_fname, string tabs, st
     {
       TmpUniform uni;
       buffer = mxmlElementGetAttr(uniform_node, "type");
-      if (stricmp(buffer, "float") == 0) { uni._type = TMP_UNIFORM_FLOAT; }
-      else if (stricmp(buffer, "float2") == 0) { uni._type = TMP_UNIFORM_FLOAT2; }
+      if (stricmp(buffer, "float") == 0)
+      {
+        uni._type = TMP_UNIFORM_FLOAT;
+        uni._val = new float;
+        buffer = mxmlGetText(uniform_node, NULL);
+        uni._val[0] = atof(buffer);
+      }
+      else if (stricmp(buffer, "float2") == 0)
+      {
+        uni._type = TMP_UNIFORM_FLOAT2;
+        //uni._val = new float[2];
+        //buffer = mxmlGetText(uniform_node, NULL);
+      }
       else if (stricmp(buffer, "float3") == 0) { uni._type = TMP_UNIFORM_FLOAT3; }
       else if (stricmp(buffer, "matrix4x4") == 0) { uni._type = TMP_UNIFORM_MAT4X4; }
       else
