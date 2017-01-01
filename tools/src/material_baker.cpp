@@ -71,6 +71,20 @@ void TmpMaterial::read_from_file(FILE *f)
 
 }
 
+GLenum string_to_blend_mode(const char *buffer)
+{
+  if (stricmp(buffer, "GL_ONE") == 0)
+  {
+    return GL_ONE;
+  }
+  else if (stricmp(buffer, "GL_SRC_ALPHA") == 0)
+  {
+    return GL_SRC_ALPHA;
+  }
+  assert(false);
+  return GL_INVALID_ENUM;
+}
+
 void MaterialBaker::bake(mxml_node_t *tree, string output_fname, string tabs, std::ostream &log)
 {
   TmpMaterial tmp_mat;
@@ -108,6 +122,10 @@ void MaterialBaker::bake(mxml_node_t *tree, string output_fname, string tabs, st
   node = mxmlFindElement(mat_node, tree, "alpha_blend", NULL, NULL, MXML_DESCEND);
   buffer = mxmlGetText(node, NULL);
   tmp_mat._blending = (stricmp(buffer, "true") == 0);
+  buffer = mxmlElementGetAttr(node, "src_mode");
+  tmp_mat._src_blend_mode = string_to_blend_mode(buffer);
+  buffer = mxmlElementGetAttr(node, "dst_mode");
+  tmp_mat._dst_blend_mode = string_to_blend_mode(buffer);
 
   //<depth_read>true</depth_read>
   node = mxmlFindElement(mat_node, tree, "depth_read", NULL, NULL, MXML_DESCEND);
