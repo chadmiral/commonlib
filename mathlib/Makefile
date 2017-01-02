@@ -1,7 +1,8 @@
 CC=g++
 LIB_PATH=
 CFLAGS=-I./include -I../game/include  -I../game/include/cinematics -I/usr/local/include
-CFLAGS+=-I../graphics/include -I../ui/include -I../game/include/switchboard
+CFLAGS+=-I../graphics/include -I../ui/include -I../game/include/switchboard -I../
+CFLAGS+=-I../game/include/animation/
 CFLAGS+=$(shell pkg-config --cflags freetype2)
 CFLAGS+=-D__USE_BOOST__
 CFLAGS+=-D__USE_CGAL3D__
@@ -23,6 +24,7 @@ MXML_SRCS+=../tools/src/mxml-2.9/mxml-get.c ../tools/src/mxml-2.9/mxml-index.c .
 MXML_SRCS+=../tools/src/mxml-2.9/mxml-private.c ../tools/src/mxml-2.9/mxml-search.c ../tools/src/mxml-2.9/mxml-set.c
 MXML_SRCS+=../tools/src/mxml-2.9/mxml-string.c
 OBJS=$(SRCS:.cpp=.o)
+MXML_OBJS=$(MXML_SRCS:.cpp=.o)
 
 
 UNAME := $(shell uname)
@@ -55,8 +57,8 @@ all: $(BINPATH) $(OBJS_BIN) $(BINPATH)libmath.a test
 $(BINPATH):
 	mkdir -p $(BINPATH)
 
-$(BINPATH)mxml.o: $(MXML_SRCS)
-	gcc $(CFLAGS) -c $(MXML_SRCS) -o $(BINPATH)mxml.o
+#$(BINPATH)mxml.o: $(MXML_SRCS)
+#	gcc $(CFLAGS) -c $(MXML_SRCS) -o $(BINPATH)$(MXML_OBJS)
 
 $(BINPATH)math_utility.o: $(SRCPATH)math_utility.cpp
 	$(CC) $(CFLAGS) -c $(SRCPATH)math_utility.cpp -o $(BINPATH)math_utility.o
@@ -113,8 +115,8 @@ $(BINPATH)libmath.a: $(OBJS_BIN) $(BINPATH)
 matrix_test: matrix_test.cpp $(BINPATH)libmath.a
 	$(CC) $(CFLAGS) matrix_test.cpp -o matrix_test $(LIB_PATH) -lmath $(LDFLAGS)
 
-test: test.cpp $(BINPATH)libmath.a $(BINPATH)mxml.o
-	$(CC) $(CFLAGS) test.cpp mxml.o -o test $(LIB_PATH) -lmath -lgame -lgraphics -lui $(LDFLAGS)
+test: test.cpp $(BINPATH)libmath.a #$(BINPATH)mxml.o
+	$(CC) $(CFLAGS) test.cpp -o test $(LIB_PATH) -lmath -lgame -lgraphics -lui $(LDFLAGS)
 
 clean:
 	rm -f $(BINPATH)*.o
