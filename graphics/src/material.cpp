@@ -112,6 +112,18 @@ void Material::add_texture(Texture3D *t, string name)
   textures_3d.push_back(p);
 }
 
+void Material::add_texture_post_init(Texture2D *t, string name)
+{
+  add_texture(t, name);
+
+  ShaderUniformInt sui;
+  sui.set_name(name);
+  sui.set_loc(shader);
+  sui.set_var(texture_uniforms.size());
+
+  texture_uniforms.push_back(sui);
+}
+
 void Material::enable_lighting(const bool l)
 {
   lighting = l;

@@ -24,10 +24,39 @@ namespace Graphics {
       void add_texture(Graphics::Texture2D *t, std::string name);
       void add_texture(Graphics::Texture3D *t, std::string name);
 
-      unsigned int get_num_textures() const { return (unsigned int)(textures_2d.size() + textures_3d.size()); }
+      void add_texture_post_init(Graphics::Texture2D *t, std::string name);
+
+      uint32_t get_num_textures() const { return (uint32_t)(textures_2d.size() + textures_3d.size()); }
 
       void add_uniform_var(ShaderUniformVariable *suv) { shader_uniforms.push_back(suv); }
       void add_vertex_attrib(ShaderVertexAttrib *sva) { shader_vertex_attribs.push_back(sva); }
+
+      ShaderUniformVariable *find_uniform(uint32_t hash_id)
+      {
+        //todo: use hash table / O(1) time lookup
+        for(uint32_t i = 0; i < shader_uniforms.size(); i++)
+        {
+          uint32_t hid = Math::hash_value_from_string(shader_uniforms[i]->get_name().c_str());
+          if (hid == hash_id)
+          {
+            return shader_uniforms[i];
+          }
+        }
+        return NULL;
+      }
+      ShaderVertexAttrib *find_vertex_attrib(uint32_t hash_id)
+      {
+        //todo: use hash table / O(1) time lookup
+        for (uint32_t i = 0; i < shader_vertex_attribs.size(); i++)
+        {
+          uint32_t hid = Math::hash_value_from_string(shader_vertex_attribs[i]->get_name().c_str());
+          if (hid == hash_id)
+          {
+            return shader_vertex_attribs[i];
+          }
+        }
+        return NULL;
+      }
 
       void enable_lighting(const bool l); //archaic?
 
@@ -45,8 +74,6 @@ namespace Graphics {
 
       void render() const;
       void cleanup() const;
-
-      void add_tex_idx(const int tid);
 
 #ifdef __DEBUG__
       void set_verbose(const bool v) { verbose = v; }
