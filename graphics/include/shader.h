@@ -21,9 +21,9 @@ namespace Graphics
 
     void deinit();
 
-    void create_program();
+    void create_program(std::ostream &log = std::cout);
     void set_shader_filenames(std::string vs_fname, std::string fs_fname);
-    void compile_and_link_from_source(const char *vs, const char *fs);
+    void compile_and_link_from_source(const char *vs, const char *fs, std::ostream &log = std::cout);
     GLuint compile_shader_from_source(GLenum shader_type, const char *source);
     void link_shader();
     
@@ -74,7 +74,7 @@ namespace Graphics
     ShaderUniformInt() : ShaderUniformVariable() { var = 0; }
     ~ShaderUniformInt() {}
 
-    virtual void render() const { glUniform1i(_loc, var); gl_check_error(); }
+    virtual void render() const { glUniform1i(_loc, var); }
 
     void set_var(const int v) { var = v; }
     int get_var() const { return var; }
@@ -88,7 +88,7 @@ namespace Graphics
     ShaderUniformFloat() : ShaderUniformVariable() { var = 0.0f; }
     ~ShaderUniformFloat() {}
 
-    virtual void render() const { glUniform1f(_loc, var); gl_check_error(); }
+    virtual void render() const { glUniform1f(_loc, var); }
     void set_var(const float v) { var = v; }
     float get_var() const { return var; }
     float *get_var_ptr() { return &var; }
@@ -102,7 +102,7 @@ namespace Graphics
     ShaderUniformFloat2() : ShaderUniformVariable() {}
     ~ShaderUniformFloat2() {}
 
-    virtual void render() const { glUniform2f(_loc, var._val[0], var._val[1]); gl_check_error(); }
+    virtual void render() const { glUniform2f(_loc, var._val[0], var._val[1]); }
     void set_var(const Math::Float2 v) { var = v; }
     Math::Float2 *get_var_ptr() { return &var; }
   };
@@ -115,7 +115,7 @@ namespace Graphics
     ShaderUniformFloat3() : ShaderUniformVariable() {}
     ~ShaderUniformFloat3() {}
 
-    virtual void render() const { glUniform3f(_loc, var._val[0], var._val[1], var._val[2]); gl_check_error(); }
+    virtual void render() const { glUniform3f(_loc, var._val[0], var._val[1], var._val[2]); }
     void set_var(const Math::Float3 v) { var = v; }
   };
 
@@ -152,6 +152,7 @@ namespace Graphics
     uint32_t       _count;
     uint32_t       _offset;
     uint32_t       _vertex_size;
+
   public:
     ShaderVertexAttrib() {}
     ~ShaderVertexAttrib() {}
@@ -159,7 +160,7 @@ namespace Graphics
     std::string get_name() const { return _name; }
     void set_name(std::string name) { _name = name; }
     void set_loc(uint32_t loc_id) { _loc = loc_id; }
-    void set_loc(Shader *sp, std::string name, uint32_t vertex_size, uint32_t count, uint32_t offset, uint32_t type = GL_FLOAT)
+    void set_loc(Shader *sp, std::string name, uint32_t vertex_size, uint32_t count, uint32_t offset, uint32_t type = GL_FLOAT, std::ostream &log = std::cout)
     {
       _name = name;
       _type =          type;
@@ -171,13 +172,13 @@ namespace Graphics
       if (_loc == -1)
       {
         SET_TEXT_COLOR(CONSOLE_COLOR_ERROR);
-        std::cerr << "Could not find shader vertex location!!!" << std::endl;
-        std::cerr << "\tshader: " << sp->gl_vertex_shader_fname.c_str() << ", " << sp->gl_fragment_shader_fname.c_str() << std::endl;
-        std::cerr << "\tattrib: " << _name.c_str() << std::endl;
+        log << "Could not find shader vertex location!!!" << std::endl;
+        log << "\tshader: " << sp->gl_vertex_shader_fname.c_str() << ", " << sp->gl_fragment_shader_fname.c_str() << std::endl;
+        log << "\tattrib: " << _name.c_str() << std::endl;
         SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
         //assert(false);
       }
-      gl_check_error();
+      gl_check_error(log);
     }
 
     //to be called prior to Shader::render()
@@ -189,7 +190,7 @@ namespace Graphics
       {
         glEnableVertexAttribArray(_loc);
         glVertexAttribPointer(_loc, _count, _type, GL_FALSE, _vertex_size, (void *)_offset);
-        gl_check_error();
+        gl_check_error(std::cout);
       }
     }
 
@@ -200,7 +201,7 @@ namespace Graphics
 #endif
       {
         glDisableVertexAttribArray(_loc);
-        gl_check_error();
+        gl_check_error(std::cout);
       }
     }
   };

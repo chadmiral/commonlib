@@ -52,7 +52,17 @@ namespace Graphics {
       void set_verbose(const bool v) { verbose = v; }
 #endif //__DEBUG__
 
+      void set_name(const std::string n) { _name = n; }
+      std::string get_name() const { return _name; }
+
+      void set_target_buffer(const std::string tb) { _target_buffer = tb; }
+      std::string get_target_buffer() const { return _target_buffer; }
+
     private:
+      //TODO: hash id?
+      std::string                                          _name;
+      std::string                                          _target_buffer;
+
       Shader                                               *shader;
       std::vector<ShaderUniformVariable *>                 shader_uniforms;
       std::vector<ShaderVertexAttrib *>                    shader_vertex_attribs;

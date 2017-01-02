@@ -129,6 +129,7 @@
     <ClInclude Include="..\..\game\include\cinematics\fade_screen.h" />
     <ClInclude Include="..\..\game\include\console.h" />
     <ClInclude Include="..\..\game\include\game_controller.h" />
+    <ClInclude Include="..\..\game\include\html_logger.h" />
     <ClInclude Include="..\..\game\include\object_3d.h" />
     <ClInclude Include="..\..\game\include\sdl_game.h" />
   </ItemGroup>

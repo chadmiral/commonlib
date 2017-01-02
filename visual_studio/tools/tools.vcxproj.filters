@@ -34,6 +34,9 @@
     <Filter Include="Source Files\commonlib\game\animation">
       <UniqueIdentifier>{8e978a86-4f59-4c01-a678-c475d2229d25}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\commonlib\graphics">
+      <UniqueIdentifier>{5d3b58c9-01f8-4635-8515-6fd70f251fde}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\tools\include\bakery.h">
@@ -67,6 +70,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\tools\include\animation_baker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\tools\include\material_baker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\tools\include\package_asset.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -130,6 +139,15 @@
     </ClCompile>
     <ClCompile Include="..\..\tools\src\animation_baker.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\tools\src\material_baker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\graphics\src\material.cpp">
+      <Filter>Source Files\commonlib\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\graphics\src\shader.cpp">
+      <Filter>Source Files\commonlib\graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

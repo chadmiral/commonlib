@@ -7,17 +7,6 @@
 
 namespace Tool
 {
-  enum AssetType
-  {
-    ASSET_STATIC_MESH,
-    ASSET_SHADER,
-    ASSET_PARTICLE_SYSTEM,
-    ASSET_SKELETON,
-    ASSET_ANIMATION,
-
-    NUM_ASSET_TYPES
-  };
-
   std::string mxml_read_text(mxml_node_t *node);
   Math::Float2 mxml_read_float2(const mxml_node_t *node);
   Math::Float3 mxml_read_float3(const mxml_node_t *node);

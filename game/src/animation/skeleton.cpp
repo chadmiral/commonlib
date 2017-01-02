@@ -15,10 +15,10 @@ void Skeleton::transform(const float t, SkeletonAnimation *a)
 void Skeleton::render_debug(SkeletonAnimation *animation, float anim_pct)
 {
 #ifndef __LOKI__
-  glDisable(GL_DEPTH_TEST);
-  glBegin(GL_LINES);
+
   //glColor4f(0.0f, 0.0f, 1.0f, 1.0f);
-  for (uint32_t i = 0; i < _bones.size(); i++)
+  //for (uint32_t i = 0; i < _bones.size(); i++)
+  uint32_t i = 0;
   {
     if (_bones[i]._parent_idx == -1)
     {
@@ -40,19 +40,38 @@ void Skeleton::render_debug(SkeletonAnimation *animation, float anim_pct)
         if (animation->_tracks[j]._bone == &_bones[i])
         {
           animation->_tracks[j].evaluate(anim_pct, &bt);
-          rotation.rotation_from_quaternion(bt._rot._rot);
           break;
         }
       }
     }
-    
 
-    Float3 head = (rotation * _bones[i]._head_pos) + bt._pos._pos;
-    Float3 tail = (rotation * _bones[i]._tail_pos) + bt._pos._pos;
-    glVertex3f(head[0], head[2], head[1]);
-    glVertex3f(tail[0], tail[2], tail[1]);
+    rotation.rotation_from_quaternion(bt._rot._rot);
+
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+
+    rotation.transpose();
+
+    GLfloat gl_mat[16] =
+    {
+      rotation(0, 0), rotation(1, 0), rotation(2, 0), 0.0f,
+      rotation(0, 1), rotation(1, 1), rotation(2, 1), 0.0f,
+      rotation(0, 2), rotation(1, 2), rotation(2, 2), 0.0f,
+      0.0f, 0.0f, 0.0f, 1.0f
+    };
+
+    glMultMatrixf(gl_mat);
+    {
+      Float3 head = _bones[i]._head_pos;// + bt._pos._pos;
+      Float3 tail = _bones[i]._tail_pos;// + bt._pos._pos;
+      glDisable(GL_DEPTH_TEST);
+      glBegin(GL_LINES);
+        glVertex3f(head[0], head[2], head[1]);
+        glVertex3f(tail[0], tail[2], tail[1]);
+      glEnd();
+    }
+    glPopMatrix();
   }
-  glEnd();
 #endif
 }
 

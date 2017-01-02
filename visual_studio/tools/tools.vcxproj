@@ -96,7 +96,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\..\..\SDL2_image-2.0.1\VisualC\Win32\Debug;..\..\..\SDL2-2.0.4\lib\x86;..\Debug;..\..\..\glew-1.13.0\lib\Release\Win32\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2main.lib;SDL2.lib;SDL2_Image.lib;glew32.lib;mathlib.lib;graphics.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2main.lib;SDL2.lib;SDL2_Image.lib;glew32.lib;opengl32.lib;mathlib.lib;graphics.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -131,7 +131,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\..\..\SDL2_image-2.0.1\VisualC\Win32\Release;..\..\..\SDL2-2.0.4\lib\x86;%(AdditionalLibraryDirectories);..\..\..\glew-1.13.0\lib\Release\Win32\;..\Release</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2main.lib;SDL2.lib;SDL2_Image.lib;glew32.lib;mathlib.lib;graphics.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2main.lib;SDL2.lib;SDL2_Image.lib;glew32.lib;opengl32.lib;mathlib.lib;graphics.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -156,9 +156,11 @@
     <ClInclude Include="..\..\tools\include\animation_baker.h" />
     <ClInclude Include="..\..\tools\include\bakery.h" />
     <ClInclude Include="..\..\tools\include\bphys_baker.h" />
+    <ClInclude Include="..\..\tools\include\material_baker.h" />
     <ClInclude Include="..\..\tools\include\minilzo\lzoconf.h" />
     <ClInclude Include="..\..\tools\include\minilzo\lzodefs.h" />
     <ClInclude Include="..\..\tools\include\minilzo\minilzo.h" />
+    <ClInclude Include="..\..\tools\include\package_asset.h" />
     <ClInclude Include="..\..\tools\include\package_baker.h" />
     <ClInclude Include="..\..\tools\include\shader_baker.h" />
     <ClInclude Include="..\..\tools\include\skeleton_baker.h" />
@@ -166,10 +168,13 @@
     <ClInclude Include="..\..\tools\include\tool.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\graphics\src\material.cpp" />
+    <ClCompile Include="..\..\graphics\src\shader.cpp" />
     <ClCompile Include="..\..\tools\bake.cpp" />
     <ClCompile Include="..\..\tools\src\animation_baker.cpp" />
     <ClCompile Include="..\..\tools\src\bakery.cpp" />
     <ClCompile Include="..\..\tools\src\bphys_baker.cpp" />
+    <ClCompile Include="..\..\tools\src\material_baker.cpp" />
     <ClCompile Include="..\..\tools\src\minilzo\minilzo.cpp" />
     <ClCompile Include="..\..\tools\src\mxml-2.9\mxml-attr.c" />
     <ClCompile Include="..\..\tools\src\mxml-2.9\mxml-entity.c" />

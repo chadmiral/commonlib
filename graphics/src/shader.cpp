@@ -62,21 +62,21 @@ void print_log(GLuint obj)
   delete infoLog;
 }
 
-void Shader::create_program()
+void Shader::create_program(std::ostream &log)
 {
   //create the shader program
   gl_shader_program = glCreateProgram();
-  gl_check_error();
+  gl_check_error(log);
   assert(gl_shader_program);
 }
 
-void Shader::compile_and_link_from_source(const char *vs, const char *fs)
+void Shader::compile_and_link_from_source(const char *vs, const char *fs, std::ostream &log)
 {
   create_program();
 
-  cout << "compiling vertex shader..." << endl;
+  log << "compiling vertex shader..." << endl;
   gl_vertex_shader = compile_shader_from_source(GL_VERTEX_SHADER, vs);
-  cout << "compiling fragment shader..." << endl;
+  log << "compiling fragment shader..." << endl;
   gl_fragment_shader = compile_shader_from_source(GL_FRAGMENT_SHADER, fs);
   link_shader();
 }

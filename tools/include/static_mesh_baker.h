@@ -3,12 +3,25 @@
 
 #include <vector>
 
+#include "package_asset.h"
 #include "tool.h"
 #include "draw_call.h"
 #include "static_mesh.h"
 
 namespace Tool
 {
+  class MeshPackageAsset : public PackageAsset
+  {
+  public:
+    MeshPackageAsset() : PackageAsset(PACKAGE_ASSET_MESH) { num_verts = 0; vertices = NULL; num_indices = 0; indices = NULL; }
+    ~MeshPackageAsset() {}
+
+    uint32_t num_verts;
+    void *vertices;
+    uint32_t num_indices;
+    void *indices;
+  };
+
   class MeshFace
   {
   public:
