@@ -181,10 +181,20 @@ void MaterialBaker::bake(mxml_node_t *tree, string output_fname, string tabs, st
       else if (stricmp(buffer, "float2") == 0)
       {
         uni._type = TMP_UNIFORM_FLOAT2;
-        //uni._val = new float[2];
+        uni._val = new float[2];
+        uni._val[0] = 0.0f;
+        uni._val[1] = 0.0f;
+        //TODO
         //buffer = mxmlGetText(uniform_node, NULL);
       }
-      else if (stricmp(buffer, "float3") == 0) { uni._type = TMP_UNIFORM_FLOAT3; }
+      else if (stricmp(buffer, "float3") == 0)
+      {
+        uni._type = TMP_UNIFORM_FLOAT3;
+        uni._val = new float[3];
+        uni._val[0] = 0.0f;
+        uni._val[1] = 0.0f;
+        uni._val[2] = 0.0f;
+      }
       else if (stricmp(buffer, "matrix4x4") == 0) { uni._type = TMP_UNIFORM_MAT4X4; }
       else
       {
