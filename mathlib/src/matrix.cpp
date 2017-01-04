@@ -243,7 +243,6 @@ Matrix4x4 &Matrix4x4::operator=(const Matrix4x4 &r)
   return *this;
 }
 
-/*
 Float4 Matrix4x4::operator*(const Float4 &r) const
 {
   Float4 ret;
@@ -253,7 +252,6 @@ Float4 Matrix4x4::operator*(const Float4 &r) const
   ret[3] = m[3][0] * r[0] + m[3][1] * r[1] + m[3][2] * r[2] + m[3][3] * r[3];
   return ret;
 }
-*/
 
 Matrix4x4 Matrix4x4::operator*(const Matrix4x4 &a) const
 {
@@ -518,10 +516,34 @@ void Matrix4x4::perspective(float fovy, float aspect, float zNear, float zFar)
   m[3][3] = 0;
 }
 
-void Matrix4x4::look_at(Float3 &pos, Float3 &look_at_pos, Float3 &up)
+void Matrix4x4::look_at(Float3 &eye_pos, Float3 &look_at_pos, Float3 &up)
 {
-  //assert(false);
-  //m[0][0] = 
+  //assume up vector is already normalized
+  Float3 f = look_at_pos - eye_pos;
+  f.normalize();
+
+  Float3 right = f ^ up;
+  Float3 u = right ^ f;
+
+  m[0][0] = right[0];
+  m[0][1] = right[1];
+  m[0][2] = right[2];
+  m[0][3] = -eye_pos[0];
+
+  m[1][0] = u[0];
+  m[1][1] = u[1];
+  m[1][2] = u[2];
+  m[1][3] = -eye_pos[1];
+
+  m[2][0] = -f[0];
+  m[2][1] = -f[1];
+  m[2][2] = -f[2];
+  m[2][3] = -eye_pos[2];
+
+  m[3][0] = 0.0f;
+  m[3][1] = 0.0f;
+  m[3][2] = 0.0f;
+  m[3][3] = 1.0f;
 }
 
 ostream& Math::operator<<(ostream &os, const Matrix2x2 &m)

@@ -1,5 +1,6 @@
 #include <math.h>
 
+#include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -12,6 +13,7 @@
 #include "mesh_viewer.h"
 #include "animation_tool.h"
 
+using namespace std;
 using namespace Math;
 
 static MeshViewer mesh_viewer;
@@ -121,8 +123,10 @@ static void ShowExampleAppCustomNodeGraph(bool* opened)
   static ImVector<NodeLink> links;
   static bool inited = false;
   static ImVec2 scrolling = ImVec2(0.0f, 0.0f);
+  static float zoom_factor = 1.0f;
   static bool show_grid = true;
   static int node_selected = -1;
+  static int32_t socket_selected = 0;
   if (!inited)
   {
     nodes.push_back(Node(0, "MainTex", ImVec2(40, 50), 0.5f, ImColor(255, 100, 100), 1, 1));
@@ -224,6 +228,7 @@ static void ShowExampleAppCustomNodeGraph(bool* opened)
 
     // Display node box
     draw_list->ChannelsSetCurrent(0); // Background
+    
     ImGui::SetCursorScreenPos(node_rect_min);
     ImGui::InvisibleButton("node", node->Size);
     if (ImGui::IsItemHovered())
@@ -241,9 +246,38 @@ static void ShowExampleAppCustomNodeGraph(bool* opened)
     draw_list->AddRectFilled(node_rect_min, node_rect_max, node_bg_color, 4.0f);
     draw_list->AddRect(node_rect_min, node_rect_max, ImColor(100, 100, 100), 4.0f);
     for (int slot_idx = 0; slot_idx < node->InputsCount; slot_idx++)
-      draw_list->AddCircleFilled(offset + node->GetInputSlotPos(slot_idx), NODE_SLOT_RADIUS, ImColor(150, 150, 150, 150));
+    {
+      ImVec2 slot_pos = offset + node->GetInputSlotPos(slot_idx);
+      //draw_list->AddCircleFilled(slot_pos, NODE_SLOT_RADIUS, ImColor(150, 150, 150, 150));
+      ImGui::SetCursorScreenPos(slot_pos - ImVec2(NODE_SLOT_RADIUS, NODE_SLOT_RADIUS));
+      ImGui::Button("", ImVec2(2.0f * NODE_SLOT_RADIUS, 2.0f * NODE_SLOT_RADIUS));
+      int32_t socket_id = node->ID << 16 + slot_idx;
+      ImGui::PushID(socket_id);
+      if (ImGui::IsItemActive())
+      {
+        cout << "moving!" << endl;
+        ImVec2 mouse_pos = ImGui::GetIO().MousePos;
+        draw_list->AddBezierCurve(slot_pos, slot_pos + ImVec2(+50, 0), mouse_pos + ImVec2(-50, 0), mouse_pos, ImColor(200, 200, 100), 3.0f);
+      }
+      ImGui::PopID();
+    }
     for (int slot_idx = 0; slot_idx < node->OutputsCount; slot_idx++)
-      draw_list->AddCircleFilled(offset + node->GetOutputSlotPos(slot_idx), NODE_SLOT_RADIUS, ImColor(150, 150, 150, 150));
+    {
+      //draw_list->AddCircleFilled(offset + node->GetOutputSlotPos(slot_idx), NODE_SLOT_RADIUS, ImColor(150, 150, 150, 150));
+      ImVec2 slot_pos = offset + node->GetOutputSlotPos(slot_idx);
+      //draw_list->AddCircleFilled(slot_pos, NODE_SLOT_RADIUS, ImColor(150, 150, 150, 150));
+      ImGui::SetCursorScreenPos(slot_pos - ImVec2(NODE_SLOT_RADIUS, NODE_SLOT_RADIUS));
+      ImGui::Button("", ImVec2(2.0f * NODE_SLOT_RADIUS, 2.0f * NODE_SLOT_RADIUS));
+      int32_t socket_id = node->ID << 16 + slot_idx;
+      ImGui::PushID(socket_id);
+      if (ImGui::IsItemActive())
+      {
+        cout << "moving!" << endl;
+        ImVec2 mouse_pos = ImGui::GetIO().MousePos;
+        draw_list->AddBezierCurve(slot_pos, slot_pos + ImVec2(+50, 0), mouse_pos + ImVec2(-50, 0), mouse_pos, ImColor(200, 200, 100), 3.0f);
+      }
+      ImGui::PopID();
+    }
 
     ImGui::PopID();
   }
@@ -290,6 +324,9 @@ static void ShowExampleAppCustomNodeGraph(bool* opened)
   // Scrolling
   if (ImGui::IsWindowHovered() && !ImGui::IsAnyItemActive() && ImGui::IsMouseDragging(2, 0.0f))
     scrolling = scrolling - ImGui::GetIO().MouseDelta;
+
+  //Zooming
+  zoom_factor += ImGui::GetIO().MouseWheel;
 
   ImGui::PopItemWidth();
   ImGui::EndChild();

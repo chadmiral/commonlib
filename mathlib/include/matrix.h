@@ -72,7 +72,7 @@ namespace Math {
 
     Matrix4x4 &operator=(const Matrix4x4 &r);
 
-    //Float4 operator*(const Float4 &r) const;
+    Float4 operator*(const Float4 &r) const;
     Matrix4x4 operator*(const Matrix4x4 &a) const;
 
     inline float &operator()(const int &row, const int &col) { return m[row][col]; }
@@ -88,7 +88,7 @@ namespace Math {
     void perspective(float fov, float aspect_ratio, float znear, float zfar);
 
     //camera helpers
-    void look_at(Float3 &pos, Float3 &look_at_pos, Float3 &up);
+    void look_at(Float3 &eye_pos, Float3 &look_at_pos, Float3 &up);
   private:
     float m[4][4];
   };

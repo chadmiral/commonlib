@@ -84,6 +84,10 @@ GLenum string_to_blend_mode(const char *buffer)
   {
     return GL_SRC_ALPHA;
   }
+  else if (stricmp(buffer, "GL_ONE_MINUS_SRC_ALPHA") == 0)
+  {
+    return GL_ONE_MINUS_SRC_ALPHA;
+  }
   assert(false);
   return GL_INVALID_ENUM;
 }
