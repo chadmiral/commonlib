@@ -24,10 +24,10 @@ namespace Graphics
     void create_program(std::ostream &log = std::cout);
     void set_shader_filenames(std::string vs_fname, std::string fs_fname);
     void compile_and_link_from_source(const char *vs, const char *fs, std::ostream &log = std::cout);
-    GLuint compile_shader_from_source(GLenum shader_type, const char *source);
-    void link_shader();
+    GLuint compile_shader_from_source(GLenum shader_type, const char *source, std::ostream &log = std::cout);
+    void link_shader(std::ostream &log = std::cout);
     
-    bool load_link_and_compile();
+    bool load_link_and_compile(std::ostream &log = std::cout);
     void render();
 
     GLuint gl_fragment_shader;

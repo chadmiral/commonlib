@@ -2,6 +2,7 @@
 
 #include "camera.h"
 #include "light.h"
+#include "matrix.h"
 
 namespace Graphics
 {
@@ -20,6 +21,20 @@ namespace Graphics
     //TODO: this is sloppy
     Math::Float3 transform_light_pos_to_screen_space(Light *l)
     {
+      
+      //transform sun_pos?
+      Math::Matrix4x4 model_view_mat;
+      _camera->get_model_view_matrix(&model_view_mat);
+
+      //inverse transpose
+      //model_view_mat.transpose();
+      //model_view_mat.invert();
+      Math::Float4 light_pos(l->get_pos(), 1.0f);
+      Math::Float4 transformed_light_pos = model_view_mat * light_pos;
+
+      //return transformed_light_pos.xyz();
+
+      
       Math::Float3 up = _camera->get_up() * -1.0f;
       Math::Float3 lookat = _camera->get_lookat();
       Math::Float3 right = lookat ^ up;
@@ -30,6 +45,7 @@ namespace Graphics
       Math::Float3 light_pos_transformed = view_mat * (l->get_pos() + view_pos);
 
       return light_pos_transformed;
+
     }
 
     void set_camera(Camera *c) { _camera = c; }

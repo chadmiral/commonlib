@@ -69,7 +69,7 @@ void PushButton::process_event(const SDL_Event &event, const Math::Float2 offset
 
 void PushButton::render()
 {
-  gl_check_error();
+  gl_check_error(std::cout);
 
   glLineWidth(1.0f);
   if(click_capture)

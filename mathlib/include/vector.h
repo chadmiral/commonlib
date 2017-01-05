@@ -120,6 +120,7 @@ namespace Math {
     Float4(const float _x, const float _y, const float _z, const float _w);
     //Float4(const Float2 &b, const float _z);
     Float4(const Float4 &b);
+    Float4(const Float3 &v, const float w);
     
     inline Float4 &operator=(const Float4 &r) { _val[0] = r._val[0]; _val[1] = r._val[1]; _val[2] = r._val[2]; _val[3] = r._val[3]; return *this; }
     inline Float4 operator+(const Float4 &r) const { return Float4(_val[0] + r._val[0], _val[1] + r._val[1], _val[2] + r._val[2], _val[3] + r._val[3]); }
@@ -159,6 +160,7 @@ namespace Math {
     inline Float4 zxy() const { return Float4(_val[2], _val[0], _val[1]); }
     inline Float4 zyx() const { return Float4(_val[2], _val[1], _val[0]); }
      */
+    inline Float3 xyz() const { return Float3(_val[0], _val[1], _val[2]); }
     
     //length / normalization
     inline void normalize()
