@@ -29,6 +29,8 @@ namespace Math {
       float m[2][2];
   };
 
+  class Matrix4x4;
+
   class Matrix3x3
   {
     public:
@@ -37,6 +39,7 @@ namespace Math {
                 const float _10, const float _11, const float _12,
                 const float _20, const float _21, const float _22);
       Matrix3x3(const Float3 &a, const Float3 &b, const Float3 &c);
+      Matrix3x3(const Matrix4x4 &in);
 
       float determinant() const;
 
@@ -67,6 +70,7 @@ namespace Math {
               const float _20, const float _21, const float _22, const float _23,
               const float _30, const float _31, const float _32, const float _33);
     //Matrix4x4(const Float4 &a, const Float4 &b, const Float4 &c, const Float4 &d);
+    Matrix4x4(const Matrix3x3 &m, const Float3 &pos);
 
     ~Matrix4x4() {};
 

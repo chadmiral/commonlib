@@ -73,6 +73,17 @@ Matrix3x3::Matrix3x3(const Float3 &a, const Float3 &b, const Float3 &c)
   }
 }
 
+Matrix3x3::Matrix3x3(const Matrix4x4 &in) : Matrix3x3()
+{
+  for (uint32_t i = 0; i < 3; i++)
+  {
+    for (uint32_t j = 0; j < 3; j++)
+    {
+      m[i][j] = in(i, j);
+    }
+  }
+}
+
 float Matrix3x3::determinant() const
 {
   return m[0][0] * m[1][1] * m[2][2] - m[0][0] * m[1][2] * m[2][1] + // i row
@@ -216,6 +227,24 @@ Matrix4x4::Matrix4x4(const float _00, const float _01, const float _02, const fl
   m[1][0] = _10;  m[1][1] = _11;  m[1][2] = _12;  m[1][3] = _13;
   m[2][0] = _20;  m[2][1] = _21;  m[2][2] = _22;  m[2][3] = _23;
   m[3][0] = _30;  m[3][1] = _31;  m[3][2] = _32;  m[3][3] = _33;
+}
+
+Matrix4x4::Matrix4x4(const Matrix3x3 &mat, const Float3 &pos)
+{
+  //identity();
+  for (uint32_t i = 0; i < 3; i++)
+  {
+    for (uint32_t j = 0; j < 3; j++)
+    {
+      m[i][j] = mat(i, j);
+    }
+    m[i][3] = pos[i];
+  }
+  m[3][0] = m[3][1] = m[3][2] = 0.0f;
+  //m[0][3] = m[1][3] = m[2][3] = 0.0f;
+  m[3][3] = 1.0f;
+
+  //transpose();
 }
 
 /*
@@ -528,17 +557,17 @@ void Matrix4x4::look_at(Float3 &eye_pos, Float3 &look_at_pos, Float3 &up)
   m[0][0] = right[0];
   m[0][1] = right[1];
   m[0][2] = right[2];
-  m[0][3] = -eye_pos[0];
+  m[0][3] = eye_pos[0];
 
-  m[1][0] = u[0];
-  m[1][1] = u[1];
-  m[1][2] = u[2];
-  m[1][3] = -eye_pos[1];
+  m[1][0] = -u[0];
+  m[1][1] = -u[1];
+  m[1][2] = -u[2];
+  m[1][3] = eye_pos[1];
 
-  m[2][0] = -f[0];
-  m[2][1] = -f[1];
-  m[2][2] = -f[2];
-  m[2][3] = -eye_pos[2];
+  m[2][0] = f[0];
+  m[2][1] = f[1];
+  m[2][2] = f[2];
+  m[2][3] = eye_pos[2];
 
   m[3][0] = 0.0f;
   m[3][1] = 0.0f;

@@ -199,6 +199,26 @@ void RenderSurface::resize(const uint16_t w, const uint16_t h)
   bind_textures_to_fbo();
 }
 
+float RenderSurface::compute_frame_luminosity() const
+{
+  GLuint tex_id = _target_tex->get_tex_id();
+  glBindTexture(GL_TEXTURE_2D, tex_id);
+  glGenerateMipmap(GL_TEXTURE_2D);
+  //glBindTexture(GL_TEXTURE_2D, 0);
+
+  uint32_t largest_dim = max(_fbo_res[0], _fbo_res[1]);
+
+  GLint lowest_mip_level = (GLint)(min(floor(log2(largest_dim)), GL_TEXTURE_MAX_LEVEL) - 1);
+
+  float pixels[4];
+
+  //TODO: do we need to match type / format to the texture format we are querying?
+  GLenum type = GL_FLOAT; //GL_UNSIGNED_BYTE
+  glGetTexImage(GL_TEXTURE_2D, lowest_mip_level + 1, GL_RGBA, type, pixels);
+
+  return (pixels[0] + pixels[1] + pixels[2]) / 3.0f;
+}
+
 void RenderSurface::attach_depth_buffer(Texture2D *d_tex)
 {
   glBindFramebuffer(GL_FRAMEBUFFER, _target_fbo);
