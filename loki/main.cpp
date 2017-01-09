@@ -337,6 +337,7 @@ static void ShowExampleAppCustomNodeGraph(bool* opened)
   ImGui::End();
 }
 
+
 int main(int argc, char **argv)
 {
   // Setup window
@@ -389,6 +390,106 @@ int main(int argc, char **argv)
     {
       ImGui::SetNextWindowSize(ImVec2(100, 100), ImGuiSetCond_FirstUseEver);
       ImGui::Begin("Gradient Animator", &show_gradient_animation_tool, ImGuiWindowFlags_MenuBar);
+      ImGui::End();
+    }
+
+    static bool show_material_tool = true;
+    if (show_material_tool)
+    {
+      ImGui::SetNextWindowSize(ImVec2(100, 100), ImGuiSetCond_FirstUseEver);
+      ImGui::Begin("Material Editor", &show_material_tool, ImGuiWindowFlags_MenuBar);
+
+      if (ImGui::BeginMenuBar())
+      {
+        if (ImGui::BeginMenu("File"))
+        {
+          if (ImGui::MenuItem("Open...", NULL, false))
+          {
+
+          }
+          if (ImGui::MenuItem("Save", NULL, false))
+          {
+
+          }
+          if (ImGui::MenuItem("Save As...", NULL, false))
+          {
+
+          }
+          ImGui::EndMenu();
+        }
+        ImGui::EndMenuBar();
+      }
+      
+      static char mat_name[128] = "Material 01";
+      ImGui::InputText("Material Name", mat_name, 128);
+
+      static char vertex_size[64] = ""; ImGui::InputText("Vertex Size (Bytes)", vertex_size, 64, ImGuiInputTextFlags_CharsDecimal);
+
+      static int target_buffer = 0;
+      ImGui::Combo("Target Buffer", &target_buffer, "Geometry Buffer\0Distortion Buffer\0Depth Buffer\0\0");
+
+      static int blend_src_mode = 0;
+      ImGui::Combo("Alpha Blend Src", &blend_src_mode, "GL_ONE\0GL_ALPHA\0GL_ONE_MINUS_ALPHA\0\0");
+      static int blend_dst_mode = 0;
+      ImGui::Combo("Alpha Blend Dst", &blend_dst_mode , "GL_ONE\0GL_ALPHA\0GL_ONE_MINUS_ALPHA\0\0");
+     
+      static int culling_mode = 1;
+      ImGui::Combo("Backface Culling", &culling_mode, "No Culling\0Counter Clockwise\0Clockwise\0\0");
+
+
+      static char shader_name[128] = "Shader 01";
+      ImGui::InputText("Shader Name", shader_name, 128);
+
+      ImGui::Text("Textures");
+      if (ImGui::Button("+"))
+      {
+
+      }
+      ImGui::SameLine();
+      if (ImGui::Button("-"))
+      {
+
+      }
+
+      const char* tex_names[] = { "Tex 0: Snackle Jacks", "Tex 1: Captain Crispies", "Tex 2: Danger O's" };
+      static int curr_tex = 0;
+      ImGui::PushItemWidth(ImGui::GetWindowSize().x);
+      ImGui::ListBox("", &curr_tex, tex_names, 3);
+
+      if (ImGui::Button("+"))
+      {
+
+      }
+      ImGui::SameLine();
+      if (ImGui::Button("-"))
+      {
+
+      }
+      const char* uniform_names[] = { "game_time (float)", "proj_mat (mat4x4)", "modelview_mat (mat4x4)" };
+      static int curr_uniform = 0;
+      ImGui::ListBox("Uniforms", &curr_uniform, uniform_names, 3);
+
+      if (ImGui::Button("+"))
+      {
+
+      }
+      ImGui::SameLine();
+      if (ImGui::Button("-"))
+      {
+
+      }
+      const char* attrib_names[] = { "in_xyz offset:0 stride:3", "in_normal", "in_rgb", "in_uv0" };
+      static int curr_attrib = 0;
+      ImGui::ListBox("Vertex Attributes", &curr_attrib, attrib_names, 4);
+
+      static bool depth_read = true;
+      static bool depth_write = true;
+      ImGui::Checkbox("Depth Read", &depth_read);
+      ImGui::SameLine();
+      ImGui::Checkbox("Depth Write", &depth_write);
+
+      ImGui::PopItemWidth();
+
       ImGui::End();
     }
 

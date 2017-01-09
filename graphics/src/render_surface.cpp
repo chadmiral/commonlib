@@ -204,7 +204,6 @@ float RenderSurface::compute_frame_luminosity() const
   GLuint tex_id = _target_tex->get_tex_id();
   glBindTexture(GL_TEXTURE_2D, tex_id);
   glGenerateMipmap(GL_TEXTURE_2D);
-  //glBindTexture(GL_TEXTURE_2D, 0);
 
   uint32_t largest_dim = max(_fbo_res[0], _fbo_res[1]);
 
@@ -214,7 +213,8 @@ float RenderSurface::compute_frame_luminosity() const
 
   //TODO: do we need to match type / format to the texture format we are querying?
   GLenum type = GL_FLOAT; //GL_UNSIGNED_BYTE
-  glGetTexImage(GL_TEXTURE_2D, lowest_mip_level + 1, GL_RGBA, type, pixels);
+  GLenum format = GL_RGBA;
+  glGetTexImage(GL_TEXTURE_2D, lowest_mip_level + 1, format, type, pixels);
 
   return (pixels[0] + pixels[1] + pixels[2]) / 3.0f;
 }
