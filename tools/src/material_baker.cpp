@@ -199,7 +199,10 @@ void MaterialBaker::bake(mxml_node_t *tree, string output_fname, string tabs, st
         uni._val[1] = 0.0f;
         uni._val[2] = 0.0f;
       }
-      else if (stricmp(buffer, "matrix4x4") == 0) { uni._type = TMP_UNIFORM_MAT4X4; }
+      else if (stricmp(buffer, "mat4x4") == 0)
+      {
+        uni._type = TMP_UNIFORM_MAT4X4;
+      }
       else
       {
         log << "Error!: unknown uniform variable type!" << endl;

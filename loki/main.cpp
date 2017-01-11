@@ -1,5 +1,7 @@
 #include <math.h>
 
+#include <vector>
+#include <string>
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,12 +14,14 @@
 
 #include "mesh_viewer.h"
 #include "animation_tool.h"
+#include "material_tool.h"
 
 using namespace std;
 using namespace Math;
 
 static MeshViewer mesh_viewer;
 static AnimationTool animation_tool;
+static MaterialTool material_tool;
 
 static void error_callback(int error, const char* description)
 {
@@ -359,12 +363,12 @@ int main(int argc, char **argv)
 
   // Load Fonts
   // (there is a default font, this is only if you want to change it. see extra_fonts/README.txt for more details)
-  //ImGuiIO& io = ImGui::GetIO();
+  ImGuiIO& io = ImGui::GetIO();
   //io.Fonts->AddFontDefault();
-  //io.Fonts->AddFontFromFileTTF("../../extra_fonts/Cousine-Regular.ttf", 15.0f);
-  //io.Fonts->AddFontFromFileTTF("../../extra_fonts/DroidSans.ttf", 16.0f);
-  //io.Fonts->AddFontFromFileTTF("../../extra_fonts/ProggyClean.ttf", 13.0f);
-  //io.Fonts->AddFontFromFileTTF("../../extra_fonts/ProggyTiny.ttf", 10.0f);
+  io.Fonts->AddFontFromFileTTF("../../../imgui/extra_fonts/Cousine-Regular.ttf", 15.0f);
+  //io.Fonts->AddFontFromFileTTF("../../../imgui/extra_fonts/DroidSans.ttf", 16.0f);
+  //io.Fonts->AddFontFromFileTTF("../../../imgui/extra_fonts/ProggyClean.ttf", 13.0f);
+  //io.Fonts->AddFontFromFileTTF("../../../imgui/extra_fonts/ProggyTiny.ttf", 10.0f);
   //io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
 
   bool show_test_window = true;
@@ -393,105 +397,6 @@ int main(int argc, char **argv)
       ImGui::End();
     }
 
-    static bool show_material_tool = true;
-    if (show_material_tool)
-    {
-      ImGui::SetNextWindowSize(ImVec2(100, 100), ImGuiSetCond_FirstUseEver);
-      ImGui::Begin("Material Editor", &show_material_tool, ImGuiWindowFlags_MenuBar);
-
-      if (ImGui::BeginMenuBar())
-      {
-        if (ImGui::BeginMenu("File"))
-        {
-          if (ImGui::MenuItem("Open...", NULL, false))
-          {
-
-          }
-          if (ImGui::MenuItem("Save", NULL, false))
-          {
-
-          }
-          if (ImGui::MenuItem("Save As...", NULL, false))
-          {
-
-          }
-          ImGui::EndMenu();
-        }
-        ImGui::EndMenuBar();
-      }
-      
-      static char mat_name[128] = "Material 01";
-      ImGui::InputText("Material Name", mat_name, 128);
-
-      static char vertex_size[64] = ""; ImGui::InputText("Vertex Size (Bytes)", vertex_size, 64, ImGuiInputTextFlags_CharsDecimal);
-
-      static int target_buffer = 0;
-      ImGui::Combo("Target Buffer", &target_buffer, "Geometry Buffer\0Distortion Buffer\0Depth Buffer\0\0");
-
-      static int blend_src_mode = 0;
-      ImGui::Combo("Alpha Blend Src", &blend_src_mode, "GL_ONE\0GL_ALPHA\0GL_ONE_MINUS_ALPHA\0\0");
-      static int blend_dst_mode = 0;
-      ImGui::Combo("Alpha Blend Dst", &blend_dst_mode , "GL_ONE\0GL_ALPHA\0GL_ONE_MINUS_ALPHA\0\0");
-     
-      static int culling_mode = 1;
-      ImGui::Combo("Backface Culling", &culling_mode, "No Culling\0Counter Clockwise\0Clockwise\0\0");
-
-
-      static char shader_name[128] = "Shader 01";
-      ImGui::InputText("Shader Name", shader_name, 128);
-
-      ImGui::Text("Textures");
-      if (ImGui::Button("+"))
-      {
-
-      }
-      ImGui::SameLine();
-      if (ImGui::Button("-"))
-      {
-
-      }
-
-      const char* tex_names[] = { "Tex 0: Snackle Jacks", "Tex 1: Captain Crispies", "Tex 2: Danger O's" };
-      static int curr_tex = 0;
-      ImGui::PushItemWidth(ImGui::GetWindowSize().x);
-      ImGui::ListBox("", &curr_tex, tex_names, 3);
-
-      if (ImGui::Button("+"))
-      {
-
-      }
-      ImGui::SameLine();
-      if (ImGui::Button("-"))
-      {
-
-      }
-      const char* uniform_names[] = { "game_time (float)", "proj_mat (mat4x4)", "modelview_mat (mat4x4)" };
-      static int curr_uniform = 0;
-      ImGui::ListBox("Uniforms", &curr_uniform, uniform_names, 3);
-
-      if (ImGui::Button("+"))
-      {
-
-      }
-      ImGui::SameLine();
-      if (ImGui::Button("-"))
-      {
-
-      }
-      const char* attrib_names[] = { "in_xyz offset:0 stride:3", "in_normal", "in_rgb", "in_uv0" };
-      static int curr_attrib = 0;
-      ImGui::ListBox("Vertex Attributes", &curr_attrib, attrib_names, 4);
-
-      static bool depth_read = true;
-      static bool depth_write = true;
-      ImGui::Checkbox("Depth Read", &depth_read);
-      ImGui::SameLine();
-      ImGui::Checkbox("Depth Write", &depth_write);
-
-      ImGui::PopItemWidth();
-
-      ImGui::End();
-    }
 
     if (show_package_builder)
     {
@@ -528,6 +433,7 @@ int main(int argc, char **argv)
     
     animation_tool.render();
     mesh_viewer.render();
+    material_tool.render();
 
     if (show_texture_tools)
     {
@@ -559,23 +465,6 @@ int main(int argc, char **argv)
 
       ImGui::End();
     }
-
-    /*
-    if (show_mesh_tools)
-    {
-      ImGui::SetNextWindowSize(ImVec2(100, 100), ImGuiSetCond_FirstUseEver);
-      ImGui::Begin("Mesh Tools", &show_mesh_tools);
-      ImGui::Text("");
-      ImGui::End();
-    }
-    */
-
-    /*
-    ImGui::SetNextWindowSize(ImVec2(100, 100), ImGuiSetCond_FirstUseEver);
-    ImGui::Begin("Texture2D", &show_another_window);
-    ImGui::Text("");
-    ImGui::End();
-    */
 
     // Rendering
     int display_w, display_h;

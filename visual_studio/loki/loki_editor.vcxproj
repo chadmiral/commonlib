@@ -33,6 +33,7 @@
     <ClCompile Include="..\..\loki\imgui_impl_glfw_gl3.cpp" />
     <ClCompile Include="..\..\loki\main.cpp" />
     <ClCompile Include="..\..\loki\views\animation_tool.cpp" />
+    <ClCompile Include="..\..\loki\views\material_tool.cpp" />
     <ClCompile Include="..\..\loki\views\mesh_viewer.cpp" />
     <ClCompile Include="..\..\mathlib\src\aabb.cpp" />
     <ClCompile Include="..\..\mathlib\src\curve.cpp" />
@@ -78,6 +79,7 @@
     <ClInclude Include="..\..\graphics\include\vertex_formats.h" />
     <ClInclude Include="..\..\loki\imgui_impl_glfw_gl3.h" />
     <ClInclude Include="..\..\loki\views\animation_tool.h" />
+    <ClInclude Include="..\..\loki\views\material_tool.h" />
     <ClInclude Include="..\..\loki\views\mesh_viewer.h" />
     <ClInclude Include="..\..\mathlib\include\aabb.h" />
     <ClInclude Include="..\..\mathlib\include\curve.h" />
