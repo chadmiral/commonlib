@@ -255,7 +255,7 @@ static void ShowExampleAppCustomNodeGraph(bool* opened)
       //draw_list->AddCircleFilled(slot_pos, NODE_SLOT_RADIUS, ImColor(150, 150, 150, 150));
       ImGui::SetCursorScreenPos(slot_pos - ImVec2(NODE_SLOT_RADIUS, NODE_SLOT_RADIUS));
       ImGui::Button("", ImVec2(2.0f * NODE_SLOT_RADIUS, 2.0f * NODE_SLOT_RADIUS));
-      int32_t socket_id = node->ID << 16 + slot_idx;
+      int32_t socket_id = (node->ID << 16) + slot_idx;
       ImGui::PushID(socket_id);
       if (ImGui::IsItemActive())
       {
@@ -272,7 +272,7 @@ static void ShowExampleAppCustomNodeGraph(bool* opened)
       //draw_list->AddCircleFilled(slot_pos, NODE_SLOT_RADIUS, ImColor(150, 150, 150, 150));
       ImGui::SetCursorScreenPos(slot_pos - ImVec2(NODE_SLOT_RADIUS, NODE_SLOT_RADIUS));
       ImGui::Button("", ImVec2(2.0f * NODE_SLOT_RADIUS, 2.0f * NODE_SLOT_RADIUS));
-      int32_t socket_id = node->ID << 16 + slot_idx;
+      int32_t socket_id = (node->ID << 16) + slot_idx;
       ImGui::PushID(socket_id);
       if (ImGui::IsItemActive())
       {
@@ -384,10 +384,12 @@ int main(int argc, char **argv)
 
     ShowExampleAppMainMenuBar();
 
+    /*
     if (show_shader_tools)
     {
       ShowExampleAppCustomNodeGraph(&show_shader_tools);
     }
+    */
 
     static bool show_gradient_animation_tool = true;
     if (show_gradient_animation_tool)

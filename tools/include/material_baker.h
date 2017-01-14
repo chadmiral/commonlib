@@ -88,5 +88,6 @@ namespace Tool
 
     void init() {}
     void bake(mxml_node_t *tree, std::string output_fname, std::string tabs = "", std::ostream &log = std::cout);
+    void load_xml(mxml_node_t *tree, TmpMaterial &tmp_mat, std::string tabs, std::ostream &log);
   };
 };

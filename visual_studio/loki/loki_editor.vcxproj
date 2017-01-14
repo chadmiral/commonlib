@@ -23,6 +23,7 @@
     <ClCompile Include="..\..\..\imgui\imgui.cpp" />
     <ClCompile Include="..\..\..\imgui\imgui_demo.cpp" />
     <ClCompile Include="..\..\..\imgui\imgui_draw.cpp" />
+    <ClCompile Include="..\..\..\imgui_addons\addons\imguinodegrapheditor\imguinodegrapheditor.cpp" />
     <ClCompile Include="..\..\game\src\animation\skeleton.cpp" />
     <ClCompile Include="..\..\graphics\src\camera.cpp" />
     <ClCompile Include="..\..\graphics\src\material.cpp" />
@@ -50,6 +51,17 @@
     <ClCompile Include="..\..\mathlib\src\vector.cpp" />
     <ClCompile Include="..\..\mathlib\src\voronoi.cpp" />
     <ClCompile Include="..\..\mathlib\src\voronoi_sphere.cpp" />
+    <ClCompile Include="..\..\tools\src\material_baker.cpp" />
+    <ClCompile Include="..\..\tools\src\mxml-2.9\mxml-attr.c" />
+    <ClCompile Include="..\..\tools\src\mxml-2.9\mxml-entity.c" />
+    <ClCompile Include="..\..\tools\src\mxml-2.9\mxml-file.c" />
+    <ClCompile Include="..\..\tools\src\mxml-2.9\mxml-get.c" />
+    <ClCompile Include="..\..\tools\src\mxml-2.9\mxml-index.c" />
+    <ClCompile Include="..\..\tools\src\mxml-2.9\mxml-node.c" />
+    <ClCompile Include="..\..\tools\src\mxml-2.9\mxml-private.c" />
+    <ClCompile Include="..\..\tools\src\mxml-2.9\mxml-search.c" />
+    <ClCompile Include="..\..\tools\src\mxml-2.9\mxml-set.c" />
+    <ClCompile Include="..\..\tools\src\mxml-2.9\mxml-string.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\gl3w\GL\gl3w.h" />
@@ -57,6 +69,7 @@
     <ClInclude Include="..\..\..\imgui\imconfig.h" />
     <ClInclude Include="..\..\..\imgui\imgui.h" />
     <ClInclude Include="..\..\..\imgui\imgui_internal.h" />
+    <ClInclude Include="..\..\..\imgui_addons\addons\imguinodegrapheditor\imguinodegrapheditor.h" />
     <ClInclude Include="..\..\game\include\animation\skeleton.h" />
     <ClInclude Include="..\..\graphics\include\camera.h" />
     <ClInclude Include="..\..\graphics\include\draw_call.h" />
@@ -102,6 +115,7 @@
     <ClInclude Include="..\..\mathlib\include\voronoi_sphere.h" />
     <ClInclude Include="..\..\platform.h" />
     <ClInclude Include="..\..\platform_gl.h" />
+    <ClInclude Include="..\..\tools\include\material_baker.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{1F09F28D-8DA0-4DA2-8276-A023F73ED5E4}</ProjectGuid>
@@ -171,9 +185,10 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;__LOKI__;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;__LOKI__;NO_IMGUIFILESYSTEM;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\..\;..\..\..\imgui;..\..\..\SDL2-2.0.4\include;..\..\..\gl3w;..\..\..\SDL2_image-2.0.1\include\;..\..\..\glfw\include;..\..\graphics\include;..\..\mathlib\include;..\..\loki\views;..\..\game\include\animation;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\;..\..\..\imgui_addons\;..\..\..\imgui;..\..\..\SDL2-2.0.4\include;..\..\..\gl3w;..\..\..\SDL2_image-2.0.1\include\;..\..\..\glfw\include;..\..\graphics\include;..\..\mathlib\include;..\..\loki\views;..\..\game\include\animation;..\..\tools\src\mxml-2.9\;..\..\tools\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ShowIncludes>false</ShowIncludes>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -202,9 +217,10 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;__LOKI__;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;__LOKI__;NO_IMGUIFILESYSTEM;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\..\;..\..\..\imgui;..\..\..\SDL2-2.0.4\include;..\..\..\gl3w;..\..\..\SDL2_image-2.0.1\include\;..\..\..\glfw\include;..\..\graphics\include;..\..\mathlib\include;..\..\loki\views;..\..\game\include\animation;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\;..\..\..\imgui_addons\;..\..\..\imgui;..\..\..\SDL2-2.0.4\include;..\..\..\gl3w;..\..\..\SDL2_image-2.0.1\include\;..\..\..\glfw\include;..\..\graphics\include;..\..\mathlib\include;..\..\loki\views;..\..\game\include\animation;..\..\tools\src\mxml-2.9\;..\..\tools\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ShowIncludes>false</ShowIncludes>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
