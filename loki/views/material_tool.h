@@ -5,8 +5,10 @@
 #include <string>
 
 #include "addons/imguinodegrapheditor/imguinodegrapheditor.h"
+#include "addons/imguitabwindow/imguitabwindow.h"
 
 #include "material_baker.h"
+#include "shader_nodes.h"
 
 struct UniformUI
 {
@@ -21,8 +23,8 @@ struct AttributeUI
   uint32_t       _stride;
 };
 
-#define NUM_UNIFORM_TYPES 6
-static const char *UniformTypeNames[NUM_UNIFORM_TYPES] =
+static const uint32_t Num_uniform_types = 6;
+static const char *UniformTypeNames[] =
 {
   "float",
   "float2",
@@ -32,24 +34,24 @@ static const char *UniformTypeNames[NUM_UNIFORM_TYPES] =
   "mat4x4"
 };
 
-#define NUM_CULLING_MODES 3
-static const char *CullingModeNames[NUM_CULLING_MODES] =
+static const uint32_t Num_culling_modes = 3;
+static const char *CullingModeNames[] =
 {
   "none",
   "ccw",
   "cw"
 };
 
-#define NUM_RENDER_TARGETS 3
-static const char *RenderTargetNames[NUM_RENDER_TARGETS] =
+static const uint32_t Num_render_targets = 3;
+static const char *RenderTargetNames[] =
 {
   "gbuffer",
   "distortion",
   "depth"
 };
 
-#define NUM_BLEND_MODES 6
-static const char *BlendModeNames[NUM_BLEND_MODES] =
+static const uint32_t Num_blend_modes = 6;
+static const char *BlendModeNames[] =
 {
   "GL_ZERO",
   "GL_ZERO",
@@ -59,7 +61,7 @@ static const char *BlendModeNames[NUM_BLEND_MODES] =
   "GL_SRC_ALPHA"
 };
 
-static const char *BlendModePrettyNames[NUM_BLEND_MODES] =
+static const char *BlendModePrettyNames[] =
 {
   "No Blending",
   "0",
@@ -67,166 +69,6 @@ static const char *BlendModePrettyNames[NUM_BLEND_MODES] =
   "(1 - src_alpha)",
   "sat(src_alpha)",
   "src_alpha"
-};
-
-class MeshInputNode : public ImGui::Node
-{
-public:
-  MeshInputNode(const ImVec2 &pos) : ImGui::Node()
-  {
-    strcpy(Name, "Mesh Vertex Data");
-    InputsCount = 0;
-
-    OutputsCount = 3;
-    strcpy(OutputNames[0], "in_xyz");
-    strcpy(OutputNames[1], "in_rgb");
-    strcpy(OutputNames[2], "in_uv0");
-
-    Pos = pos;
-  }
-  ~MeshInputNode() {}
-
-  virtual bool render(float node_width)
-  {
-    bool ret = ImGui::Node::render(node_width);
-
-    if (ImGui::Button("+"))
-    {
-      strcpy(OutputNames[OutputsCount], "new");
-      OutputsCount++;
-    }
-
-    return ret;
-  }
-};
-
-class VertexShaderOutputNode : public ImGui::Node
-{
-public:
-  VertexShaderOutputNode(const ImVec2 &pos) : ImGui::Node()
-  {
-    Pos = pos;
-
-    strcpy(Name, "VS Output");
-    InputsCount = 1;
-    strcpy(InputNames[0], "out_xyzw");
-    OutputsCount = 0;
-  }
-  ~VertexShaderOutputNode() {}
-
-  virtual bool render(float node_width) { return ImGui::Node::render(node_width); }
-};
-
-class TextureNode : public ImGui::Node
-{
-public:
-  TextureNode(const ImVec2 &pos) : ImGui::Node()
-  {
-    Pos = pos;
-    strcpy(Name, "Texture");
-    InputsCount = 0;
-    OutputsCount = 1;
-    strcpy(OutputNames[0], "rgba");
-  }
-  ~TextureNode() {}
-
-  virtual bool render(float node_width) { return ImGui::Node::render(node_width); }
-};
-
-class UniformNode : public ImGui::Node
-{
-private:
-  int _curr_type;
-public:
-  UniformNode(const ImVec2 &pos) : ImGui::Node()
-  {
-    Pos = pos;
-
-    strcpy(Name, "Engine Variable");
-    InputsCount = 0;
-    OutputsCount = 1;
-    strcpy(OutputNames[0], "rgba");
-    _curr_type = 0;
-  }
-  ~UniformNode() {}
-
-  virtual bool render(float node_width)
-  {
-    bool ret =  ImGui::Node::render(node_width);
-
-    if (ImGui::Combo("type", &_curr_type, "float\0float2\0float3\0float4\0rgb\0rgba\0mat3x3\0mat4x4"))
-    {
-      switch (_curr_type)
-      {
-      case 0:
-        strcpy(OutputNames[0], "x");
-        break;
-      case 1:
-        strcpy(OutputNames[0], "xy");
-        break;
-      case 2:
-        strcpy(OutputNames[0], "xyz");
-        break;
-      case 3:
-        strcpy(OutputNames[0], "xyzw");
-        break;
-      case 4:
-        strcpy(OutputNames[0], "rgb");
-        break;
-      case 5:
-        strcpy(OutputNames[0], "rgba");
-        break;
-      case 6:
-        strcpy(OutputNames[0], "mat3x3");
-        break;
-      case 7:
-        strcpy(OutputNames[0], "mat4x4");
-        break;
-      }
-    }
-
-    return ret;
-  }
-};
-
-static const uint32_t NumMathOperations = 5;
-static const char *MathOperationNames[] =
-{
-  "Add",
-  "Subtract",
-  "Multiply",
-  "Divide",
-  "Exponent"
-};
-
-class MathNode : public ImGui::Node
-{
-private:
-  int _curr_op;
-public:
-  MathNode(const ImVec2 &pos) : ImGui::Node()
-  {
-    Pos = pos;
-    strcpy(Name, "Math");
-    InputsCount = 2;
-    strcpy(InputNames[0], "a");
-    strcpy(InputNames[1], "b");
-
-    OutputsCount = 1;
-    strcpy(OutputNames[0], "rgba");
-
-    _curr_op = 0;
-  }
-  ~MathNode() {}
-
-  virtual bool render(float node_width)
-  {
-    bool ret = ImGui::Node::render(node_width);
-
-    ImGui::Combo("", &_curr_op, MathOperationNames, NumMathOperations);
-
-    return ret;
-  }
 };
 
 class MaterialTool
@@ -261,7 +103,8 @@ private:
 
   std::string               _last_fname;
 
-  ImGui::NodeGraphEditor    _nge;
+  ImGui::TabWindow          _tab_window;
+  ImGui::NodeGraphEditor    _nge[2];
 public:
   MaterialTool();
   ~MaterialTool() { deinit(); }
@@ -282,4 +125,6 @@ private:
   void delete_uniform(uint32_t idx);
   void add_attrib(std::string name, uint32_t offset, uint32_t stride);
   void delete_attrib(uint32_t idx);
+
+  void generate_glsl(std::ostream &codex = std::cout); //TODO: put this elsewhere (make a ShaderView class?)
 };

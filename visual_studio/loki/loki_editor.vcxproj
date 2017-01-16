@@ -24,6 +24,7 @@
     <ClCompile Include="..\..\..\imgui\imgui_demo.cpp" />
     <ClCompile Include="..\..\..\imgui\imgui_draw.cpp" />
     <ClCompile Include="..\..\..\imgui_addons\addons\imguinodegrapheditor\imguinodegrapheditor.cpp" />
+    <ClCompile Include="..\..\..\imgui_addons\addons\imguitabwindow\imguitabwindow.cpp" />
     <ClCompile Include="..\..\game\src\animation\skeleton.cpp" />
     <ClCompile Include="..\..\graphics\src\camera.cpp" />
     <ClCompile Include="..\..\graphics\src\material.cpp" />
@@ -70,6 +71,7 @@
     <ClInclude Include="..\..\..\imgui\imgui.h" />
     <ClInclude Include="..\..\..\imgui\imgui_internal.h" />
     <ClInclude Include="..\..\..\imgui_addons\addons\imguinodegrapheditor\imguinodegrapheditor.h" />
+    <ClInclude Include="..\..\..\imgui_addons\addons\imguitabwindow\imguitabwindow.h" />
     <ClInclude Include="..\..\game\include\animation\skeleton.h" />
     <ClInclude Include="..\..\graphics\include\camera.h" />
     <ClInclude Include="..\..\graphics\include\draw_call.h" />
@@ -94,6 +96,7 @@
     <ClInclude Include="..\..\loki\views\animation_tool.h" />
     <ClInclude Include="..\..\loki\views\material_tool.h" />
     <ClInclude Include="..\..\loki\views\mesh_viewer.h" />
+    <ClInclude Include="..\..\loki\views\shader_nodes.h" />
     <ClInclude Include="..\..\mathlib\include\aabb.h" />
     <ClInclude Include="..\..\mathlib\include\curve.h" />
     <ClInclude Include="..\..\mathlib\include\function.h" />

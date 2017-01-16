@@ -29,6 +29,20 @@ std::string open_file(std::string dir)
   return std::string(ofn.lpstrFile);
 }
 
+void tab_content_provider(ImGui::TabWindow::TabLabel *tab, ImGui::TabWindow& parent, void* userPtr) {
+  ImGui::Spacing(); ImGui::Separator();
+  if (tab)
+  {
+    ImGui::NodeGraphEditor *nge = (ImGui::NodeGraphEditor *)tab->userPtr;
+    nge->render();
+  }
+  else
+  {
+    assert(false);
+  }
+  ImGui::Separator(); ImGui::Spacing();
+}
+
 namespace ImGui
 {
   bool ListBox(const char* label, int* current_item, const std::vector<std::string>& items, int items_count, int height_in_items = -1)
@@ -39,28 +53,63 @@ namespace ImGui
   }
 }
 
+void link_callback(const ImGui::NodeLink& link, ImGui::NodeGraphEditor::LinkState state, ImGui::NodeGraphEditor& editor)
+{
+  cout << "Link Callback!!!" << endl;
+  ShaderNode *in = (ShaderNode *)link.InputNode;
+  ShaderNode *out = (ShaderNode *)link.OutputNode;
+  if (state == ImGui::NodeGraphEditor::LS_ADDED)
+  {
+    out->add_link(link);
+  }
+  else if (state == ImGui::NodeGraphEditor::LS_DELETED)
+  {
+    out->remove_link(link);
+  }
+}
+
 ImGui::Node* node_factory_delegate(int nodeType, const ImVec2& pos)
 {
   ImGui::Node *ret_node = NULL;
   switch (nodeType)
   {
-  case 0:
+  case SHADER_NODE_VS_OUTPUT:
     ret_node = new VertexShaderOutputNode(pos);
     break;
-  case 1:
+  case SHADER_NODE_FS_OUTPUT:
+    ret_node = new FragmentShaderOutputNode(pos);
+    break;
+  case SHADER_NODE_VERTEX_INPUT:
     ret_node = new MeshInputNode(pos);
     break;
-  case 2:
+  case SHADER_NODE_TEXTURE2D:
     ret_node = new TextureNode(pos);
     break;
-  case 3:
+  case SHADER_NODE_MATH:
     ret_node = new MathNode(pos);
     break;
-  case 4:
+  case SHADER_NODE_SPLIT_VEC4:
+    ret_node = new SplitVec4Node(pos);
+    break;
+  case SHADER_NODE_UNIFORM_VARIABLE:
     ret_node = new UniformNode(pos);
+    break;
+  case SHADER_NODE_GLSL:
+    ret_node = new TextNode(pos, true);
+    break;
+  case SHADER_NODE_TEXT:
+    ret_node = new TextNode(pos, false);
     break;
   }
   return ret_node;
+}
+
+//TODO: put this somewhere better
+std::ostream &operator<<(std::ostream &os, const ShaderNode &obj)
+{
+  obj.generate_glsl(os);
+
+  return os;
 }
 
 MaterialTool::MaterialTool()
@@ -99,20 +148,28 @@ MaterialTool::MaterialTool()
   add_attrib("in_rgb", 6, 3);
   add_attrib("in_uv0", 9, 2);
 
-  static const char *node_type_names[] = 
+  for (uint32_t i = 0; i < 2; i++)
   {
-    "Shader Output Color",
-    "Mesh Vertex Data",
-    "Texture",
-    "Math",
-    "Engine Variable"
-  };
+    _nge[i].show_left_pane = false;
+    _nge[i].registerNodeTypes(Shader_node_type_names, NUM_SHADER_NODE_TYPES, node_factory_delegate);
+    _nge[i].setLinkCallback(link_callback);
+  }
 
-  _nge.show_left_pane = false;
-  _nge.registerNodeTypes(node_type_names, 5, node_factory_delegate);
+  /*
+  ImGui::NodeGraphEditor::Style style = _nge.GetStyle();
+  style.node_slots_radius = 20.0f;
+  style.grid_size = 128.0f;
+  style.color_link = ImColor(0, 0, 255);
+  */
 
-  _nge.addNode(0, ImVec2(600, 300));
-  _nge.addNode(1, ImVec2(150, 300));
+  _tab_window.SetWindowContentDrawerCallback(tab_content_provider, NULL);
+
+  //vertex shader
+  //_nge[0].addNode(SHADER_NODE_VS_OUTPUT, ImVec2(600, 300));
+  //_nge[0].addNode(SHADER_NODE_VERTEX_INPUT, ImVec2(150, 300));
+
+  //fragment shader
+  _nge[1].addNode(SHADER_NODE_FS_OUTPUT, ImVec2(600, 300));
 }
 
 void MaterialTool::render()
@@ -138,6 +195,10 @@ void MaterialTool::render()
         {
           save_as("");
         }
+        if (ImGui::MenuItem("Generate GLSL", NULL, false))
+        {
+          generate_glsl();
+        }
         ImGui::EndMenu();
       }
       ImGui::EndMenuBar();
@@ -145,140 +206,153 @@ void MaterialTool::render()
 
     static uint32_t mat_group = 0;
     ImGui::BeginChild(mat_group, ImVec2(350, 0), true);
-
-    ImGui::PushItemWidth(160);
-    ImGui::InputText("Material Name", _material_name, 128);
-    ImGui::InputText("Vertex Size (Bytes)", _vertex_size, 64, ImGuiInputTextFlags_CharsDecimal);
-    ImGui::Combo("Target Buffer", &_target_buffer, RenderTargetNames, NUM_RENDER_TARGETS);
-    
-    ImGui::Combo("Alpha Blend Src", &_blend_src_mode, BlendModePrettyNames, NUM_BLEND_MODES);
-    ImGui::Combo("Alpha Blend Dst", &_blend_dst_mode, BlendModePrettyNames, NUM_BLEND_MODES);
-
-    ImGui::Combo("Backface Culling", &_culling_mode, CullingModeNames, NUM_CULLING_MODES);
-
-    ImGui::InputText("Shader Name", _shader_name, 128);
-    ImGui::PopItemWidth();
-
-    ImGui::PushItemWidth(ImGui::GetWindowSize().x);
-
-    //
-    // Textures
-    //
-    static uint32_t tex_group = 1;
-    ImGui::BeginChild(tex_group, ImVec2(0, 160), true);
-
-    ImGui::Text("Textures");
-
-    static char new_tex_name[128] = "<New Tex Name>";
-    ImGui::PushItemWidth(ImGui::GetWindowSize().x - 60);
-    ImGui::InputText("", new_tex_name, 128);
-    ImGui::SameLine();
-
-    if (ImGui::Button("+"))
     {
-      add_texture(new_tex_name);
+      ImGui::PushItemWidth(160);
+      ImGui::InputText("Material Name", _material_name, 128);
+      ImGui::InputText("Vertex Size (Bytes)", _vertex_size, 64, ImGuiInputTextFlags_CharsDecimal);
+      ImGui::Combo("Target Buffer", &_target_buffer, RenderTargetNames, Num_render_targets);
+
+      ImGui::Combo("Alpha Blend Src", &_blend_src_mode, BlendModePrettyNames, Num_blend_modes);
+      ImGui::Combo("Alpha Blend Dst", &_blend_dst_mode, BlendModePrettyNames, Num_blend_modes);
+
+      ImGui::Combo("Backface Culling", &_culling_mode, CullingModeNames, Num_culling_modes);
+
+      ImGui::InputText("Shader Name", _shader_name, 128);
+      ImGui::PopItemWidth();
+
+      ImGui::PushItemWidth(ImGui::GetWindowSize().x);
+
+      //
+      // Textures
+      //
+      static uint32_t tex_group = 1;
+      ImGui::BeginChild(tex_group, ImVec2(0, 160), true);
+
+      ImGui::Text("Textures");
+
+      static char new_tex_name[128] = "<New Tex Name>";
+      ImGui::PushItemWidth(ImGui::GetWindowSize().x - 60);
+      ImGui::InputText("", new_tex_name, 128);
+      ImGui::SameLine();
+
+      if (ImGui::Button("+"))
+      {
+        add_texture(new_tex_name);
+      }
+      ImGui::SameLine();
+      if (ImGui::Button("-"))
+      {
+        delete_texture(_ui_curr_texture);
+      }
+      ImGui::PopItemWidth();
+
+      ImGui::PushItemWidth(ImGui::GetWindowSize().x);
+      ImGui::ListBox("", &_ui_curr_texture, _ui_texture_names, _ui_texture_names.size(), 5);
+      ImGui::PopItemWidth();
+      ImGui::EndChild();
+
+      //
+      // Uniform Variables
+      //
+      static uint32_t uniform_group = 2;
+      ImGui::BeginChild(uniform_group, ImVec2(0, 160), true);
+
+      ImGui::Text("Uniform Variables");
+
+      static char new_uniform_name[128] = "<New Uniform Name>";
+      ImGui::PushItemWidth(ImGui::GetWindowSize().x - 150);
+      ImGui::InputText("", new_uniform_name, 128);
+      ImGui::SameLine();
+
+      ImGui::PushItemWidth(80);
+      ImGui::Combo("", &_ui_uniform_type, UniformTypeNames, Num_uniform_types);
+      ImGui::PopItemWidth();
+      ImGui::SameLine();
+
+      if (ImGui::Button("+"))
+      {
+        add_uniform(new_uniform_name, _ui_uniform_type);
+      }
+      ImGui::SameLine();
+      if (ImGui::Button("-"))
+      {
+        delete_uniform(_ui_curr_uniform);
+      }
+      ImGui::PopItemWidth();
+
+      ImGui::PushItemWidth(ImGui::GetWindowSize().x);
+      ImGui::ListBox("", &_ui_curr_uniform, _ui_uniform_names, _ui_uniform_names.size(), 5);
+      ImGui::PopItemWidth();
+      ImGui::EndChild();
+
+
+      //
+      // Vertex Attributes
+      //
+      static uint32_t attrib_group = 3;
+      ImGui::BeginChild(attrib_group, ImVec2(0, 180), true);
+
+      ImGui::Text("Vertex Attributes");
+
+      static char new_attrib_name[128] = "<New Attribute Name>";
+      ImGui::PushItemWidth(ImGui::GetWindowSize().x);
+      ImGui::InputText("", new_attrib_name, 128);
+      //ImGui::SameLine();
+
+      ImGui::PushItemWidth(30);
+      static char attrib_offset[64] = "0";
+      ImGui::InputText("Offset", attrib_offset, 64, ImGuiInputTextFlags_CharsDecimal);
+      ImGui::SameLine();
+      static char attrib_stride[64] = "3";
+      ImGui::InputText("Stride", attrib_stride, 64, ImGuiInputTextFlags_CharsDecimal);
+      ImGui::SameLine();
+      ImGui::PopItemWidth();
+      ImGui::SameLine();
+
+      if (ImGui::Button("+"))
+      {
+        add_attrib(new_attrib_name, atoi(attrib_offset), atoi(attrib_stride));
+      }
+      ImGui::SameLine();
+      if (ImGui::Button("-"))
+      {
+        delete_attrib(_ui_curr_attrib);
+      }
+      ImGui::PopItemWidth();
+
+      ImGui::PushItemWidth(ImGui::GetWindowSize().x);
+      ImGui::PushItemWidth(ImGui::GetWindowSize().x);
+      ImGui::ListBox("", &_ui_curr_attrib, _ui_attrib_names, _ui_attrib_names.size(), 5);
+      ImGui::PopItemWidth();
+      ImGui::EndChild();
+
+      ImGui::Checkbox("Depth Read", &_depth_read);
+      ImGui::SameLine();
+      ImGui::Checkbox("Depth Write", &_depth_write);
+
+      ImGui::PopItemWidth();
     }
-    ImGui::SameLine();
-    if (ImGui::Button("-"))
-    {
-      delete_texture(_ui_curr_texture);
-    }
-    ImGui::PopItemWidth();
-
-    ImGui::PushItemWidth(ImGui::GetWindowSize().x);
-    ImGui::ListBox("", &_ui_curr_texture, _ui_texture_names, _ui_texture_names.size(), 5);
-    ImGui::PopItemWidth();
-    ImGui::EndChild();
-
-    //
-    // Uniform Variables
-    //
-    static uint32_t uniform_group = 2;
-    ImGui::BeginChild(uniform_group, ImVec2(0, 160), true);
-
-    ImGui::Text("Uniform Variables");
-
-    static char new_uniform_name[128] = "<New Uniform Name>";
-    ImGui::PushItemWidth(ImGui::GetWindowSize().x - 150);
-    ImGui::InputText("", new_uniform_name, 128);
-    ImGui::SameLine();
-
-    ImGui::PushItemWidth(80);
-    ImGui::Combo("", &_ui_uniform_type, UniformTypeNames, NUM_UNIFORM_TYPES);
-    ImGui::PopItemWidth();
-    ImGui::SameLine();
-
-    if (ImGui::Button("+"))
-    {
-      add_uniform(new_uniform_name, _ui_uniform_type);
-    }
-    ImGui::SameLine();
-    if (ImGui::Button("-"))
-    {
-      delete_uniform(_ui_curr_uniform);
-    }
-    ImGui::PopItemWidth();
-
-    ImGui::PushItemWidth(ImGui::GetWindowSize().x);
-    ImGui::ListBox("", &_ui_curr_uniform, _ui_uniform_names, _ui_uniform_names.size(), 5);
-    ImGui::PopItemWidth();
-    ImGui::EndChild();
-
-
-    //
-    // Vertex Attributes
-    //
-    static uint32_t attrib_group = 3;
-    ImGui::BeginChild(attrib_group, ImVec2(0, 180), true);
-
-    ImGui::Text("Vertex Attributes");
-
-    static char new_attrib_name[128] = "<New Attribute Name>";
-    ImGui::PushItemWidth(ImGui::GetWindowSize().x);
-    ImGui::InputText("", new_attrib_name, 128);
-    //ImGui::SameLine();
-
-    ImGui::PushItemWidth(30);
-    static char attrib_offset[64] = "0";
-    ImGui::InputText("Offset", attrib_offset, 64, ImGuiInputTextFlags_CharsDecimal);
-    ImGui::SameLine();
-    static char attrib_stride[64] = "3";
-    ImGui::InputText("Stride", attrib_stride, 64, ImGuiInputTextFlags_CharsDecimal);
-    ImGui::SameLine();
-    ImGui::PopItemWidth();
-    ImGui::SameLine();
-
-    if (ImGui::Button("+"))
-    {
-      add_attrib(new_attrib_name, atoi(attrib_offset), atoi(attrib_stride));
-    }
-    ImGui::SameLine();
-    if (ImGui::Button("-"))
-    {
-      delete_attrib(_ui_curr_attrib);
-    }
-    ImGui::PopItemWidth();
-
-    ImGui::PushItemWidth(ImGui::GetWindowSize().x);
-    ImGui::PushItemWidth(ImGui::GetWindowSize().x);
-    ImGui::ListBox("", &_ui_curr_attrib, _ui_attrib_names, _ui_attrib_names.size(), 5);
-    ImGui::PopItemWidth();
-    ImGui::EndChild();
-
-    ImGui::Checkbox("Depth Read", &_depth_read);
-    ImGui::SameLine();
-    ImGui::Checkbox("Depth Write", &_depth_write);
-
-    ImGui::PopItemWidth();
-
     ImGui::EndChild();
 
     //render the node graph editor
     ImGui::SameLine();
 
+    if (!_tab_window.isInited())
+    {
+      static const char* tabNames[] = { "Vertex Shader", "Fragment Shader" };
+      static const int numTabs = sizeof(tabNames) / sizeof(tabNames[0]);
+      static const char* tabTooltips[numTabs] = { "Vertex Shader Node Graph", "Fragment / Pixel Shader Node Graph" };
+      for (int i = 0; i < numTabs; i++)
+      {
+        _tab_window.addTabLabel(tabNames[i], tabTooltips[i], false, false, &_nge[i]); // see additional args to prevent a tab from closing and from dragging
+      }
+    }
+
+    _tab_window.render();
+
     uint32_t shader_group = 4;
     //ImGui::BeginChild(shader_group, ImVec2(0, 0), true);
-    _nge.render();
+    _nge[0].render();
     //ImGui::EndChild();
 
     ImGui::End();
@@ -518,9 +592,63 @@ void MaterialTool::add_attrib(std::string name, uint32_t offset, uint32_t stride
   attrib._stride = stride;
   _attribs.push_back(attrib);
 }
+
 void MaterialTool::delete_attrib(uint32_t idx)
 {
   if (idx < 0 || idx >= _attribs.size()) { return; }
   _attribs.erase(_attribs.begin() + idx);
   _ui_attrib_names.erase(_ui_attrib_names.begin() + idx);
+}
+
+void MaterialTool::generate_glsl(std::ostream &codex)
+{
+  //vertex shader
+  ImVector<ImGui::Node *> vs_out_nodes, glsl_nodes, uniform_nodes;
+  _nge[0].getAllNodesOfType(SHADER_NODE_VS_OUTPUT, &vs_out_nodes);
+  _nge[0].getAllNodesOfType(SHADER_NODE_GLSL, &glsl_nodes);
+  _nge[0].getAllNodesOfType(SHADER_NODE_UNIFORM_VARIABLE, &uniform_nodes);
+  for (uint32_t i = 0; i < vs_out_nodes.size(); i++) //really, there should only ever be one
+  {
+    VertexShaderOutputNode *n = (VertexShaderOutputNode *)vs_out_nodes[i];
+    codex << "// Generated VS Output: " << n->getName() << endl;
+    codex << "#version 450" << endl;
+    codex << endl;
+
+    std::vector<std::string> out_var_names;
+    n->get_var_names(out_var_names);
+    for (uint32_t j = 0; j < out_var_names.size(); j++)
+    {
+      std::string type_name("vec4");
+      codex << "out " << type_name.c_str() << " " << out_var_names[j].c_str() << ";" << endl;
+    }
+
+    //uniform / engine variables
+    codex << endl;
+    codex << "// uniform / engine input variables" << endl;
+    for (uint32_t j = 0; j < uniform_nodes.size(); j++)
+    {
+      UniformNode *uni_node = (UniformNode *)uniform_nodes[j];
+      std::string uni_type("float ");
+      codex << "in "<< uni_type.c_str() << uni_node->getName() << ";" << endl;
+    }
+    codex << endl;
+
+    //glsl functions
+    for (uint32_t j = 0; j < glsl_nodes.size(); j++)
+    {
+      TextNode *text_node = (TextNode *)glsl_nodes[i];
+      codex << endl;
+      text_node->function_declaration(codex);
+      codex << endl;
+    }
+
+    codex << endl;
+    codex << "void main()" << endl;
+    codex << "{" << endl;
+
+    //now trace back up the path
+    codex << (*n);
+
+    codex << "}" << endl;
+  }
 }
