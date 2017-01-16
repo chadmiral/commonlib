@@ -88,8 +88,11 @@ ImGui::Node* node_factory_delegate(int nodeType, const ImVec2& pos)
   case SHADER_NODE_MATH:
     ret_node = new MathNode(pos);
     break;
-  case SHADER_NODE_SPLIT_VEC4:
-    ret_node = new SplitVec4Node(pos);
+  case SHADER_NODE_SPLIT:
+    ret_node = new SplitNode(pos);
+    break;
+  case SHADER_NODE_JOIN:
+    ret_node = new JoinNode(pos);
     break;
   case SHADER_NODE_UNIFORM_VARIABLE:
     ret_node = new UniformNode(pos);
@@ -105,12 +108,13 @@ ImGui::Node* node_factory_delegate(int nodeType, const ImVec2& pos)
 }
 
 //TODO: put this somewhere better
-std::ostream &operator<<(std::ostream &os, const ShaderNode &obj)
+/*std::ostream &operator<<(std::ostream &os, const ShaderNode &obj)
 {
-  obj.generate_glsl(os);
+  obj.generate_glsl(os, -1);
 
   return os;
 }
+*/
 
 MaterialTool::MaterialTool()
 {
@@ -614,26 +618,28 @@ void MaterialTool::generate_glsl(std::ostream &codex)
     codex << "#version 450" << endl;
     codex << endl;
 
+    //input / uniform / engine variables
+    codex << endl;
+    codex << "// uniform / engine input variables" << endl;
+    for (uint32_t j = 0; j < uniform_nodes.size(); j++)
+    {
+      UniformNode *uni_node = (UniformNode *)uniform_nodes[j];
+      std::string uni_type = uni_node->get_var_type_name();
+      codex << "in " << uni_type.c_str() << " " << uni_node->getName() << ";" << endl;
+    }
+    codex << endl;
+
+    //output / varying variables
     std::vector<std::string> out_var_names;
     n->get_var_names(out_var_names);
+    codex << "// output variables (to be passed to the fragment shader)" << endl;
     for (uint32_t j = 0; j < out_var_names.size(); j++)
     {
       std::string type_name("vec4");
       codex << "out " << type_name.c_str() << " " << out_var_names[j].c_str() << ";" << endl;
     }
 
-    //uniform / engine variables
-    codex << endl;
-    codex << "// uniform / engine input variables" << endl;
-    for (uint32_t j = 0; j < uniform_nodes.size(); j++)
-    {
-      UniformNode *uni_node = (UniformNode *)uniform_nodes[j];
-      std::string uni_type("float ");
-      codex << "in "<< uni_type.c_str() << uni_node->getName() << ";" << endl;
-    }
-    codex << endl;
-
-    //glsl functions
+    //glsl function definitions
     for (uint32_t j = 0; j < glsl_nodes.size(); j++)
     {
       TextNode *text_node = (TextNode *)glsl_nodes[i];
@@ -647,7 +653,7 @@ void MaterialTool::generate_glsl(std::ostream &codex)
     codex << "{" << endl;
 
     //now trace back up the path
-    codex << (*n);
+    n->generate_glsl(codex, -1);
 
     codex << "}" << endl;
   }
