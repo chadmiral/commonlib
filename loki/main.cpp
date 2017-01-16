@@ -1,5 +1,7 @@
 #include <math.h>
 
+#include <vector>
+#include <string>
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,12 +14,14 @@
 
 #include "mesh_viewer.h"
 #include "animation_tool.h"
+#include "material_tool.h"
 
 using namespace std;
 using namespace Math;
 
 static MeshViewer mesh_viewer;
 static AnimationTool animation_tool;
+static MaterialTool material_tool;
 
 static void error_callback(int error, const char* description)
 {
@@ -251,7 +255,7 @@ static void ShowExampleAppCustomNodeGraph(bool* opened)
       //draw_list->AddCircleFilled(slot_pos, NODE_SLOT_RADIUS, ImColor(150, 150, 150, 150));
       ImGui::SetCursorScreenPos(slot_pos - ImVec2(NODE_SLOT_RADIUS, NODE_SLOT_RADIUS));
       ImGui::Button("", ImVec2(2.0f * NODE_SLOT_RADIUS, 2.0f * NODE_SLOT_RADIUS));
-      int32_t socket_id = node->ID << 16 + slot_idx;
+      int32_t socket_id = (node->ID << 16) + slot_idx;
       ImGui::PushID(socket_id);
       if (ImGui::IsItemActive())
       {
@@ -268,7 +272,7 @@ static void ShowExampleAppCustomNodeGraph(bool* opened)
       //draw_list->AddCircleFilled(slot_pos, NODE_SLOT_RADIUS, ImColor(150, 150, 150, 150));
       ImGui::SetCursorScreenPos(slot_pos - ImVec2(NODE_SLOT_RADIUS, NODE_SLOT_RADIUS));
       ImGui::Button("", ImVec2(2.0f * NODE_SLOT_RADIUS, 2.0f * NODE_SLOT_RADIUS));
-      int32_t socket_id = node->ID << 16 + slot_idx;
+      int32_t socket_id = (node->ID << 16) + slot_idx;
       ImGui::PushID(socket_id);
       if (ImGui::IsItemActive())
       {
@@ -337,6 +341,7 @@ static void ShowExampleAppCustomNodeGraph(bool* opened)
   ImGui::End();
 }
 
+
 int main(int argc, char **argv)
 {
   // Setup window
@@ -358,12 +363,12 @@ int main(int argc, char **argv)
 
   // Load Fonts
   // (there is a default font, this is only if you want to change it. see extra_fonts/README.txt for more details)
-  //ImGuiIO& io = ImGui::GetIO();
+  ImGuiIO& io = ImGui::GetIO();
   //io.Fonts->AddFontDefault();
-  //io.Fonts->AddFontFromFileTTF("../../extra_fonts/Cousine-Regular.ttf", 15.0f);
-  //io.Fonts->AddFontFromFileTTF("../../extra_fonts/DroidSans.ttf", 16.0f);
-  //io.Fonts->AddFontFromFileTTF("../../extra_fonts/ProggyClean.ttf", 13.0f);
-  //io.Fonts->AddFontFromFileTTF("../../extra_fonts/ProggyTiny.ttf", 10.0f);
+  io.Fonts->AddFontFromFileTTF("../../../imgui/extra_fonts/Cousine-Regular.ttf", 15.0f);
+  //io.Fonts->AddFontFromFileTTF("../../../imgui/extra_fonts/DroidSans.ttf", 16.0f);
+  //io.Fonts->AddFontFromFileTTF("../../../imgui/extra_fonts/ProggyClean.ttf", 13.0f);
+  //io.Fonts->AddFontFromFileTTF("../../../imgui/extra_fonts/ProggyTiny.ttf", 10.0f);
   //io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
 
   bool show_test_window = true;
@@ -379,10 +384,12 @@ int main(int argc, char **argv)
 
     ShowExampleAppMainMenuBar();
 
+    /*
     if (show_shader_tools)
     {
       ShowExampleAppCustomNodeGraph(&show_shader_tools);
     }
+    */
 
     static bool show_gradient_animation_tool = true;
     if (show_gradient_animation_tool)
@@ -391,6 +398,7 @@ int main(int argc, char **argv)
       ImGui::Begin("Gradient Animator", &show_gradient_animation_tool, ImGuiWindowFlags_MenuBar);
       ImGui::End();
     }
+
 
     if (show_package_builder)
     {
@@ -427,6 +435,7 @@ int main(int argc, char **argv)
     
     animation_tool.render();
     mesh_viewer.render();
+    material_tool.render();
 
     if (show_texture_tools)
     {
@@ -458,23 +467,6 @@ int main(int argc, char **argv)
 
       ImGui::End();
     }
-
-    /*
-    if (show_mesh_tools)
-    {
-      ImGui::SetNextWindowSize(ImVec2(100, 100), ImGuiSetCond_FirstUseEver);
-      ImGui::Begin("Mesh Tools", &show_mesh_tools);
-      ImGui::Text("");
-      ImGui::End();
-    }
-    */
-
-    /*
-    ImGui::SetNextWindowSize(ImVec2(100, 100), ImGuiSetCond_FirstUseEver);
-    ImGui::Begin("Texture2D", &show_another_window);
-    ImGui::Text("");
-    ImGui::End();
-    */
 
     // Rendering
     int display_w, display_h;

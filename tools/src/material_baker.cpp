@@ -76,7 +76,11 @@ void TmpMaterial::read_from_file(FILE *f)
 
 GLenum string_to_blend_mode(const char *buffer)
 {
-  if (stricmp(buffer, "GL_ONE") == 0)
+  if (stricmp(buffer, "GL_ZERO") == 0)
+  {
+    return GL_ZERO;
+  }
+  else if (stricmp(buffer, "GL_ONE") == 0)
   {
     return GL_ONE;
   }
@@ -92,11 +96,8 @@ GLenum string_to_blend_mode(const char *buffer)
   return GL_INVALID_ENUM;
 }
 
-void MaterialBaker::bake(mxml_node_t *tree, string output_fname, string tabs, std::ostream &log)
+void MaterialBaker::load_xml(mxml_node_t *tree, TmpMaterial &tmp_mat, std::string tabs, std::ostream &log)
 {
-  TmpMaterial tmp_mat;
-
-  tabs += "\t";
   const char *buffer = NULL;
 
   log << tabs.c_str() << "Parsing material xml...";
@@ -115,7 +116,7 @@ void MaterialBaker::bake(mxml_node_t *tree, string output_fname, string tabs, st
 
   buffer = mxmlElementGetAttr(mat_node, "vertex_size_bytes");
   tmp_mat._vertex_size = atoi(buffer);
-  
+
   mxml_node_t *node = mxmlFindElement(mat_node, tree, "target_buffer", NULL, NULL, MXML_DESCEND);
   buffer = mxmlGetText(node, NULL);
   tmp_mat._target_buffer = buffer;
@@ -199,7 +200,10 @@ void MaterialBaker::bake(mxml_node_t *tree, string output_fname, string tabs, st
         uni._val[1] = 0.0f;
         uni._val[2] = 0.0f;
       }
-      else if (stricmp(buffer, "matrix4x4") == 0) { uni._type = TMP_UNIFORM_MAT4X4; }
+      else if (stricmp(buffer, "mat4x4") == 0)
+      {
+        uni._type = TMP_UNIFORM_MAT4X4;
+      }
       else
       {
         log << "Error!: unknown uniform variable type!" << endl;
@@ -231,6 +235,14 @@ void MaterialBaker::bake(mxml_node_t *tree, string output_fname, string tabs, st
     }
     start_node = attrib_node;
   } while (start_node);
+}
+
+void MaterialBaker::bake(mxml_node_t *tree, string output_fname, string tabs, std::ostream &log)
+{
+  tabs += "\t";
+
+  TmpMaterial tmp_mat;
+  load_xml(tree, tmp_mat, tabs, log);
 
   //ok, we've gathered all our data, now write to a binary file
   cout << tabs.c_str() << "opening file " << output_fname.c_str() << "..." << endl;

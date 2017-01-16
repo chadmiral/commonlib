@@ -13,6 +13,7 @@ namespace Tool
     TMP_UNIFORM_FLOAT2,
     TMP_UNIFORM_FLOAT3,
     TMP_UNIFORM_FLOAT4,
+    TMP_UNIFORM_MAT3X3,
     TMP_UNIFORM_MAT4X4,
 
     NUM_TMP_UNIFORM_TYPES
@@ -87,5 +88,6 @@ namespace Tool
 
     void init() {}
     void bake(mxml_node_t *tree, std::string output_fname, std::string tabs = "", std::ostream &log = std::cout);
+    void load_xml(mxml_node_t *tree, TmpMaterial &tmp_mat, std::string tabs, std::ostream &log);
   };
 };

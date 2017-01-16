@@ -61,6 +61,8 @@ namespace Graphics
     void set_format(GLenum f) { _tex_format = f; }
     void set_filtering_mode(GLenum f) { _tex_filter = f; }
     void use_depth(const bool d) { _use_depth = d; }
+
+    float compute_frame_luminosity() const;
     
     void attach_depth_buffer(Texture2D *depth_tex);
 

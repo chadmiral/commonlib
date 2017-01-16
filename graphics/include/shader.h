@@ -141,6 +141,28 @@ namespace Graphics
     }
   };
 
+  class ShaderUniformMatrix3x3 : public ShaderUniformVariable
+  {
+  private:
+    GLfloat var[9];
+  public:
+    ShaderUniformMatrix3x3() : ShaderUniformVariable() {}
+    ~ShaderUniformMatrix3x3() {}
+
+    virtual void render() const { glUniformMatrix3fv(_loc, 1, false, var); }
+    void set_var(const Math::Matrix3x3 &m)
+    {
+      uint32_t k = 0;
+      for (uint32_t i = 0; i < 3; i++)
+      {
+        for (uint32_t j = 0; j < 3; j++)
+        {
+          var[k++] = m(i, j);
+        }
+      }
+    }
+  };
+
   //TODO
   class ShaderVertexAttrib
   {
