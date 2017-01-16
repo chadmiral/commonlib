@@ -55,7 +55,6 @@ namespace ImGui
 
 void link_callback(const ImGui::NodeLink& link, ImGui::NodeGraphEditor::LinkState state, ImGui::NodeGraphEditor& editor)
 {
-  cout << "Link Callback!!!" << endl;
   ShaderNode *in = (ShaderNode *)link.InputNode;
   ShaderNode *out = (ShaderNode *)link.OutputNode;
   if (state == ImGui::NodeGraphEditor::LS_ADDED)
@@ -93,6 +92,9 @@ ImGui::Node* node_factory_delegate(int nodeType, const ImVec2& pos)
     break;
   case SHADER_NODE_JOIN:
     ret_node = new JoinNode(pos);
+    break;
+  case SHADER_NODE_CONSTANT_VARIABLE:
+    ret_node = new ConstantNode(pos);
     break;
   case SHADER_NODE_UNIFORM_VARIABLE:
     ret_node = new UniformNode(pos);
@@ -607,10 +609,11 @@ void MaterialTool::delete_attrib(uint32_t idx)
 void MaterialTool::generate_glsl(std::ostream &codex)
 {
   //vertex shader
-  ImVector<ImGui::Node *> vs_out_nodes, glsl_nodes, uniform_nodes;
+  ImVector<ImGui::Node *> vs_out_nodes, glsl_nodes, uniform_nodes, constant_nodes;
   _nge[0].getAllNodesOfType(SHADER_NODE_VS_OUTPUT, &vs_out_nodes);
   _nge[0].getAllNodesOfType(SHADER_NODE_GLSL, &glsl_nodes);
   _nge[0].getAllNodesOfType(SHADER_NODE_UNIFORM_VARIABLE, &uniform_nodes);
+  _nge[0].getAllNodesOfType(SHADER_NODE_CONSTANT_VARIABLE, &constant_nodes);
   for (uint32_t i = 0; i < vs_out_nodes.size(); i++) //really, there should only ever be one
   {
     VertexShaderOutputNode *n = (VertexShaderOutputNode *)vs_out_nodes[i];
@@ -626,6 +629,19 @@ void MaterialTool::generate_glsl(std::ostream &codex)
       UniformNode *uni_node = (UniformNode *)uniform_nodes[j];
       std::string uni_type = uni_node->get_var_type_name();
       codex << "in " << uni_type.c_str() << " " << uni_node->getName() << ";" << endl;
+    }
+    codex << endl;
+
+    //static consts
+    codex << endl;
+    codex << "// constant variables" << endl;
+    for (uint32_t j = 0; j < constant_nodes.size(); j++)
+    {
+      ConstantNode *const_node = (ConstantNode *)constant_nodes[j];
+      std::string const_type = const_node->get_var_type_name();
+      codex << "const " << const_type.c_str() << " " << const_node->getName() <<" = ";
+      std::string val_string = const_node->get_value_string();
+      codex << val_string.c_str() << ";" << endl;
     }
     codex << endl;
 
