@@ -11,7 +11,8 @@ enum ShaderNodeType
 {
   SHADER_NODE_VS_OUTPUT,
   SHADER_NODE_FS_OUTPUT,
-  SHADER_NODE_VERTEX_INPUT,
+  SHADER_NODE_VS_INPUT,
+  SHADER_NODE_FS_INPUT,
   SHADER_NODE_TEXTURE2D,
   SHADER_NODE_MATH,
   SHADER_NODE_SPLIT,
@@ -26,9 +27,10 @@ enum ShaderNodeType
 
 static const char *Shader_node_type_names[] =
 {
-  "Vertex Shader Out",
+  "Shader Bridge (VS)",
   "Fragment Shader Out",
   "Vertex Input",
+  "Shader Bridge (FS)",
   "Texture 2D",
   "Math",
   "Split",
@@ -100,15 +102,13 @@ public:
 
 class MeshInputNode : public ShaderNode
 {
+private:
+  std::vector<std::string> _var_names;
 public:
-  MeshInputNode(const ImVec2 &pos) : ShaderNode(pos, SHADER_NODE_VERTEX_INPUT)
+  MeshInputNode(const ImVec2 &pos) : ShaderNode(pos, SHADER_NODE_VS_INPUT)
   {
     InputsCount = 0;
-
-    OutputsCount = 3;
-    strcpy(OutputNames[0], "in_xyz");
-    strcpy(OutputNames[1], "in_rgb");
-    strcpy(OutputNames[2], "in_uv0");
+    OutputsCount = 0;
   }
   ~MeshInputNode() {}
 
@@ -116,10 +116,11 @@ public:
   {
     bool ret = ImGui::Node::render(node_width);
 
-    if (ImGui::Button("+"))
+    for (uint32_t i = 0; i < _var_names.size(); i++)
     {
-      strcpy(OutputNames[OutputsCount], "new");
-      OutputsCount++;
+      std::stringstream ss;
+      ss << i << ": " << _var_names[i].c_str();
+      ImGui::Text(ss.str().c_str());
     }
 
     return ret;
@@ -127,17 +128,80 @@ public:
 
   virtual void generate_glsl(std::ostream &os, int output_idx) const
   {
-    os << "<IMPLEMENT_ME>" << std::endl;
+    os << _var_names[output_idx].c_str();
+  }
+
+  void variable_declaration(std::ostream &os, uint32_t idx)
+  {
+    std::string var_type("vec3");
+    os << "in " << var_type.c_str() << " " << _var_names[idx].c_str() << ";" << std::endl;
+  }
+
+  void add_var(std::string name, GLSLType type)
+  {
+    _var_names.push_back(name);
+    strcpy(OutputNames[OutputsCount], "");
+    std::string label = std::to_string(OutputsCount);
+    strcpy(OutputNames[OutputsCount++], label.c_str());
+  }
+};
+
+class FSInputNode : public ShaderNode
+{
+private:
+  std::vector<std::string> _var_names;
+public:
+  FSInputNode(const ImVec2 &pos) : ShaderNode(pos, SHADER_NODE_FS_INPUT)
+  {
+    InputsCount = 0;
+    OutputsCount = 0;
+  }
+  ~FSInputNode() {}
+
+  virtual bool render(float node_width)
+  {
+    bool ret = ImGui::Node::render(node_width);
+
+    for (uint32_t i = 0; i < _var_names.size(); i++)
+    {
+      std::stringstream ss;
+      ss << i << ": " << _var_names[i].c_str();
+      ImGui::Text(ss.str().c_str());
+    }
+
+    return ret;
+  }
+
+  virtual void generate_glsl(std::ostream &os, int output_idx) const
+  {
+    os << _var_names[output_idx].c_str();
+  }
+
+  void variable_declaration(std::ostream &os, uint32_t idx)
+  {
+    std::string var_type("vec3");
+    os << "in " << var_type.c_str() << " " << _var_names[idx].c_str() << ";" << std::endl;
+  }
+
+  void add_var(std::string name, GLSLType type)
+  {
+    _var_names.push_back(name);
+    strcpy(OutputNames[OutputsCount], "");
+    std::string label = std::to_string(OutputsCount);
+    strcpy(OutputNames[OutputsCount++], label.c_str());
   }
 };
 
 class VertexShaderOutputNode : public ShaderNode
 {
+private:
+  std::vector<std::string> _var_names;
 public:
   VertexShaderOutputNode(const ImVec2 &pos) : ShaderNode(pos, SHADER_NODE_VS_OUTPUT)
   {
     InputsCount = 1;
-    strcpy(InputNames[0], "out_0");
+    strcpy(InputNames[0], "0");
+    _var_names.push_back("out_xyzw");
     OutputsCount = 0;
   }
   ~VertexShaderOutputNode() {}
@@ -146,11 +210,17 @@ public:
   {
     bool ret = ImGui::Node::render(node_width);
 
-    if (ImGui::Button("Add Output"))
+    for (uint32_t i = 0; i < InputsCount; i++)
     {
-      std::string var_name = std::string("out_") + std::to_string(InputsCount);
-      strcpy(InputNames[InputsCount], var_name.c_str());
-      InputsCount++;
+      std::stringstream ss;
+      ss << i << ": " << _var_names[i].c_str();
+      ImGui::Text(ss.str().c_str());
+    }
+
+    if (ImGui::Button("+"))
+    {
+      std::string var_name = std::string("var_") + std::to_string(InputsCount);
+      add_var(var_name, GLSL_VEC3);
     }
     if (ImGui::IsItemHovered())
       ImGui::SetTooltip("Varying variables pass and interpolate data from the vertex to the fragment shader");
@@ -158,20 +228,28 @@ public:
     return ret;
   }
 
+  void add_var(std::string name, GLSLType type)
+  {
+    _var_names.push_back(name);
+    strcpy(InputNames[InputsCount], "");
+    std::string label = std::to_string(InputsCount);
+    strcpy(InputNames[InputsCount++], label.c_str());
+  }
+
   void get_var_names(std::vector<std::string> &names)
   {
     for (uint32_t i = 0; i < InputsCount; i++)
     {
-      names.push_back(std::string(InputNames[i]));
+      names.push_back(_var_names[i]);
     }
   }
 
   virtual void generate_glsl(std::ostream &os, int output_idx) const
   {
-    assert(_inputs.size() == InputsCount);
+    //assert(_inputs.size() == InputsCount);
     for (uint32_t i = 0; i < _inputs.size(); i++)
     {
-      os << "\t" << InputNames[i] << " = ";
+      os << "\t" << _var_names[i].c_str() << " = ";
       _inputs[i]->generate_glsl(os, _out_connections[i]);
       os << ";" << std::endl;
     }
@@ -217,7 +295,7 @@ public:
 
   virtual void generate_glsl(std::ostream &os, int output_idx) const
   {
-    os << "<IMPLEMENT_ME>" << std::endl;
+    os << Name;
   }
 };
 
@@ -389,10 +467,12 @@ public:
 
       break;
     case GLSL_MAT4:
-      ImGui::InputFloat4("", _val);
-      ImGui::InputFloat4("", &_val[4]);
-      ImGui::InputFloat4("", &_val[8]);
-      ImGui::InputFloat4("", &_val[12]);
+      for (uint32_t i = 0; i < 4; i++)
+      {
+        ImGui::PushID(ui_id++);
+        ImGui::InputFloat4("", &_val[i * 4]);
+        ImGui::PopID();
+      }
       break;
     }
 

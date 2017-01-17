@@ -78,8 +78,11 @@ ImGui::Node* node_factory_delegate(int nodeType, const ImVec2& pos)
   case SHADER_NODE_FS_OUTPUT:
     ret_node = new FragmentShaderOutputNode(pos);
     break;
-  case SHADER_NODE_VERTEX_INPUT:
+  case SHADER_NODE_VS_INPUT:
     ret_node = new MeshInputNode(pos);
+    break;
+  case SHADER_NODE_FS_INPUT:
+    ret_node = new FSInputNode(pos);
     break;
   case SHADER_NODE_TEXTURE2D:
     ret_node = new TextureNode(pos);
@@ -171,11 +174,28 @@ MaterialTool::MaterialTool()
   _tab_window.SetWindowContentDrawerCallback(tab_content_provider, NULL);
 
   //vertex shader
-  //_nge[0].addNode(SHADER_NODE_VS_OUTPUT, ImVec2(600, 300));
-  //_nge[0].addNode(SHADER_NODE_VERTEX_INPUT, ImVec2(150, 300));
+  _nge[0].addNode(SHADER_NODE_VS_OUTPUT, ImVec2(600, 300));
+  MeshInputNode *vs_input_node = (MeshInputNode *)_nge[0].addNode(SHADER_NODE_VS_INPUT, ImVec2(150, 300));
+  
+  for (uint32_t i = 0; i < _attribs.size(); i++)
+  {
+    std::string var_name = _attribs[i]._name;
+    GLSLType type = GLSL_VEC3;
+    vs_input_node->add_var(var_name, type);
+  }
 
   //fragment shader
   _nge[1].addNode(SHADER_NODE_FS_OUTPUT, ImVec2(600, 300));
+  FSInputNode *fs_input_node = (FSInputNode *)_nge[1].addNode(SHADER_NODE_FS_INPUT, ImVec2(150, 300));
+
+  /*
+  for (uint32_t i = 0; i < _attribs.size(); i++)
+  {
+    std::string var_name = _attribs[i]._name;
+    GLSLType type = GLSL_VEC3;
+    input_node->add_var(var_name, type);
+  }
+  */
 }
 
 void MaterialTool::render()
@@ -343,23 +363,25 @@ void MaterialTool::render()
     //render the node graph editor
     ImGui::SameLine();
 
-    if (!_tab_window.isInited())
+    if (true)
     {
-      static const char* tabNames[] = { "Vertex Shader", "Fragment Shader" };
-      static const int numTabs = sizeof(tabNames) / sizeof(tabNames[0]);
-      static const char* tabTooltips[numTabs] = { "Vertex Shader Node Graph", "Fragment / Pixel Shader Node Graph" };
-      for (int i = 0; i < numTabs; i++)
+      if (!_tab_window.isInited())
       {
-        _tab_window.addTabLabel(tabNames[i], tabTooltips[i], false, false, &_nge[i]); // see additional args to prevent a tab from closing and from dragging
+        static const char* tabNames[] = { "Vertex Shader", "Fragment Shader" };
+        static const int numTabs = sizeof(tabNames) / sizeof(tabNames[0]);
+        static const char* tabTooltips[numTabs] = { "Vertex Shader Node Graph", "Fragment / Pixel Shader Node Graph" };
+        for (int i = 0; i < numTabs; i++)
+        {
+          _tab_window.addTabLabel(tabNames[i], tabTooltips[i], false, false, &_nge[i]); // see additional args to prevent a tab from closing and from dragging
+        }
       }
+
+      _tab_window.render();
     }
-
-    _tab_window.render();
-
-    uint32_t shader_group = 4;
-    //ImGui::BeginChild(shader_group, ImVec2(0, 0), true);
-    _nge[0].render();
-    //ImGui::EndChild();
+    else
+    {
+      _nge[0].render();
+    }
 
     ImGui::End();
   }
@@ -609,17 +631,30 @@ void MaterialTool::delete_attrib(uint32_t idx)
 void MaterialTool::generate_glsl(std::ostream &codex)
 {
   //vertex shader
-  ImVector<ImGui::Node *> vs_out_nodes, glsl_nodes, uniform_nodes, constant_nodes;
+  ImVector<ImGui::Node *> vs_in_nodes, vs_out_nodes, glsl_nodes, uniform_nodes, constant_nodes;
   _nge[0].getAllNodesOfType(SHADER_NODE_VS_OUTPUT, &vs_out_nodes);
   _nge[0].getAllNodesOfType(SHADER_NODE_GLSL, &glsl_nodes);
   _nge[0].getAllNodesOfType(SHADER_NODE_UNIFORM_VARIABLE, &uniform_nodes);
   _nge[0].getAllNodesOfType(SHADER_NODE_CONSTANT_VARIABLE, &constant_nodes);
+  _nge[0].getAllNodesOfType(SHADER_NODE_VS_INPUT, &vs_in_nodes);
+
+  assert(vs_in_nodes.size() == 1);
+  MeshInputNode *in_node = (MeshInputNode *)vs_in_nodes[0];
+
   for (uint32_t i = 0; i < vs_out_nodes.size(); i++) //really, there should only ever be one
   {
     VertexShaderOutputNode *n = (VertexShaderOutputNode *)vs_out_nodes[i];
     codex << "// Generated VS Output: " << n->getName() << endl;
     codex << "#version 450" << endl;
     codex << endl;
+
+    //vertex input / "attribs"
+    codex << endl;
+    codex << "// vertex input / attribs" << endl;
+    for (uint32_t j = 0; j < in_node->getNumOutputSlots(); j++)
+    {
+      in_node->variable_declaration(codex, j);
+    }
 
     //input / uniform / engine variables
     codex << endl;
