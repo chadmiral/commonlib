@@ -631,11 +631,17 @@ void MaterialTool::delete_attrib(uint32_t idx)
 void MaterialTool::generate_glsl(std::ostream &codex)
 {
   //vertex shader
-  ImVector<ImGui::Node *> vs_in_nodes, vs_out_nodes, glsl_nodes, uniform_nodes, constant_nodes;
+  ImVector<ImGui::Node *> vs_in_nodes,
+                          vs_out_nodes,
+                          glsl_nodes,
+                          uniform_nodes,
+                          constant_nodes,
+                          texture_nodes;
   _nge[0].getAllNodesOfType(SHADER_NODE_VS_OUTPUT, &vs_out_nodes);
   _nge[0].getAllNodesOfType(SHADER_NODE_GLSL, &glsl_nodes);
   _nge[0].getAllNodesOfType(SHADER_NODE_UNIFORM_VARIABLE, &uniform_nodes);
   _nge[0].getAllNodesOfType(SHADER_NODE_CONSTANT_VARIABLE, &constant_nodes);
+  _nge[0].getAllNodesOfType(SHADER_NODE_TEXTURE2D, &texture_nodes);
   _nge[0].getAllNodesOfType(SHADER_NODE_VS_INPUT, &vs_in_nodes);
 
   assert(vs_in_nodes.size() == 1);
@@ -649,15 +655,14 @@ void MaterialTool::generate_glsl(std::ostream &codex)
     codex << endl;
 
     //vertex input / "attribs"
-    codex << endl;
     codex << "// vertex input / attribs" << endl;
     for (uint32_t j = 0; j < in_node->getNumOutputSlots(); j++)
     {
       in_node->variable_declaration(codex, j);
     }
+    codex << endl;
 
     //input / uniform / engine variables
-    codex << endl;
     codex << "// uniform / engine input variables" << endl;
     for (uint32_t j = 0; j < uniform_nodes.size(); j++)
     {
@@ -667,8 +672,16 @@ void MaterialTool::generate_glsl(std::ostream &codex)
     }
     codex << endl;
 
-    //static consts
+    //textures
+    codex << "// textures" << endl;
+    for (uint32_t j = 0; j < texture_nodes.size(); j++)
+    {
+      TextureNode *tex_node = (TextureNode *)texture_nodes[j];
+      codex << "in sampler2D " << tex_node->getName() << ";" << endl;
+    }
     codex << endl;
+
+    //static consts
     codex << "// constant variables" << endl;
     for (uint32_t j = 0; j < constant_nodes.size(); j++)
     {
@@ -702,6 +715,17 @@ void MaterialTool::generate_glsl(std::ostream &codex)
     codex << endl;
     codex << "void main()" << endl;
     codex << "{" << endl;
+
+    //prefetch textures
+    for (uint32_t j = 0; j < texture_nodes.size(); j++)
+    {
+      TextureNode *tex_node = (TextureNode *)texture_nodes[j];
+      std::string var_name = "tex_prefetch_" + std::to_string(j);
+      tex_node->set_prefetch_name(var_name);
+      codex << "\tvec4 " << var_name << " = ";
+      tex_node->generate_prefetch_glsl(codex, -1);
+      codex << ";" << endl;
+    }
 
     //now trace back up the path
     n->generate_glsl(codex, -1);

@@ -282,20 +282,35 @@ public:
 
 class TextureNode : public ShaderNode
 {
+private:
+  std::string _prefetch_name;
 public:
   TextureNode(const ImVec2 &pos) : ShaderNode(pos, SHADER_NODE_TEXTURE2D)
   {
-    InputsCount = 0;
+    InputsCount = 1;
+    strcpy(InputNames[0], "uv");
     OutputsCount = 1;
     strcpy(OutputNames[0], "rgba");
   }
   ~TextureNode() {}
 
+  void set_prefetch_name(std::string n)
+  {
+    _prefetch_name = n;
+  }
+
   virtual bool render(float node_width) { return ImGui::Node::render(node_width); }
 
   virtual void generate_glsl(std::ostream &os, int output_idx) const
   {
-    os << Name;
+    os << _prefetch_name;
+  }
+
+  void generate_prefetch_glsl(std::ostream &os, int output_idx) const
+  {
+    os << "texture2D(" << Name << ", ";
+    _inputs[0]->generate_glsl(os, _out_connections[0]);
+    os << ")";
   }
 };
 
@@ -662,7 +677,37 @@ public:
     bool ret = ImGui::Node::render(node_width);
 
     ImGui::PushItemWidth(130);
-    ImGui::Combo("", &_curr_op, MathOperationNames, NUM_MATH_NODE_OPS);
+    if (ImGui::Combo("", &_curr_op, MathOperationNames, NUM_MATH_NODE_OPS))
+    {
+      InputsCount = 2;
+      strcpy(InputNames[0], "a");
+      strcpy(InputNames[1], "b");
+
+      switch (_curr_op)
+      {
+        case MATH_NODE_SIN:
+        case MATH_NODE_COS:
+          InputsCount = 1;
+          break;
+        case MATH_NODE_ADD:
+        case MATH_NODE_SUBTRACT:
+        case MATH_NODE_MULTIPLY:
+        case MATH_NODE_DIVIDE:
+        case MATH_NODE_POW:
+        case MATH_NODE_MIN:
+        case MATH_NODE_MAX:
+          InputsCount = 2;
+          break;
+        case MATH_NODE_LERP:
+          InputsCount = 3;
+          strcpy(InputNames[2], "m");
+          break;
+        case MATH_NODE_CLAMP:
+          InputsCount = 3;
+          strcpy(InputNames[1], "l");
+          strcpy(InputNames[2], "h");
+      }
+    }
     ImGui::PopItemWidth();
 
     return ret;
