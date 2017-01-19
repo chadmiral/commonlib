@@ -426,13 +426,14 @@ public:
 
     if (_prefetch_counter == 0)
     {
-      os << whitespace << Name << "("; //TODO
+      std::string type_name = "vec4"; //TODO
+      os << whitespace << type_name << " " << _prefetch_name << " = " << Name << "(";
       for (uint32_t i = 0; i < _inputs.size(); i++)
       {
         _inputs[i]->generate_glsl(os, _out_connections[i]);
         if (i != _inputs.size() - 1) { os << ", "; }
       }
-      os << ")";
+      os << ");" << std::endl;
 
       _prefetch_counter++;
     }
