@@ -86,8 +86,6 @@ private:
 
   bool _depth_read;
   bool _depth_write;
-
-  std::vector<std::pair<std::string, GLSLType> >  _varying_vars;
   
   std::vector<std::string>  _texture_names;
   std::vector<std::string>  _ui_texture_names;
@@ -117,6 +115,8 @@ public:
   void render();
 
   bool visible;
+
+  std::vector<std::pair<GLSLType, std::string> > _varying_vars;
 private:
   void open();
   void save_as(std::string fname);

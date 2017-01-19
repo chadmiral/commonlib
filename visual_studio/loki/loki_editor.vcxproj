@@ -37,6 +37,7 @@
     <ClCompile Include="..\..\loki\views\animation_tool.cpp" />
     <ClCompile Include="..\..\loki\views\material_tool.cpp" />
     <ClCompile Include="..\..\loki\views\mesh_viewer.cpp" />
+    <ClCompile Include="..\..\loki\views\shader_nodes.cpp" />
     <ClCompile Include="..\..\mathlib\src\aabb.cpp" />
     <ClCompile Include="..\..\mathlib\src\curve.cpp" />
     <ClCompile Include="..\..\mathlib\src\function.cpp" />

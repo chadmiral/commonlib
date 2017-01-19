@@ -7,6 +7,8 @@
 
 #include "addons/imguinodegrapheditor/imguinodegrapheditor.h"
 
+class MaterialTool;
+
 enum ShaderNodeType
 {
   SHADER_NODE_VS_OUTPUT,
@@ -182,19 +184,9 @@ public:
   }
   ~FSInputNode() {}
 
-  virtual bool render(float node_width)
-  {
-    bool ret = ImGui::Node::render(node_width);
+  void update_links();
 
-    for (uint32_t i = 0; i < _var_names.size(); i++)
-    {
-      std::stringstream ss;
-      ss << i << ": " << _var_names[i].c_str();
-      ImGui::Text(ss.str().c_str());
-    }
-
-    return ret;
-  }
+  virtual bool render(float node_width);
 
   virtual void generate_glsl(std::ostream &os, int output_idx) const
   {
@@ -220,66 +212,13 @@ public:
 
 class VertexShaderOutputNode : public ShaderNode
 {
-private:
-  std::vector<std::string> _var_names;
 public:
-  VertexShaderOutputNode(const ImVec2 &pos) : ShaderNode(pos, SHADER_NODE_VS_OUTPUT)
-  {
-    InputsCount = 1;
-    strcpy(InputNames[0], "0");
-    _var_names.push_back("out_xyzw");
-    OutputsCount = 0;
-  }
+  VertexShaderOutputNode(const ImVec2 &pos);
   ~VertexShaderOutputNode() {}
 
-  virtual bool render(float node_width)
-  {
-    bool ret = ImGui::Node::render(node_width);
-
-    for (uint32_t i = 0; i < InputsCount; i++)
-    {
-      std::stringstream ss;
-      ss << i << ": " << _var_names[i].c_str();
-      ImGui::Text(ss.str().c_str());
-    }
-
-    if (ImGui::Button("+"))
-    {
-      std::string var_name = std::string("var_") + std::to_string(InputsCount);
-      add_var(var_name, GLSL_VEC3);
-    }
-    if (ImGui::IsItemHovered())
-      ImGui::SetTooltip("Varying variables pass and interpolate data from the vertex to the fragment shader");
-
-    return ret;
-  }
-
-  void add_var(std::string name, GLSLType type)
-  {
-    _var_names.push_back(name);
-    strcpy(InputNames[InputsCount], "");
-    std::string label = std::to_string(InputsCount);
-    strcpy(InputNames[InputsCount++], label.c_str());
-  }
-
-  void get_var_names(std::vector<std::string> &names)
-  {
-    for (uint32_t i = 0; i < InputsCount; i++)
-    {
-      names.push_back(_var_names[i]);
-    }
-  }
-
-  virtual void generate_glsl(std::ostream &os, int output_idx) const
-  {
-    //assert(_inputs.size() == InputsCount);
-    for (uint32_t i = 0; i < _inputs.size(); i++)
-    {
-      os << "\t" << _var_names[i].c_str() << " = ";
-      _inputs[i]->generate_glsl(os, _out_connections[i]);
-      os << ";" << std::endl;
-    }
-  }
+  virtual bool render(float node_width);
+  void update_links();
+  virtual void generate_glsl(std::ostream &os, int output_idx) const;
 };
 
 class FragmentShaderOutputNode : public ShaderNode

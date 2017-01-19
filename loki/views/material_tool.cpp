@@ -7,6 +7,8 @@
 
 using namespace std;
 
+static void *Node_usr_ptr = NULL;
+
 std::string open_file(std::string dir)
 {
   char szFile[100];
@@ -67,6 +69,11 @@ void link_callback(const ImGui::NodeLink& link, ImGui::NodeGraphEditor::LinkStat
   }
 }
 
+void node_callback(ImGui::Node*& node, ImGui::NodeGraphEditor::NodeState state, ImGui::NodeGraphEditor& editor)
+{
+  node->user_ptr = Node_usr_ptr;
+}
+
 ImGui::Node* node_factory_delegate(int nodeType, const ImVec2& pos)
 {
   ImGui::Node *ret_node = NULL;
@@ -112,17 +119,12 @@ ImGui::Node* node_factory_delegate(int nodeType, const ImVec2& pos)
   return ret_node;
 }
 
-//TODO: put this somewhere better
-/*std::ostream &operator<<(std::ostream &os, const ShaderNode &obj)
-{
-  obj.generate_glsl(os, -1);
-
-  return os;
-}
-*/
-
 MaterialTool::MaterialTool()
 {
+
+  _varying_vars.push_back(std::make_pair(GLSL_VEC4, "out_xyzw"));
+
+  Node_usr_ptr = this;
   visible = true;
 
   strcpy(_material_name, "Material 01");
@@ -162,6 +164,7 @@ MaterialTool::MaterialTool()
     _nge[i].show_left_pane = false;
     _nge[i].registerNodeTypes(Shader_node_type_names, NUM_SHADER_NODE_TYPES, node_factory_delegate);
     _nge[i].setLinkCallback(link_callback);
+    _nge[i].setNodeCallback(node_callback);
   }
 
   /*
@@ -697,13 +700,13 @@ void MaterialTool::generate_glsl(std::ostream &codex)
     codex << endl;
 
     //output / varying variables
-    std::vector<std::string> out_var_names;
-    n->get_var_names(out_var_names);
+    //std::vector<std::string> out_var_names;
+    //n->get_var_names(out_var_names);
     codex << "// output variables (to be passed to the fragment shader)" << endl;
-    for (uint32_t j = 0; j < out_var_names.size(); j++)
+    for (uint32_t j = 0; j < _varying_vars.size(); j++)
     {
-      std::string type_name("vec4");
-      codex << "out " << type_name.c_str() << " " << out_var_names[j].c_str() << ";" << endl;
+      std::string type_name(GLSL_type_names[_varying_vars[j].first]);
+      codex << "out " << type_name.c_str() << " " << _varying_vars[j].second.c_str() << ";" << endl;
     }
 
     //glsl function definitions
