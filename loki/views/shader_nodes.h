@@ -68,6 +68,9 @@ class ShaderNode : public ImGui::Node
 protected:
   std::vector<ShaderNode *> _inputs;
   std::vector<uint32_t>     _out_connections;
+
+  std::string               _prefetch_name;
+  uint32_t                  _prefetch_counter;
 public:
   ShaderNode(const ImVec2 &pos, ShaderNodeType t) : ImGui::Node()
   {
@@ -75,12 +78,31 @@ public:
     strcpy(Name, Shader_node_type_names[t]);
     isOpen = true;
     typeID = t;
+    _prefetch_counter = 0;
   }
 
   ~ShaderNode() {}
 
+  void prep_for_code_generation()
+  {
+    _prefetch_counter = 0;
+  }
+
+  void set_prefetch_name(std::string n)
+  {
+    _prefetch_name = n;
+  }
+  std::string get_prefetch_name() { return _prefetch_name; }
+
   virtual bool render(float node_width) = 0;
   virtual void generate_glsl(std::ostream &os, int output_idx) const = 0;
+  virtual void generate_prefetch_declarations(std::string whitespace, std::ostream &os, int output_idx)
+  {
+    for (uint32_t i = 0; i < _inputs.size(); i++)
+    {
+      _inputs[i]->generate_prefetch_declarations(whitespace, os, _out_connections[i]);
+    }
+  }
 
   void add_link(ImGui::NodeLink l)
   {
@@ -131,6 +153,8 @@ public:
     os << _var_names[output_idx].c_str();
   }
 
+  virtual void generate_prefetch_declarations(std::string whitespace, std::ostream &os, int output_idx) {}
+
   void variable_declaration(std::ostream &os, uint32_t idx)
   {
     std::string var_type("vec3");
@@ -176,6 +200,8 @@ public:
   {
     os << _var_names[output_idx].c_str();
   }
+
+  virtual void generate_prefetch_declarations(std::string whitespace, std::ostream &os, int output_idx) {}
 
   void variable_declaration(std::ostream &os, uint32_t idx)
   {
@@ -278,12 +304,15 @@ public:
   {
     os << "<IMPLEMENT_ME>" << std::endl;
   }
+
+  virtual void generate_prefetch_declarations(std::string whitespace, std::ostream &os, int output_idx)
+  {
+    os << "<PREFETCH: IMPLEMENT_ME>" << std::endl;
+  }
 };
 
 class TextureNode : public ShaderNode
 {
-private:
-  std::string _prefetch_name;
 public:
   TextureNode(const ImVec2 &pos) : ShaderNode(pos, SHADER_NODE_TEXTURE2D)
   {
@@ -294,11 +323,6 @@ public:
   }
   ~TextureNode() {}
 
-  void set_prefetch_name(std::string n)
-  {
-    _prefetch_name = n;
-  }
-
   virtual bool render(float node_width) { return ImGui::Node::render(node_width); }
 
   virtual void generate_glsl(std::ostream &os, int output_idx) const
@@ -306,11 +330,25 @@ public:
     os << _prefetch_name;
   }
 
+  virtual void generate_prefetch_declarations(std::string whitespace, std::ostream &os, int output_idx)
+  {
+    if (_prefetch_counter == 0)
+    {
+      _inputs[0]->generate_prefetch_declarations(whitespace, os, _out_connections[0]);
+      os << whitespace << "vec4 " << _prefetch_name << " = texture2D(" << Name << ", ";
+      _inputs[0]->generate_glsl(os, _out_connections[0]);
+      os << ");" << std::endl;
+
+      _prefetch_counter++;
+    }
+  }
+
   void generate_prefetch_glsl(std::ostream &os, int output_idx) const
   {
-    os << "texture2D(" << Name << ", ";
-    _inputs[0]->generate_glsl(os, _out_connections[0]);
-    os << ")";
+    assert(false);
+    //os << "texture2D(" << Name << ", ";
+    //_inputs[0]->generate_glsl(os, _out_connections[0]);
+    //os << ")";
   }
 };
 
@@ -342,7 +380,7 @@ public:
       OutputsCount = 1;
       strcpy(OutputNames[0], "out");
       strcpy(_buffer, "//example function\nfloat glsl_function(vec3 a, vec3 b)\n{\n\treturn dot(a, b);\n}");
-    
+
       InputsCount = 2;
       strcpy(InputNames[0], "a");
       strcpy(InputNames[1], "b");
@@ -375,6 +413,35 @@ public:
 
   virtual void generate_glsl(std::ostream &os, int output_idx) const
   {
+    os << _prefetch_name;
+  }
+
+  virtual void generate_prefetch_declarations(std::string whitespace, std::ostream &os, int output_idx)
+  {
+    //backtrace
+    for (uint32_t i = 0; i < _inputs.size(); i++)
+    {
+      _inputs[i]->generate_prefetch_declarations(whitespace, os, _out_connections[i]);
+    }
+
+    if (_prefetch_counter == 0)
+    {
+      os << whitespace << Name << "("; //TODO
+      for (uint32_t i = 0; i < _inputs.size(); i++)
+      {
+        _inputs[i]->generate_glsl(os, _out_connections[i]);
+        if (i != _inputs.size() - 1) { os << ", "; }
+      }
+      os << ")";
+
+      _prefetch_counter++;
+    }
+  }
+
+  void generate_prefetch_glsl(std::ostream &os, int output_idx)
+  {
+    assert(false);
+    /*
     os << Name << "("; //TODO
     for (uint32_t i = 0; i < _inputs.size(); i++)
     {
@@ -382,6 +449,7 @@ public:
       if (i != _inputs.size() - 1) { os << ", "; }
     }
     os << ")";
+    */
   }
 
   void function_declaration(std::ostream &os) const

@@ -677,6 +677,9 @@ void MaterialTool::generate_glsl(std::ostream &codex)
     for (uint32_t j = 0; j < texture_nodes.size(); j++)
     {
       TextureNode *tex_node = (TextureNode *)texture_nodes[j];
+      std::string var_name = "tex_prefetch_" + std::to_string(j);
+      tex_node->set_prefetch_name(var_name);
+      tex_node->prep_for_code_generation();
       codex << "in sampler2D " << tex_node->getName() << ";" << endl;
     }
     codex << endl;
@@ -706,7 +709,11 @@ void MaterialTool::generate_glsl(std::ostream &codex)
     //glsl function definitions
     for (uint32_t j = 0; j < glsl_nodes.size(); j++)
     {
-      TextNode *text_node = (TextNode *)glsl_nodes[i];
+      TextNode *text_node = (TextNode *)glsl_nodes[j];
+      std::string var_name = "func_prefetch_" + std::to_string(j);
+      text_node->set_prefetch_name(var_name);
+      text_node->prep_for_code_generation();
+
       codex << endl;
       text_node->function_declaration(codex);
       codex << endl;
@@ -717,15 +724,28 @@ void MaterialTool::generate_glsl(std::ostream &codex)
     codex << "{" << endl;
 
     //prefetch textures
+    //actually... I think we need to back-trace to all the previous nodes and
+    // have them spit out their prefetch declaration
+    n->generate_prefetch_declarations("\t", codex, -1);
+    /*
     for (uint32_t j = 0; j < texture_nodes.size(); j++)
     {
       TextureNode *tex_node = (TextureNode *)texture_nodes[j];
-      std::string var_name = "tex_prefetch_" + std::to_string(j);
-      tex_node->set_prefetch_name(var_name);
-      codex << "\tvec4 " << var_name << " = ";
+      codex << "\tvec4 " << tex_node->get_prefetch_name() << " = ";
       tex_node->generate_prefetch_glsl(codex, -1);
       codex << ";" << endl;
     }
+
+    //prefetch glsl blocks
+    for (uint32_t j = 0; j < glsl_nodes.size(); j++)
+    {
+      TextNode *text_node = (TextNode *)glsl_nodes[j];
+      std::string ret_type = "vec4"; //TODO
+      codex << "\t"<< ret_type << " " << text_node->get_prefetch_name() << " = ";
+      text_node->generate_prefetch_glsl(codex, -1);
+      codex << ";" << endl;
+    }
+    */
 
     //now trace back up the path
     n->generate_glsl(codex, -1);

@@ -25,7 +25,7 @@ static char fs_src_410[] =
 "\n"
 "void main()\n"
 "{\n"
-"  color = vec4(1.0, uv0.s, 0.0, 1.0);"
+"  color = vec4(uv0.st, 0.0, 1.0);"
 "}\n";
 
 
@@ -39,7 +39,7 @@ static char mesh_vs_src[] =
 "\n"
 "void main()\n"
 "{\n"
-"  gl_Position = proj_mat * modelview_mat * vec4(in_xyz, 1.0);\n"
+"  gl_Position = /*proj_mat * modelview_mat */ vec4(in_xyz, 1.0);\n"
 "}\n";
 
 static char mesh_fs_src[] =
@@ -110,7 +110,7 @@ void MeshViewer::render_mesh()
   _mesh_projection.set_var(projection);
   _mesh_modelview.set_var(model_view);
 
-  Float3 clear_color(0.2f, 0.2f, 0.25f);
+  Float3 clear_color(1.0f, 0.2f, 0.25f);
   //clear_color[0] = random(0.0f, 1.0f);
 
   glClearColor(clear_color[0], clear_color[1], clear_color[2], 1.0f);
@@ -209,6 +209,7 @@ void MeshViewer::render()
   _render_target.capture();
     render_mesh();
   _render_target.release();
+  //_render_target.render();
 
   if (_mesh)
   {

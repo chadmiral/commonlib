@@ -31,6 +31,21 @@ private:
   void load_mesh();
   void render_mesh();
 
+  struct TestVertex
+  {
+    float pos[3];
+  };
+
+  //test stuff DELETE
+  uint32_t                _num_vertices;
+  TestVertex             *_vertices;
+
+  uint32_t                _num_indices;
+  uint32_t               *_indices;
+
+  GLuint                  _vbo;
+  GLuint                  _ibo;
+
 public:
   MeshViewer();
   ~MeshViewer() { deinit(); }
