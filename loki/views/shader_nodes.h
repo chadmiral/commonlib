@@ -579,7 +579,7 @@ public:
 
     ImGui::InputText("", Name, 32);
 
-    if (ImGui::Combo("type", &_curr_type, GLSL_type_names, NUM_GLSL_TYPES))
+    if (ImGui::Combo("", &_curr_type, GLSL_type_names, NUM_GLSL_TYPES))
     {
       /*switch (_curr_type)
       {

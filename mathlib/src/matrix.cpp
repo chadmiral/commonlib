@@ -232,6 +232,7 @@ Matrix4x4::Matrix4x4(const float _00, const float _01, const float _02, const fl
 Matrix4x4::Matrix4x4(const Matrix3x3 &mat, const Float3 &pos)
 {
   //identity();
+
   for (uint32_t i = 0; i < 3; i++)
   {
     for (uint32_t j = 0; j < 3; j++)
@@ -547,6 +548,35 @@ void Matrix4x4::perspective(float fovy, float aspect, float zNear, float zFar)
 
 void Matrix4x4::look_at(Float3 &eye_pos, Float3 &look_at_pos, Float3 &up)
 {
+  identity();
+
+  Float3  f = look_at_pos - eye_pos;
+  f.normalize();
+  Float3 u = up;
+  u.normalize();
+  Float3 s = f ^ u;
+  s.normalize();
+  u = s ^ f;
+
+  m[0][0] = s[0];
+  m[1][0] = s[1];
+  m[2][0] = s[2];
+
+  m[0][1] = u[0];
+  m[1][1] = u[1];
+  m[2][1] = u[2];
+
+  m[0][2] = -f[0];
+  m[1][2] = -f[1];
+  m[2][2] = -f[2];
+
+  m[3][0] = -(u * eye_pos);
+  m[3][1] = -(s * eye_pos);
+  m[3][2] = (f * eye_pos);
+
+  //transpose();
+
+  /*
   //assume up vector is already normalized
   Float3 f = look_at_pos - eye_pos;
   f.normalize();
@@ -573,6 +603,7 @@ void Matrix4x4::look_at(Float3 &eye_pos, Float3 &look_at_pos, Float3 &up)
   m[3][1] = 0.0f;
   m[3][2] = 0.0f;
   m[3][3] = 1.0f;
+  */
 }
 
 ostream& Math::operator<<(ostream &os, const Matrix2x2 &m)

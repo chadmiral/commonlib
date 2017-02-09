@@ -63,6 +63,12 @@ namespace Tool
     std::vector<TmpAttrib>   _attribs;
   };
 
+  struct MaterialTemplate
+  {
+    std::string _name;
+    std::string _fname;
+  };
+
   class MaterialPackageAsset : public PackageAsset
   {
   public:
@@ -71,6 +77,16 @@ namespace Tool
       _file_size = 0;
       _file_data = NULL;
     }
+
+    MaterialPackageAsset(MaterialTemplate &mt) : PackageAsset(PACKAGE_ASSET_MATERIAL)
+    {
+      _file_size = 0;
+      _file_data = NULL;
+
+      name = mt._name;
+      fname = mt._fname;
+    }
+
     ~MaterialPackageAsset()
     {
       if (_file_data) { delete _file_data; }

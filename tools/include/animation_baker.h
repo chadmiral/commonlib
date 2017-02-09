@@ -6,10 +6,21 @@
 
 namespace Tool
 {
+  struct AnimationTemplate
+  {
+    std::string _name;
+    std::string _fname;
+  };
+
   class AnimationPackageAsset : public PackageAsset
   {
   public:
     AnimationPackageAsset() : PackageAsset(PACKAGE_ASSET_ANIMATION) {  }
+    AnimationPackageAsset(AnimationTemplate &at) : PackageAsset(PACKAGE_ASSET_ANIMATION)
+    {
+      name = at._name;
+      fname = at._fname;
+    }
     ~AnimationPackageAsset() { }
 
     Animation::SkeletonAnimation anim;

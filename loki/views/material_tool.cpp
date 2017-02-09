@@ -693,7 +693,7 @@ void MaterialTool::generate_glsl(std::ostream &codex)
     {
       ConstantNode *const_node = (ConstantNode *)constant_nodes[j];
       std::string const_type = const_node->get_var_type_name();
-      codex << "const " << const_type.c_str() << " " << const_node->getName() <<" = ";
+      codex << /*"const " <<*/ const_type.c_str() << " " << const_node->getName() <<" = ";
       std::string val_string = const_node->get_value_string();
       codex << val_string.c_str() << ";" << endl;
     }

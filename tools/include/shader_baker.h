@@ -5,10 +5,24 @@
 
 namespace Tool
 {
+  struct ShaderTemplate
+  {
+    std::string _name;
+    std::string _vs_fname;
+    std::string _fs_fname;
+  };
+
   class ShaderPackageAsset : public PackageAsset
   {
   public:
     ShaderPackageAsset() : PackageAsset(PACKAGE_ASSET_SHADER) {}
+    ShaderPackageAsset(ShaderTemplate &st) : PackageAsset(PACKAGE_ASSET_SHADER)
+    {
+      name = st._name;
+      fname = st._vs_fname;
+      vs_fname = st._vs_fname;
+      fs_fname = st._fs_fname;
+    }
     ~ShaderPackageAsset() {}
 
     std::string vs_fname;

@@ -18,7 +18,9 @@ void ShaderBaker::init()
   SDL_Window *win = SDL_CreateWindow("tmp", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 100, 100, SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN);
   SDL_GL_CreateContext(win);
 
+#ifndef __LOKI__
   glewInit();
+#endif //__LOKI__
 }
 
 void ShaderBaker::bake(mxml_node_t *tree, std::string output_fname, std::string tabs)

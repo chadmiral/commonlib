@@ -1,5 +1,7 @@
 #include "camera.h"
 #include "gl_error.h"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 using namespace Math;
 using namespace Graphics;
@@ -65,7 +67,21 @@ void Camera::get_projection_matrix(Matrix4x4 *m, float znear, float zfar)
 void Camera::get_model_view_matrix(Matrix4x4 *m)
 {
   Float3 lookat_pos = pos + lookat;
-  m->look_at(pos, lookat_pos, up);
+  //m->look_at(pos, lookat_pos, up);
+
+  glm::vec3 eye(pos[0], pos[1], pos[2]);
+  glm::vec3 center(lookat_pos[0], lookat_pos[1], lookat_pos[2]);
+  glm::vec3 up(up[0], up[1], up[2]);
+
+  glm::mat4 cam_mat = glm::lookAt(eye, center, up);
+
+  for (int i = 0; i < 4; i++)
+  {
+    for (int j = 0; j < 4; j++)
+    {
+      (*m)(i, j) = cam_mat[i][j];
+    }
+  }
 }
 
 void Camera::set_camera_parameters(const float fs, const float fd, const float fl, const float ss)

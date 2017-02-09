@@ -88,7 +88,9 @@ void Bakery::bake(std::string fname, std::string out_fname)
       node = mxmlFindElement(tree, tree, "package", "version", NULL, MXML_DESCEND);
       if (node)
       {
-        package_baker.bake(tree, output_fname);
+        PackageTemplate pt;
+        pt._version = atoi(mxmlElementGetAttr(node, "version"));
+        package_baker.bake(tree, output_fname, pt);
       }
     }
     else

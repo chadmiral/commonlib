@@ -22,14 +22,14 @@ namespace Graphics
     Math::Float3 transform_light_pos_to_screen_space(Light *l)
     {
       //transform sun_pos?
-      Math::Matrix4x4 model_view_mat;
-      _camera->get_model_view_matrix(&model_view_mat);
+      Math::Matrix4x4 eye_mat;
+      _camera->get_model_view_matrix(&eye_mat);
 
       //inverse transpose
       //model_view_mat.transpose();
       //model_view_mat.invert();
       Math::Float4 light_pos(l->get_pos(), 1.0f);
-      Math::Float4 transformed_light_pos = model_view_mat * light_pos;
+      Math::Float4 transformed_light_pos = eye_mat * light_pos;
 
       return transformed_light_pos.xyz();
 

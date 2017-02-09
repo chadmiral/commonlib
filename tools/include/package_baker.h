@@ -11,15 +11,46 @@
 #include "static_mesh_baker.h"
 #include "animation_baker.h"
 
+#if defined __LOKI__
+#define GL_CLAMP 0x2900 //TODO: do this more gracefully
+#endif
+
 #define PACKAGE_FILE_VERSION 1
 
 namespace Tool
 {
+  struct TextureTemplate
+  {
+    std::string _name;
+    std::string _format;
+    std::string _wrap_u;
+    std::string _wrap_v;
+    std::string _fname;
+  };
 
   class TexturePackageAsset : public PackageAsset
   {
   public:
     TexturePackageAsset() : PackageAsset(PACKAGE_ASSET_TEXTURE) { tex_data = NULL; tex_data_size = 0; wrap_u = GL_REPEAT; wrap_v = GL_REPEAT; }
+    TexturePackageAsset(TextureTemplate &tt) : PackageAsset(PACKAGE_ASSET_TEXTURE)
+    {
+      tex_data = NULL;
+      tex_data_size = 0;
+
+      name = tt._name;
+      fname = tt._fname;
+
+      wrap_u = GL_REPEAT;
+      wrap_v = GL_REPEAT;
+      if (tt._wrap_u.length() > 0 && !stricmp(tt._wrap_u.c_str(), "clamp"))
+      {
+        wrap_u = GL_CLAMP;
+      }
+      if (tt._wrap_v.length() > 0 && !stricmp(tt._wrap_v.c_str(), "clamp"))
+      {
+        wrap_v = GL_CLAMP;
+      }
+    }
     ~TexturePackageAsset() { if (tex_data) { delete tex_data; } }
 
     uint32_t width;  //texture width
@@ -32,13 +63,42 @@ namespace Tool
     uint32_t tex_data_size;   //size of the texture data
   };
 
+
+  struct UILayoutTemplate
+  {
+    std::string _name;
+    std::string _fname;
+  };
+
   class UILayoutPackageAsset : public PackageAsset
   {
   public:
     UILayoutPackageAsset() : PackageAsset(PACKAGE_ASSET_UI_LAYOUT) {}
+    UILayoutPackageAsset(UILayoutTemplate &ut) : PackageAsset(PACKAGE_ASSET_UI_LAYOUT)
+    {
+      name = ut._name;
+      fname = ut._fname;
+    }
     ~UILayoutPackageAsset() {}
 
     std::string xml_source;
+  };
+
+  struct PackageTemplate
+  {
+    uint32_t                          _version;
+
+    std::string                       _root_dir;
+    std::string                       _path;
+    std::string                       _output_file;
+
+    std::vector<ShaderTemplate>       _shaders;
+    std::vector<TextureTemplate>      _textures;
+    std::vector<MeshTemplate>         _meshes;
+    std::vector<SkeletonTemplate>     _skeletons;
+    std::vector<AnimationTemplate>    _animations;
+    std::vector<MaterialTemplate>     _materials;
+    std::vector<UILayoutTemplate>     _ui_layouts;
   };
 
   class PackageBaker
@@ -48,14 +108,22 @@ namespace Tool
     std::vector<PackageAsset *> assets;
     std::vector<std::string> asset_path;
 
+    void parse_shader_xml(mxml_node_t *shader_node, ShaderTemplate &st);
+    void parse_material_xml(mxml_node_t *material_node, MaterialTemplate &mt);
+    void parse_texture_xml(mxml_node_t *texture_node, TextureTemplate &tt);
+    void parse_mesh_xml(mxml_node_t *mesh_node, MeshTemplate &mt);
+    void parse_skeleton_xml(mxml_node_t *skeleton_node, SkeletonTemplate &st);
+    void parse_animation_xml(mxml_node_t *anim_node, AnimationTemplate &at);
+    void parse_ui_layout_xml(mxml_node_t *layout_node, UILayoutTemplate &ut);
+
     //TODO: shouldn't these be member functions of each package baker class?
-    void read_shader_file(mxml_node_t *shader_node, std::string tabs = "");
-    void read_material_file(mxml_node_t *material_node, std::string tabs = "", std::ostream &log = std::cout);
-    void read_texture_file(mxml_node_t *texture_node, std::string tabs = "");
-    void read_mesh_file(mxml_node_t *mesh_node, std::string tabs = "");
-    void read_skeleton_file(mxml_node_t *skeleton_node, std::string tabs = "");
-    void read_animation_file(mxml_node_t *animation_node, std::string tabs = "");
-    void read_ui_layout_file(mxml_node_t *layout_node, std::string tabs = "");
+    void read_shader_file(ShaderTemplate &st, std::ostream &log = std::cout);
+    void read_material_file(MaterialTemplate &mt, std::ostream &log = std::cout);
+    void read_texture_file(TextureTemplate &tt, std::ostream &log = std::cout);
+    void read_mesh_file(MeshTemplate &mt, std::ostream &log = std::cout);
+    void read_skeleton_file(SkeletonTemplate &st, std::ostream &log = std::cout);
+    void read_animation_file(AnimationTemplate &at, std::ostream &log = std::cout);
+    void read_ui_layout_file(UILayoutTemplate &ut, std::ostream &log = std::cout);
 
     void write_package(std::string output_fname, std::string tabs = "", std::ostream &log = std::cout);
 
@@ -73,6 +141,7 @@ namespace Tool
     ~PackageBaker() {}
 
     void init();
-    void bake(mxml_node_t *tree, std::string output_filename, std::string tabs = "");
+    void parse_xml(mxml_node_t *tree, PackageTemplate &pt, std::ostream &log = std::cout);
+    void bake(mxml_node_t *tree, std::string output_filename, PackageTemplate &pt, std::ostream &log = std::cout, std::string tabs = "");
   };
 };

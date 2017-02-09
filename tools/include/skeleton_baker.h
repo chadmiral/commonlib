@@ -6,10 +6,21 @@
 
 namespace Tool
 {
+  struct SkeletonTemplate
+  {
+    std::string _name;
+    std::string _fname;
+  };
+
   class SkeletonPackageAsset : public PackageAsset
   {
   public:
     SkeletonPackageAsset() : PackageAsset(PACKAGE_ASSET_SKELETON) { num_bones = 0; bones = NULL; }
+    SkeletonPackageAsset(SkeletonTemplate &st) : PackageAsset(PACKAGE_ASSET_SKELETON)
+    {
+      name = st._name;
+      fname = st._fname;
+    }
     ~SkeletonPackageAsset() { if (bones) { delete bones; } }
 
     uint32_t            num_bones;

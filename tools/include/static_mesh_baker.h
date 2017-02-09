@@ -10,10 +10,26 @@
 
 namespace Tool
 {
+  struct MeshTemplate
+  {
+    std::string _name;
+    std::string _fname;
+  };
+
   class MeshPackageAsset : public PackageAsset
   {
   public:
     MeshPackageAsset() : PackageAsset(PACKAGE_ASSET_MESH) { num_verts = 0; vertices = NULL; num_indices = 0; indices = NULL; }
+    MeshPackageAsset(MeshTemplate &mt) : PackageAsset(PACKAGE_ASSET_MESH)
+    {
+      num_verts = 0;
+      vertices = NULL;
+      num_indices = 0;
+      indices = NULL;
+
+      name = mt._name;
+      fname = mt._fname;
+    }
     ~MeshPackageAsset() {}
 
     uint32_t num_verts;

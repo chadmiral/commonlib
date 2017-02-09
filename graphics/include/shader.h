@@ -119,28 +119,6 @@ namespace Graphics
     void set_var(const Math::Float3 v) { var = v; }
   };
 
-  class ShaderUniformMatrix4x4 : public ShaderUniformVariable
-  {
-  private:
-    GLfloat var[16];
-  public:
-    ShaderUniformMatrix4x4() : ShaderUniformVariable() {}
-    ~ShaderUniformMatrix4x4() {}
-
-    virtual void render() const { glUniformMatrix4fv(_loc, 1, false, var); }
-    void set_var(const Math::Matrix4x4 &m)
-    {
-      uint32_t k = 0;
-      for (uint32_t i = 0; i < 4; i++)
-      {
-        for (uint32_t j = 0; j < 4; j++)
-        {
-          var[k++] = m(i, j);
-        }
-      }
-    }
-  };
-
   class ShaderUniformMatrix3x3 : public ShaderUniformVariable
   {
   private:
@@ -156,6 +134,28 @@ namespace Graphics
       for (uint32_t i = 0; i < 3; i++)
       {
         for (uint32_t j = 0; j < 3; j++)
+        {
+          var[k++] = m(i, j);
+        }
+      }
+    }
+  };
+
+  class ShaderUniformMatrix4x4 : public ShaderUniformVariable
+  {
+  private:
+    GLfloat var[16];
+  public:
+    ShaderUniformMatrix4x4() : ShaderUniformVariable() {}
+    ~ShaderUniformMatrix4x4() {}
+
+    virtual void render() const { glUniformMatrix4fv(_loc, 1, false, var); }
+    void set_var(const Math::Matrix4x4 &m)
+    {
+      uint32_t k = 0;
+      for (uint32_t i = 0; i < 4; i++)
+      {
+        for (uint32_t j = 0; j < 4; j++)
         {
           var[k++] = m(i, j);
         }
