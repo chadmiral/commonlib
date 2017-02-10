@@ -37,6 +37,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\..\loki\ui_common.cpp" />
     <ClCompile Include="..\..\loki\views\animation_tool.cpp" />
     <ClCompile Include="..\..\loki\views\material_tool.cpp" />
     <ClCompile Include="..\..\loki\views\mesh_viewer.cpp" />
@@ -106,6 +107,7 @@
     <ClInclude Include="..\..\graphics\include\vertex_formats.h" />
     <ClInclude Include="..\..\loki\imgui_impl_glfw_gl3.h" />
     <ClInclude Include="..\..\loki\stdafx.h" />
+    <ClInclude Include="..\..\loki\ui_common.h" />
     <ClInclude Include="..\..\loki\views\animation_tool.h" />
     <ClInclude Include="..\..\loki\views\loki_view.h" />
     <ClInclude Include="..\..\loki\views\material_tool.h" />
@@ -205,7 +207,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;__LOKI__;NO_IMGUIFILESYSTEM;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\..\;..\..\..\imgui_addons\;..\..\..\imgui;..\..\..\SDL2-2.0.4\include;..\..\..\glm-0.9.8.4\glm\;..\..\..\gl3w;..\..\..\SDL2_image-2.0.1\include\;..\..\..\glfw\include;..\..\graphics\include;..\..\mathlib\include;..\..\loki\views;..\..\game\include\animation;..\..\tools\src\mxml-2.9\;..\..\tools\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\loki\;..\..\;..\..\..\imgui_addons\;..\..\..\imgui;..\..\..\SDL2-2.0.4\include;..\..\..\glm-0.9.8.4\glm\;..\..\..\gl3w;..\..\..\SDL2_image-2.0.1\include\;..\..\..\glfw\include;..\..\graphics\include;..\..\mathlib\include;..\..\loki\views;..\..\game\include\animation;..\..\tools\src\mxml-2.9\;..\..\tools\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ShowIncludes>false</ShowIncludes>
     </ClCompile>
     <Link>
@@ -237,7 +239,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;__LOKI__;NO_IMGUIFILESYSTEM;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\..\;..\..\..\imgui_addons\;..\..\..\imgui;..\..\..\SDL2-2.0.4\include;..\..\..\glm-0.9.8.4\glm\;..\..\..\gl3w;..\..\..\SDL2_image-2.0.1\include\;..\..\..\glfw\include;..\..\graphics\include;..\..\mathlib\include;..\..\loki\views;..\..\game\include\animation;..\..\tools\src\mxml-2.9\;..\..\tools\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\loki\;..\..\;..\..\..\imgui_addons\;..\..\..\imgui;..\..\..\SDL2-2.0.4\include;..\..\..\glm-0.9.8.4\glm\;..\..\..\gl3w;..\..\..\SDL2_image-2.0.1\include\;..\..\..\glfw\include;..\..\graphics\include;..\..\mathlib\include;..\..\loki\views;..\..\game\include\animation;..\..\tools\src\mxml-2.9\;..\..\tools\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ShowIncludes>false</ShowIncludes>
     </ClCompile>
     <Link>
