@@ -1,5 +1,8 @@
+#include <fstream>
 #include "package_viewer.h"
 #include "ui_common.h"
+
+using namespace std;
 
 PackageViewer::PackageViewer() : LokiView()
 {
@@ -20,14 +23,21 @@ void PackageViewer::load_package(std::string pkg_fname)
   FILE *fp = fopen(pkg_fname.c_str(), "r");
   if (fp)
   {
+    _curr_pkg_fname = pkg_fname;
+
     mxml_node_t *tree = mxmlLoadFile(NULL, fp, MXML_TEXT_CALLBACK);
     assert(tree);
 
     //don't need the file anymore now that we have the xml tree
     fclose(fp);
 
-    Tool::PackageBaker pb;
-    pb.parse_xml(tree, _pt, std::cout);
+    mxml_node_t *node = mxmlFindElement(tree, tree, "package", "version", NULL, MXML_DESCEND);
+    if (node)
+    {
+      Tool::PackageBaker pb;
+      _pt._version = atoi(mxmlElementGetAttr(node, "version"));
+      pb.parse_xml(tree, _pt, std::cout);
+    }
   }
 
   //update ui data structures
@@ -75,6 +85,90 @@ void PackageViewer::load_package(std::string pkg_fname)
   }
 }
 
+void PackageViewer::save_package(std::string pkg_fname)
+{
+  std::ofstream of;
+  
+  //xml header + file version
+  of.open(pkg_fname.c_str());
+  of << "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"no\"?>" << endl;
+  of << "<package version=\"" << _pt._version << "\">" << endl;
+  of << endl;
+
+  //root dir + path + binary output file
+  of << "<root_dir>" << _pt._root_dir << "</root_dir>" << endl;
+  of << "<path>" << _pt._path << "</path>" << endl;
+  of << "<output_file>" << _pt._output_file << "</output_file>" << endl;
+  of << endl;
+
+  //meshes
+  for (uint32_t i = 0; i < _pt._meshes.size(); i++)
+  {
+    of << "<mesh name=\"" << _pt._meshes[i]._name << "\">" << _pt._meshes[i]._fname << "</mesh>" << endl;
+  }
+  of << endl;
+
+  //materials
+  for (uint32_t i = 0; i < _pt._materials.size(); i++)
+  {
+    of << "<material name=\"" << _pt._materials[i]._name << "\">" << _pt._materials[i]._fname << "</material>" << endl;
+  }
+  of << endl;
+
+  //shaders
+  for (uint32_t i = 0; i < _pt._shaders.size(); i++)
+  {
+    of << "<shader name=\"" << _pt._shaders[i]._name << "\">" << endl;
+    of << "\t<vertex_shader>" << _pt._shaders[i]._vs_fname << "</vertex_shader>" << endl;
+    of << "\t<fragment_shader>" << _pt._shaders[i]._fs_fname << "</fragment_shader>" << endl;
+    of << "</shader>" << endl;
+  }
+  of << endl;
+
+  //textures
+  for (uint32_t i = 0; i < _pt._textures.size(); i++)
+  {
+    of << "<texture name=\"" << _pt._textures[i]._name << "\"";
+    if (_pt._textures[i]._format.length() > 0)
+    {
+      of << " format=\"" << _pt._textures[i]._format << "\"";
+    }
+    if (_pt._textures[i]._wrap_u.length() > 0)
+    {
+      of << " wrap_u=\"" << _pt._textures[i]._wrap_u << "\"";
+    }
+    if (_pt._textures[i]._wrap_v.length() > 0)
+    {
+      of << " wrap_v=\"" << _pt._textures[i]._wrap_v << "\"";
+    }
+    of << ">" << _pt._textures[i]._fname << "</texture>" << endl;
+  }
+  of << endl;
+
+  //animations
+  for (uint32_t i = 0; i < _pt._animations.size(); i++)
+  {
+    of << "<animation name=\"" << _pt._animations[i]._name << "\">" << _pt._animations[i]._fname << "</animation>" << endl;
+  }
+  of << endl;
+
+  //skeletons
+  for (uint32_t i = 0; i < _pt._skeletons.size(); i++)
+  {
+    of << "<skeleton name=\"" << _pt._skeletons[i]._name << "\">" << _pt._skeletons[i]._fname << "</skeleton>" << endl;
+  }
+  of << endl;
+
+  //ui layouts
+  for (uint32_t i = 0; i < _pt._ui_layouts.size(); i++)
+  {
+    of << "<ui_layout name=\"" << _pt._ui_layouts[i]._name << "\">" << _pt._ui_layouts[i]._fname << "</ui_layout>" << endl;
+  }
+
+  of << "</package>" << endl;
+  of.close();
+}
+
 void PackageViewer::render()
 {
   if (visible)
@@ -92,7 +186,10 @@ void PackageViewer::render()
         }
         if (ImGui::MenuItem("Save"))
         {
-
+          if (_curr_pkg_fname.length() > 0)
+          {
+            save_package(_curr_pkg_fname);
+          }
         }
         if (ImGui::MenuItem("Save As..."))
         {

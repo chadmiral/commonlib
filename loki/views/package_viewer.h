@@ -9,6 +9,7 @@ class PackageViewer : public LokiView
 {
 private:
   Tool::PackageTemplate       _pt;
+  std::string                 _curr_pkg_fname;
 
   int                         _ui_curr_mesh;
   std::vector<std::string>    _ui_mesh_names;
@@ -31,4 +32,5 @@ public:
   virtual void render();
 
   void load_package(std::string pkg_fname);
+  void save_package(std::string pkg_fname);
 };
