@@ -642,7 +642,7 @@ void MaterialTool::generate_glsl(std::ostream &codex)
   assert(vs_in_nodes.size() == 1);
   MeshInputNode *in_node = (MeshInputNode *)vs_in_nodes[0];
 
-  for (uint32_t i = 0; i < vs_out_nodes.size(); i++) //really, there should only ever be one
+  for (int i = 0; i < vs_out_nodes.size(); i++) //really, there should only ever be one
   {
     VertexShaderOutputNode *n = (VertexShaderOutputNode *)vs_out_nodes[i];
     codex << "// Generated VS Output: " << n->getName() << endl;

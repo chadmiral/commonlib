@@ -883,7 +883,7 @@ public:
   virtual void generate_glsl(std::ostream &os, int output_idx) const
   {
     os << "vec" << InputsCount << "(";
-    for (uint32_t i = 0; i < InputsCount; i++)
+    for (int i = 0; i < InputsCount; i++)
     {
       _inputs[i]->generate_glsl(os, _out_connections[i]);
       //os << "." << component_name[i];
