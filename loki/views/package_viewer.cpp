@@ -313,23 +313,43 @@ void PackageViewer::render()
 void PackageViewer::render_mesh_ui()
 {
   char name_buffer[256], fname_buffer[256];
-  Tool::MeshTemplate *mt = &_pt._meshes[_ui_curr_selection[Tool::PACKAGE_ASSET_MESH]];
+  uint32_t idx = _ui_curr_selection[Tool::PACKAGE_ASSET_MESH];
+  Tool::MeshTemplate *mt = &_pt._meshes[idx];
   strcpy(name_buffer, mt->_name.c_str());
   strcpy(fname_buffer, mt->_fname.c_str());
   
   ImGui::InputText("Name", name_buffer, 256);
-  ImGui::InputText("File Name", fname_buffer, 256);
+
+  _ui_mesh_names[idx] = name_buffer; //terrible, fix this
+  mt->_name = name_buffer; 
+  
+  if (ImGui::Button("..."))
+  {
+    mt->_fname = make_filename_relative(open_file_dialog("/meshes", ".brick"));
+  }
+  ImGui::SameLine();
+  ImGui::Text(mt->_fname.c_str());
 }
 
 void PackageViewer::render_material_ui()
 {
   char name_buffer[256], fname_buffer[256];
-  Tool::MaterialTemplate *mt = &_pt._materials[_ui_curr_selection[Tool::PACKAGE_ASSET_MATERIAL]];
+  uint32_t idx = _ui_curr_selection[Tool::PACKAGE_ASSET_MATERIAL];
+  Tool::MaterialTemplate *mt = &_pt._materials[idx];
   strcpy(name_buffer, mt->_name.c_str());
   strcpy(fname_buffer, mt->_fname.c_str());
 
   ImGui::InputText("Name", name_buffer, 256);
-  ImGui::InputText("File Name", fname_buffer, 256);
+
+  _ui_material_names[idx] = name_buffer; //terrible, fix this
+  mt->_name = name_buffer;
+
+  if (ImGui::Button("..."))
+  {
+    mt->_fname = make_filename_relative(open_file_dialog("/materials", "Material\0*.mat\0All\0*.*"));
+  }
+  ImGui::SameLine();
+  ImGui::Text(mt->_fname.c_str());
 }
 
 void PackageViewer::render_shader_ui()

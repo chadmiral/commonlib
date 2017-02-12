@@ -1,6 +1,5 @@
 #include <vector>
 #include <string>
-#include <windows.h>
 #include <fstream>
 #include "platform.h"
 #include "material_tool.h"
@@ -9,28 +8,6 @@
 using namespace std;
 
 static void *Node_usr_ptr = NULL;
-
-std::string open_file(std::string dir)
-{
-  char szFile[100];
-  OPENFILENAME ofn;
-
-  ZeroMemory(&ofn, sizeof(ofn));
-  ofn.lStructSize = sizeof(ofn);
-  ofn.hwndOwner = NULL;
-  ofn.lpstrFile = szFile;
-  ofn.lpstrFile[0] = '\0';
-  ofn.nMaxFile = sizeof(szFile);
-  ofn.lpstrFilter = "All\0*.*\0Text\0*.TXT\0";
-  ofn.nFilterIndex = 1;
-  ofn.lpstrFileTitle = NULL;
-  ofn.nMaxFileTitle = 0;
-  ofn.lpstrInitialDir = NULL;
-  ofn.Flags = 0;// OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
-  GetOpenFileName(&ofn);
-
-  return std::string(ofn.lpstrFile);
-}
 
 void tab_content_provider(ImGui::TabWindow::TabLabel *tab, ImGui::TabWindow& parent, void* userPtr) {
   ImGui::Spacing(); ImGui::Separator();
@@ -384,7 +361,7 @@ void MaterialTool::render()
 
 void MaterialTool::open()
 {
-  _last_fname = open_file("bagasdf");
+  _last_fname = open_file_dialog("bagasdf");
 
   Tool::MaterialBaker mb;
   Tool::TmpMaterial _ui_mat;
@@ -517,7 +494,7 @@ void MaterialTool::save_as(std::string fname)
 {
   if (fname.size() == 0)
   {
-    _last_fname = open_file("blah");
+    _last_fname = open_file_dialog("blah");
   }
 
   uint32_t version = 1;

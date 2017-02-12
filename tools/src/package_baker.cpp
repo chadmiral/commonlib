@@ -544,10 +544,16 @@ void PackageBaker::parse_mesh_xml(mxml_node_t *mesh_node, MeshTemplate &mt)
 {
   const char *buffer = NULL;
   buffer = mxmlElementGetAttr(mesh_node, "name");
-  mt._name = buffer;
+  if (buffer)
+  {
+    mt._name = buffer;
+  }
 
   buffer = mxmlGetText(mesh_node, NULL);
-  mt._fname = buffer;
+  if (buffer)
+  {
+    mt._fname = buffer;
+  }
 }
 
 void PackageBaker::read_mesh_file(MeshTemplate &mt, std::ostream &log)
