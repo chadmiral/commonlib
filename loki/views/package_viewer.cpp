@@ -199,6 +199,15 @@ void PackageViewer::render()
     static uint32_t tree_group = 0;
     ImGui::BeginChild(tree_group, ImVec2(350, 0), true);
     {
+      if (ImGui::Button("+"))
+      {
+        add_new_asset();
+      }
+      ImGui::SameLine();
+      ImGui::Button("-"); ImGui::SameLine();
+      ImGui::Combo("", &_curr_new_asset, Tool::Package_asset_names, Tool::NUM_PACKAGE_ASSET_TYPES);
+
+
       ImGuiTreeNodeFlags leaf_flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 
       if (ImGui::TreeNode("Meshes"))
@@ -267,16 +276,8 @@ void PackageViewer::render()
     ImGui::SameLine();
 
     static uint32_t edit_group = 1;
-    ImGui::BeginChild(edit_group, ImVec2(350, 0), true);
+    ImGui::BeginChild(edit_group, ImVec2(450, 0), true);
     {
-      if (ImGui::Button("+"))
-      {
-        add_new_asset();
-      }
-      ImGui::SameLine();
-      ImGui::Button("-"); ImGui::SameLine();
-      ImGui::Combo("", &_curr_new_asset, Tool::Package_asset_names, Tool::NUM_PACKAGE_ASSET_TYPES);
-
       Tool::PackageAssetType pat = get_curr_asset_type();
       
       switch (pat)
@@ -325,7 +326,7 @@ void PackageViewer::render_mesh_ui()
   
   if (ImGui::Button("..."))
   {
-    mt->_fname = make_filename_relative(open_file_dialog("/meshes", ".brick"));
+    mt->_fname = make_filename_relative(open_file_dialog("/meshes", "Mesh\0*.brick\0All\*.*\0"));
   }
   ImGui::SameLine();
   ImGui::Text(mt->_fname.c_str());
@@ -346,7 +347,7 @@ void PackageViewer::render_material_ui()
 
   if (ImGui::Button("..."))
   {
-    mt->_fname = make_filename_relative(open_file_dialog("/materials", "Material\0*.mat\0All\0*.*"));
+    mt->_fname = make_filename_relative(open_file_dialog("/materials", "Material\0*.mat\0All\0*.*\0"));
   }
   ImGui::SameLine();
   ImGui::Text(mt->_fname.c_str());
@@ -354,68 +355,188 @@ void PackageViewer::render_material_ui()
 
 void PackageViewer::render_shader_ui()
 {
-  char name_buffer[256], fs_fname_buffer[256], vs_fname_buffer[256];
-  Tool::ShaderTemplate *st = &_pt._shaders[_ui_curr_selection[Tool::PACKAGE_ASSET_SHADER]];
+  char name_buffer[256], vs_fname_buffer[256], fs_fname_buffer[256];
+  uint32_t idx = _ui_curr_selection[Tool::PACKAGE_ASSET_SHADER];
+  Tool::ShaderTemplate *st = &_pt._shaders[idx];
   strcpy(name_buffer, st->_name.c_str());
-  strcpy(fs_fname_buffer, st->_fs_fname.c_str());
   strcpy(vs_fname_buffer, st->_vs_fname.c_str());
+  strcpy(fs_fname_buffer, st->_fs_fname.c_str());
 
   ImGui::InputText("Name", name_buffer, 256);
-  ImGui::InputText("Vertex Shader", vs_fname_buffer, 256);
-  ImGui::InputText("Fragment Shader", fs_fname_buffer, 256);
+
+  _ui_shader_names[idx] = name_buffer; //terrible, fix this
+  st->_name = name_buffer;
+
+  ImGui::Text("Vertex Shader");
+  if (ImGui::Button("..."))
+  {
+    st->_vs_fname = make_filename_relative(open_file_dialog("/shaders", "Vertex Shader\0*.vs\0All\0*.*\0"));
+  }
+  ImGui::SameLine();
+  ImGui::Text(st->_vs_fname.c_str());
+
+  ImGui::Text("Fragment Shader");
+  ImGui::PushID(64341); //won't detect button click otherwise
+  if (ImGui::Button("..."))
+  {
+    st->_fs_fname = make_filename_relative(open_file_dialog("/shaders", "Fragment Shader\0*.fs\0All\0*.*\0"));
+  }
+  ImGui::PopID();
+  ImGui::SameLine();
+  ImGui::Text(st->_fs_fname.c_str());
 }
 
 void PackageViewer::render_texture_ui()
 {
   char name_buffer[256], fname_buffer[256];
-  static int curr_format, wrap_u, wrap_v;
-
-  Tool::TextureTemplate *tt = &_pt._textures[_ui_curr_selection[Tool::PACKAGE_ASSET_TEXTURE]];
+  uint32_t idx = _ui_curr_selection[Tool::PACKAGE_ASSET_TEXTURE];
+  Tool::TextureTemplate *tt = &_pt._textures[idx];
   strcpy(name_buffer, tt->_name.c_str());
   strcpy(fname_buffer, tt->_fname.c_str());
 
   ImGui::InputText("Name", name_buffer, 256);
-  ImGui::InputText("File Name", fname_buffer, 256);
-  ImGui::Combo("Compression", &curr_format, "None\0DXT3\0DXT5\0BC1\0BC3\0BC7");
 
+  _ui_texture_names[idx] = name_buffer; //terrible, fix this
+  tt->_name = name_buffer;
+
+  if (ImGui::Button("..."))
+  {
+    tt->_fname = make_filename_relative(open_file_dialog("/meshes", "Image Files\0*.tga;*.png;*.jpg;*tif;*.tiff\0All\*.*\0"));
+  }
+  ImGui::SameLine();
+  ImGui::Text(tt->_fname.c_str());
+
+  static int curr_format = 0;
+  static int curr_wrap_u = 0;
+  static int curr_wrap_v = 0;
+
+  if (tt->_format.length() == 0) { curr_format = 0; }
+  else if (!tt->_format.compare("DXT3")) { curr_format = 1; }
+  else if (!tt->_format.compare("DXT5")) { curr_format = 2; }
+  ImGui::Combo("Compression", &curr_format, "None\0DXT3\0DXT5\0BC1\0BC3\0BC7");
+  switch (curr_format)
+  {
+  case 0:
+    tt->_format = "";
+    break;
+  case 1:
+    tt->_format = "DXT3";
+    break;
+  case 2:
+    tt->_format = "DXT5";
+    break;
+  default:
+    tt->_format = "";
+    break;
+  }
+
+  if (tt->_wrap_u.length() == 0) { curr_wrap_u = 0; }
+  else if (!tt->_wrap_u.compare("CLAMP")) { curr_wrap_u = 1; }
+  else if (!tt->_wrap_u.compare("CLAMP_BORDER")) { curr_wrap_u = 2; }
+
+  if (tt->_wrap_v.length() == 0) { curr_wrap_v = 0; }
+  else if (!tt->_wrap_v.compare("CLAMP")) { curr_wrap_v = 1; }
+  else if (!tt->_wrap_v.compare("CLAMP_BORDER")) { curr_wrap_v = 2; }
   ImGui::Text("Wrap Mode");
-  ImGui::PushItemWidth(120);
-  ImGui::Combo("U", &wrap_u, "REPEAT\0CLAMP\0CLAMP_BORDER"); ImGui::SameLine();
-  ImGui::Combo("V", &wrap_v, "REPEAT\0CLAMP\0CLAMP_BORDER");
+  ImGui::PushItemWidth(140);
+  ImGui::Combo("U", &curr_wrap_u, "REPEAT\0CLAMP\0CLAMP_BORDER"); ImGui::SameLine();
+  ImGui::Combo("V", &curr_wrap_v, "REPEAT\0CLAMP\0CLAMP_BORDER");
   ImGui::PopItemWidth();
+
+  switch (curr_wrap_u)
+  {
+  case 0:
+    tt->_wrap_u = "";
+    break;
+  case 1:
+    tt->_wrap_u = "CLAMP";
+    break;
+  case 2:
+    tt->_wrap_u = "CLAMP_BORDER";
+    break;
+  default:
+    tt->_wrap_u = "";
+    break;
+  }
+
+  switch (curr_wrap_v)
+  {
+  case 0:
+    tt->_wrap_v = "";
+    break;
+  case 1:
+    tt->_wrap_v = "CLAMP";
+    break;
+  case 2:
+    tt->_wrap_v = "CLAMP_BORDER";
+    break;
+  default:
+    tt->_wrap_v = "";
+    break;
+  }
 }
 
 void PackageViewer::render_animation_ui()
 {
   char name_buffer[256], fname_buffer[256];
-  Tool::AnimationTemplate *at = &_pt._animations[_ui_curr_selection[Tool::PACKAGE_ASSET_ANIMATION]];
+  uint32_t idx = _ui_curr_selection[Tool::PACKAGE_ASSET_ANIMATION];
+  Tool::AnimationTemplate *at = &_pt._animations[idx];
   strcpy(name_buffer, at->_name.c_str());
   strcpy(fname_buffer, at->_fname.c_str());
 
   ImGui::InputText("Name", name_buffer, 256);
-  ImGui::InputText("File Name", fname_buffer, 256);
+
+  _ui_animation_names[idx] = name_buffer; //terrible, fix this
+  at->_name = name_buffer;
+
+  if (ImGui::Button("..."))
+  {
+    at->_fname = make_filename_relative(open_file_dialog("/animations", "Animation\0*.anim\0All\0*.*\0"));
+  }
+  ImGui::SameLine();
+  ImGui::Text(at->_fname.c_str());
 }
 
 void PackageViewer::render_skeleton_ui()
 {
   char name_buffer[256], fname_buffer[256];
-  Tool::SkeletonTemplate *st = &_pt._skeletons[_ui_curr_selection[Tool::PACKAGE_ASSET_SKELETON]];
+  uint32_t idx = _ui_curr_selection[Tool::PACKAGE_ASSET_SKELETON];
+  Tool::SkeletonTemplate *st = &_pt._skeletons[idx];
   strcpy(name_buffer, st->_name.c_str());
   strcpy(fname_buffer, st->_fname.c_str());
 
   ImGui::InputText("Name", name_buffer, 256);
-  ImGui::InputText("File Name", fname_buffer, 256);
+
+  _ui_skeleton_names[idx] = name_buffer; //terrible, fix this
+  st->_name = name_buffer;
+
+  if (ImGui::Button("..."))
+  {
+    st->_fname = make_filename_relative(open_file_dialog("/skeletons", "Skeleton\0*.bones\0All\0*.*\0"));
+  }
+  ImGui::SameLine();
+  ImGui::Text(st->_fname.c_str());
 }
 
 void PackageViewer::render_ui_layout_ui()
 {
   char name_buffer[256], fname_buffer[256];
-  Tool::UILayoutTemplate *ut = &_pt._ui_layouts[_ui_curr_selection[Tool::PACKAGE_ASSET_UI_LAYOUT]];
+  uint32_t idx = _ui_curr_selection[Tool::PACKAGE_ASSET_UI_LAYOUT];
+  Tool::UILayoutTemplate *ut = &_pt._ui_layouts[idx];
   strcpy(name_buffer, ut->_name.c_str());
   strcpy(fname_buffer, ut->_fname.c_str());
 
   ImGui::InputText("Name", name_buffer, 256);
-  ImGui::InputText("File Name", fname_buffer, 256);
+
+  _ui_ui_layout_names[idx] = name_buffer; //terrible, fix this
+  ut->_name = name_buffer;
+
+  if (ImGui::Button("..."))
+  {
+    ut->_fname = make_filename_relative(open_file_dialog("/ui", "UI Layout\0*.layout.xml\0All\0*.*\0"));
+  }
+  ImGui::SameLine();
+  ImGui::Text(ut->_fname.c_str());
 }
 
 Tool::PackageAssetType PackageViewer::get_curr_asset_type()
