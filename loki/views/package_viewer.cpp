@@ -178,18 +178,21 @@ void PackageViewer::render()
         if (ImGui::MenuItem("Open Package File...", NULL, false))
         {
           //TODO: allow open file dialog
-          load_package("../../../mundus/data/packages/pkg_test.pkg.xml");
+          std::string fname = open_file_dialog("/packages/", "Game Package\0*.pkg.xml\0");
+          load_package(fname);
         }
         if (ImGui::MenuItem("Save"))
         {
-          if (_curr_pkg_fname.length() > 0)
+          if (_curr_pkg_fname.length() == 0)
           {
-            save_package(_curr_pkg_fname);
+            _curr_pkg_fname = open_file_dialog("/packages/", "Game Package\0*.pkg.xml\0");
           }
+          save_package(_curr_pkg_fname);
         }
         if (ImGui::MenuItem("Save As..."))
         {
-
+          std::string fname = open_file_dialog("/packages/", "Game Package\0*.pkg.xml\0");
+          save_package(fname);
         }
         ImGui::EndMenu();
       }
