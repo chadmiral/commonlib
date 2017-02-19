@@ -1,0 +1,533 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		766F1C1E1E353E460005D2A1 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 766F1C1D1E353E460005D2A1 /* main.cpp */; };
+		766F1C231E353EA10005D2A1 /* imgui_demo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 766F1C201E353EA10005D2A1 /* imgui_demo.cpp */; };
+		766F1C241E353EA10005D2A1 /* imgui_draw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 766F1C211E353EA10005D2A1 /* imgui_draw.cpp */; };
+		766F1C251E353EA10005D2A1 /* imgui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 766F1C221E353EA10005D2A1 /* imgui.cpp */; };
+		766F1C281E3540D10005D2A1 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 766F1C271E3540D10005D2A1 /* OpenGL.framework */; };
+		766F1C2F1E3548790005D2A1 /* gl3w.c in Sources */ = {isa = PBXBuildFile; fileRef = 766F1C2E1E3548790005D2A1 /* gl3w.c */; };
+		766F1C311E354B850005D2A1 /* imgui_impl_glfw_gl3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 766F1C301E354B850005D2A1 /* imgui_impl_glfw_gl3.cpp */; };
+		766F1C391E354D140005D2A1 /* animation_tool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 766F1C331E354D140005D2A1 /* animation_tool.cpp */; };
+		766F1C3A1E354D140005D2A1 /* material_tool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 766F1C351E354D140005D2A1 /* material_tool.cpp */; };
+		766F1C3B1E354D140005D2A1 /* mesh_viewer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 766F1C371E354D140005D2A1 /* mesh_viewer.cpp */; };
+		766F1C511E354E740005D2A1 /* aabb.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 766F1C3E1E354E740005D2A1 /* aabb.cpp */; };
+		766F1C521E354E740005D2A1 /* curve.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 766F1C3F1E354E740005D2A1 /* curve.cpp */; };
+		766F1C531E354E740005D2A1 /* function.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 766F1C401E354E740005D2A1 /* function.cpp */; };
+		766F1C561E354E740005D2A1 /* gpu_voronoi.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 766F1C431E354E740005D2A1 /* gpu_voronoi.cpp */; };
+		766F1C571E354E740005D2A1 /* math_utility.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 766F1C441E354E740005D2A1 /* math_utility.cpp */; };
+		766F1C581E354E740005D2A1 /* matrix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 766F1C451E354E740005D2A1 /* matrix.cpp */; };
+		766F1C591E354E740005D2A1 /* perlin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 766F1C461E354E740005D2A1 /* perlin.cpp */; };
+		766F1C5A1E354E740005D2A1 /* quaternion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 766F1C481E354E740005D2A1 /* quaternion.cpp */; };
+		766F1C5B1E354E740005D2A1 /* raytrace.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 766F1C491E354E740005D2A1 /* raytrace.cpp */; };
+		766F1C5C1E354E740005D2A1 /* shapes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 766F1C4A1E354E740005D2A1 /* shapes.cpp */; };
+		766F1C5D1E354E740005D2A1 /* triangulation_3d.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 766F1C4B1E354E740005D2A1 /* triangulation_3d.cpp */; };
+		766F1C5E1E354E740005D2A1 /* triangulation_sphere.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 766F1C4C1E354E740005D2A1 /* triangulation_sphere.cpp */; };
+		766F1C5F1E354E740005D2A1 /* triangulation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 766F1C4D1E354E740005D2A1 /* triangulation.cpp */; };
+		766F1C601E354E740005D2A1 /* vector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 766F1C4E1E354E740005D2A1 /* vector.cpp */; };
+		766F1C611E354E740005D2A1 /* voronoi_sphere.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 766F1C4F1E354E740005D2A1 /* voronoi_sphere.cpp */; };
+		766F1C621E354E740005D2A1 /* voronoi.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 766F1C501E354E740005D2A1 /* voronoi.cpp */; };
+		766F1C651E354EE80005D2A1 /* material_baker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 766F1C641E354EE80005D2A1 /* material_baker.cpp */; };
+		766F1C681E354F800005D2A1 /* imguinodegrapheditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 766F1C671E354F800005D2A1 /* imguinodegrapheditor.cpp */; };
+		766F1C7A1E354FEF0005D2A1 /* billboard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 766F1C6A1E354FEF0005D2A1 /* billboard.cpp */; };
+		766F1C7B1E354FEF0005D2A1 /* camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 766F1C6B1E354FEF0005D2A1 /* camera.cpp */; };
+		766F1C7C1E354FEF0005D2A1 /* draw_call.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 766F1C6C1E354FEF0005D2A1 /* draw_call.cpp */; };
+		766F1C7E1E354FEF0005D2A1 /* gl_error.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 766F1C6E1E354FEF0005D2A1 /* gl_error.cpp */; };
+		766F1C7F1E354FEF0005D2A1 /* glutility.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 766F1C6F1E354FEF0005D2A1 /* glutility.cpp */; };
+		766F1C801E354FEF0005D2A1 /* gpu_hair_sim.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 766F1C701E354FEF0005D2A1 /* gpu_hair_sim.cpp */; };
+		766F1C811E354FEF0005D2A1 /* gpu_particle_system.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 766F1C711E354FEF0005D2A1 /* gpu_particle_system.cpp */; };
+		766F1C831E354FEF0005D2A1 /* material.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 766F1C731E354FEF0005D2A1 /* material.cpp */; };
+		766F1C851E354FEF0005D2A1 /* render_surface_combiner.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 766F1C751E354FEF0005D2A1 /* render_surface_combiner.cpp */; };
+		766F1C861E354FEF0005D2A1 /* render_surface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 766F1C761E354FEF0005D2A1 /* render_surface.cpp */; };
+		766F1C871E354FEF0005D2A1 /* shader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 766F1C771E354FEF0005D2A1 /* shader.cpp */; };
+		766F1C881E354FEF0005D2A1 /* static_mesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 766F1C781E354FEF0005D2A1 /* static_mesh.cpp */; };
+		766F1C891E354FEF0005D2A1 /* texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 766F1C791E354FEF0005D2A1 /* texture.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		766F1C111E353DB80005D2A1 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		766F1C131E353DB80005D2A1 /* loki */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = loki; sourceTree = BUILT_PRODUCTS_DIR; };
+		766F1C1D1E353E460005D2A1 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = ../../../loki/main.cpp; sourceTree = "<group>"; };
+		766F1C201E353EA10005D2A1 /* imgui_demo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = imgui_demo.cpp; path = ../../../../imgui/imgui_demo.cpp; sourceTree = "<group>"; };
+		766F1C211E353EA10005D2A1 /* imgui_draw.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = imgui_draw.cpp; path = ../../../../imgui/imgui_draw.cpp; sourceTree = "<group>"; };
+		766F1C221E353EA10005D2A1 /* imgui.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = imgui.cpp; path = ../../../../imgui/imgui.cpp; sourceTree = "<group>"; };
+		766F1C271E3540D10005D2A1 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
+		766F1C2E1E3548790005D2A1 /* gl3w.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = gl3w.c; path = ../../../../gl3w/src/gl3w.c; sourceTree = "<group>"; };
+		766F1C301E354B850005D2A1 /* imgui_impl_glfw_gl3.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = imgui_impl_glfw_gl3.cpp; path = ../../../../imgui/examples/opengl3_example/imgui_impl_glfw_gl3.cpp; sourceTree = "<group>"; };
+		766F1C331E354D140005D2A1 /* animation_tool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = animation_tool.cpp; path = ../../../loki/views/animation_tool.cpp; sourceTree = "<group>"; };
+		766F1C341E354D140005D2A1 /* animation_tool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = animation_tool.h; path = ../../../loki/views/animation_tool.h; sourceTree = "<group>"; };
+		766F1C351E354D140005D2A1 /* material_tool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = material_tool.cpp; path = ../../../loki/views/material_tool.cpp; sourceTree = "<group>"; };
+		766F1C361E354D140005D2A1 /* material_tool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = material_tool.h; path = ../../../loki/views/material_tool.h; sourceTree = "<group>"; };
+		766F1C371E354D140005D2A1 /* mesh_viewer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mesh_viewer.cpp; path = ../../../loki/views/mesh_viewer.cpp; sourceTree = "<group>"; };
+		766F1C381E354D140005D2A1 /* mesh_viewer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mesh_viewer.h; path = ../../../loki/views/mesh_viewer.h; sourceTree = "<group>"; };
+		766F1C3E1E354E740005D2A1 /* aabb.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = aabb.cpp; path = ../../../mathlib/src/aabb.cpp; sourceTree = "<group>"; };
+		766F1C3F1E354E740005D2A1 /* curve.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = curve.cpp; path = ../../../mathlib/src/curve.cpp; sourceTree = "<group>"; };
+		766F1C401E354E740005D2A1 /* function.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = function.cpp; path = ../../../mathlib/src/function.cpp; sourceTree = "<group>"; };
+		766F1C431E354E740005D2A1 /* gpu_voronoi.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = gpu_voronoi.cpp; path = ../../../mathlib/src/gpu_voronoi.cpp; sourceTree = "<group>"; };
+		766F1C441E354E740005D2A1 /* math_utility.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = math_utility.cpp; path = ../../../mathlib/src/math_utility.cpp; sourceTree = "<group>"; };
+		766F1C451E354E740005D2A1 /* matrix.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = matrix.cpp; path = ../../../mathlib/src/matrix.cpp; sourceTree = "<group>"; };
+		766F1C461E354E740005D2A1 /* perlin.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = perlin.cpp; path = ../../../mathlib/src/perlin.cpp; sourceTree = "<group>"; };
+		766F1C471E354E740005D2A1 /* physics */ = {isa = PBXFileReference; lastKnownFileType = folder; name = physics; path = ../../../mathlib/src/physics; sourceTree = "<group>"; };
+		766F1C481E354E740005D2A1 /* quaternion.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = quaternion.cpp; path = ../../../mathlib/src/quaternion.cpp; sourceTree = "<group>"; };
+		766F1C491E354E740005D2A1 /* raytrace.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = raytrace.cpp; path = ../../../mathlib/src/raytrace.cpp; sourceTree = "<group>"; };
+		766F1C4A1E354E740005D2A1 /* shapes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = shapes.cpp; path = ../../../mathlib/src/shapes.cpp; sourceTree = "<group>"; };
+		766F1C4B1E354E740005D2A1 /* triangulation_3d.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = triangulation_3d.cpp; path = ../../../mathlib/src/triangulation_3d.cpp; sourceTree = "<group>"; };
+		766F1C4C1E354E740005D2A1 /* triangulation_sphere.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = triangulation_sphere.cpp; path = ../../../mathlib/src/triangulation_sphere.cpp; sourceTree = "<group>"; };
+		766F1C4D1E354E740005D2A1 /* triangulation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = triangulation.cpp; path = ../../../mathlib/src/triangulation.cpp; sourceTree = "<group>"; };
+		766F1C4E1E354E740005D2A1 /* vector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = vector.cpp; path = ../../../mathlib/src/vector.cpp; sourceTree = "<group>"; };
+		766F1C4F1E354E740005D2A1 /* voronoi_sphere.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = voronoi_sphere.cpp; path = ../../../mathlib/src/voronoi_sphere.cpp; sourceTree = "<group>"; };
+		766F1C501E354E740005D2A1 /* voronoi.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = voronoi.cpp; path = ../../../mathlib/src/voronoi.cpp; sourceTree = "<group>"; };
+		766F1C641E354EE80005D2A1 /* material_baker.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = material_baker.cpp; path = ../../../tools/src/material_baker.cpp; sourceTree = "<group>"; };
+		766F1C671E354F800005D2A1 /* imguinodegrapheditor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = imguinodegrapheditor.cpp; path = ../../../../imgui_addons/addons/imguinodegrapheditor/imguinodegrapheditor.cpp; sourceTree = "<group>"; };
+		766F1C6A1E354FEF0005D2A1 /* billboard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = billboard.cpp; path = ../../../graphics/src/billboard.cpp; sourceTree = "<group>"; };
+		766F1C6B1E354FEF0005D2A1 /* camera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = camera.cpp; path = ../../../graphics/src/camera.cpp; sourceTree = "<group>"; };
+		766F1C6C1E354FEF0005D2A1 /* draw_call.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = draw_call.cpp; path = ../../../graphics/src/draw_call.cpp; sourceTree = "<group>"; };
+		766F1C6E1E354FEF0005D2A1 /* gl_error.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = gl_error.cpp; path = ../../../graphics/src/gl_error.cpp; sourceTree = "<group>"; };
+		766F1C6F1E354FEF0005D2A1 /* glutility.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = glutility.cpp; path = ../../../graphics/src/glutility.cpp; sourceTree = "<group>"; };
+		766F1C701E354FEF0005D2A1 /* gpu_hair_sim.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = gpu_hair_sim.cpp; path = ../../../graphics/src/gpu_hair_sim.cpp; sourceTree = "<group>"; };
+		766F1C711E354FEF0005D2A1 /* gpu_particle_system.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = gpu_particle_system.cpp; path = ../../../graphics/src/gpu_particle_system.cpp; sourceTree = "<group>"; };
+		766F1C731E354FEF0005D2A1 /* material.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = material.cpp; path = ../../../graphics/src/material.cpp; sourceTree = "<group>"; };
+		766F1C751E354FEF0005D2A1 /* render_surface_combiner.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = render_surface_combiner.cpp; path = ../../../graphics/src/render_surface_combiner.cpp; sourceTree = "<group>"; };
+		766F1C761E354FEF0005D2A1 /* render_surface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = render_surface.cpp; path = ../../../graphics/src/render_surface.cpp; sourceTree = "<group>"; };
+		766F1C771E354FEF0005D2A1 /* shader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = shader.cpp; path = ../../../graphics/src/shader.cpp; sourceTree = "<group>"; };
+		766F1C781E354FEF0005D2A1 /* static_mesh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = static_mesh.cpp; path = ../../../graphics/src/static_mesh.cpp; sourceTree = "<group>"; };
+		766F1C791E354FEF0005D2A1 /* texture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = texture.cpp; path = ../../../graphics/src/texture.cpp; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		766F1C101E353DB80005D2A1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				766F1C281E3540D10005D2A1 /* OpenGL.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		766F1C0A1E353DB80005D2A1 = {
+			isa = PBXGroup;
+			children = (
+				766F1C151E353DB80005D2A1 /* loki */,
+				766F1C141E353DB80005D2A1 /* Products */,
+				766F1C261E3540D10005D2A1 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		766F1C141E353DB80005D2A1 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				766F1C131E353DB80005D2A1 /* loki */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		766F1C151E353DB80005D2A1 /* loki */ = {
+			isa = PBXGroup;
+			children = (
+				766F1C2D1E3545750005D2A1 /* gl3w */,
+				766F1C1F1E353E5A0005D2A1 /* imgui */,
+				766F1C3C1E354E450005D2A1 /* commonlib */,
+				766F1C321E354CFA0005D2A1 /* views */,
+				766F1C1D1E353E460005D2A1 /* main.cpp */,
+			);
+			path = loki;
+			sourceTree = "<group>";
+		};
+		766F1C1F1E353E5A0005D2A1 /* imgui */ = {
+			isa = PBXGroup;
+			children = (
+				766F1C661E354F420005D2A1 /* addons */,
+				766F1C301E354B850005D2A1 /* imgui_impl_glfw_gl3.cpp */,
+				766F1C201E353EA10005D2A1 /* imgui_demo.cpp */,
+				766F1C211E353EA10005D2A1 /* imgui_draw.cpp */,
+				766F1C221E353EA10005D2A1 /* imgui.cpp */,
+			);
+			name = imgui;
+			sourceTree = "<group>";
+		};
+		766F1C261E3540D10005D2A1 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				766F1C271E3540D10005D2A1 /* OpenGL.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		766F1C2D1E3545750005D2A1 /* gl3w */ = {
+			isa = PBXGroup;
+			children = (
+				766F1C2E1E3548790005D2A1 /* gl3w.c */,
+			);
+			name = gl3w;
+			sourceTree = "<group>";
+		};
+		766F1C321E354CFA0005D2A1 /* views */ = {
+			isa = PBXGroup;
+			children = (
+				766F1C331E354D140005D2A1 /* animation_tool.cpp */,
+				766F1C341E354D140005D2A1 /* animation_tool.h */,
+				766F1C351E354D140005D2A1 /* material_tool.cpp */,
+				766F1C361E354D140005D2A1 /* material_tool.h */,
+				766F1C371E354D140005D2A1 /* mesh_viewer.cpp */,
+				766F1C381E354D140005D2A1 /* mesh_viewer.h */,
+			);
+			name = views;
+			sourceTree = "<group>";
+		};
+		766F1C3C1E354E450005D2A1 /* commonlib */ = {
+			isa = PBXGroup;
+			children = (
+				766F1C691E354FA80005D2A1 /* graphics */,
+				766F1C631E354EB00005D2A1 /* tool */,
+				766F1C3D1E354E5E0005D2A1 /* mathlib */,
+			);
+			name = commonlib;
+			sourceTree = "<group>";
+		};
+		766F1C3D1E354E5E0005D2A1 /* mathlib */ = {
+			isa = PBXGroup;
+			children = (
+				766F1C3E1E354E740005D2A1 /* aabb.cpp */,
+				766F1C3F1E354E740005D2A1 /* curve.cpp */,
+				766F1C401E354E740005D2A1 /* function.cpp */,
+				766F1C431E354E740005D2A1 /* gpu_voronoi.cpp */,
+				766F1C441E354E740005D2A1 /* math_utility.cpp */,
+				766F1C451E354E740005D2A1 /* matrix.cpp */,
+				766F1C461E354E740005D2A1 /* perlin.cpp */,
+				766F1C471E354E740005D2A1 /* physics */,
+				766F1C481E354E740005D2A1 /* quaternion.cpp */,
+				766F1C491E354E740005D2A1 /* raytrace.cpp */,
+				766F1C4A1E354E740005D2A1 /* shapes.cpp */,
+				766F1C4B1E354E740005D2A1 /* triangulation_3d.cpp */,
+				766F1C4C1E354E740005D2A1 /* triangulation_sphere.cpp */,
+				766F1C4D1E354E740005D2A1 /* triangulation.cpp */,
+				766F1C4E1E354E740005D2A1 /* vector.cpp */,
+				766F1C4F1E354E740005D2A1 /* voronoi_sphere.cpp */,
+				766F1C501E354E740005D2A1 /* voronoi.cpp */,
+			);
+			name = mathlib;
+			sourceTree = "<group>";
+		};
+		766F1C631E354EB00005D2A1 /* tool */ = {
+			isa = PBXGroup;
+			children = (
+				766F1C641E354EE80005D2A1 /* material_baker.cpp */,
+			);
+			name = tool;
+			sourceTree = "<group>";
+		};
+		766F1C661E354F420005D2A1 /* addons */ = {
+			isa = PBXGroup;
+			children = (
+				766F1C671E354F800005D2A1 /* imguinodegrapheditor.cpp */,
+			);
+			name = addons;
+			sourceTree = "<group>";
+		};
+		766F1C691E354FA80005D2A1 /* graphics */ = {
+			isa = PBXGroup;
+			children = (
+				766F1C6A1E354FEF0005D2A1 /* billboard.cpp */,
+				766F1C6B1E354FEF0005D2A1 /* camera.cpp */,
+				766F1C6C1E354FEF0005D2A1 /* draw_call.cpp */,
+				766F1C6E1E354FEF0005D2A1 /* gl_error.cpp */,
+				766F1C6F1E354FEF0005D2A1 /* glutility.cpp */,
+				766F1C701E354FEF0005D2A1 /* gpu_hair_sim.cpp */,
+				766F1C711E354FEF0005D2A1 /* gpu_particle_system.cpp */,
+				766F1C731E354FEF0005D2A1 /* material.cpp */,
+				766F1C751E354FEF0005D2A1 /* render_surface_combiner.cpp */,
+				766F1C761E354FEF0005D2A1 /* render_surface.cpp */,
+				766F1C771E354FEF0005D2A1 /* shader.cpp */,
+				766F1C781E354FEF0005D2A1 /* static_mesh.cpp */,
+				766F1C791E354FEF0005D2A1 /* texture.cpp */,
+			);
+			name = graphics;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		766F1C121E353DB80005D2A1 /* loki */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 766F1C1A1E353DB80005D2A1 /* Build configuration list for PBXNativeTarget "loki" */;
+			buildPhases = (
+				766F1C0F1E353DB80005D2A1 /* Sources */,
+				766F1C101E353DB80005D2A1 /* Frameworks */,
+				766F1C111E353DB80005D2A1 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = loki;
+			productName = loki;
+			productReference = 766F1C131E353DB80005D2A1 /* loki */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		766F1C0B1E353DB80005D2A1 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0800;
+				ORGANIZATIONNAME = "Peregrine Games";
+				TargetAttributes = {
+					766F1C121E353DB80005D2A1 = {
+						CreatedOnToolsVersion = 8.0;
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 766F1C0E1E353DB80005D2A1 /* Build configuration list for PBXProject "loki" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 766F1C0A1E353DB80005D2A1;
+			productRefGroup = 766F1C141E353DB80005D2A1 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				766F1C121E353DB80005D2A1 /* loki */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		766F1C0F1E353DB80005D2A1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				766F1C3B1E354D140005D2A1 /* mesh_viewer.cpp in Sources */,
+				766F1C2F1E3548790005D2A1 /* gl3w.c in Sources */,
+				766F1C801E354FEF0005D2A1 /* gpu_hair_sim.cpp in Sources */,
+				766F1C521E354E740005D2A1 /* curve.cpp in Sources */,
+				766F1C5E1E354E740005D2A1 /* triangulation_sphere.cpp in Sources */,
+				766F1C831E354FEF0005D2A1 /* material.cpp in Sources */,
+				766F1C391E354D140005D2A1 /* animation_tool.cpp in Sources */,
+				766F1C511E354E740005D2A1 /* aabb.cpp in Sources */,
+				766F1C5C1E354E740005D2A1 /* shapes.cpp in Sources */,
+				766F1C241E353EA10005D2A1 /* imgui_draw.cpp in Sources */,
+				766F1C871E354FEF0005D2A1 /* shader.cpp in Sources */,
+				766F1C311E354B850005D2A1 /* imgui_impl_glfw_gl3.cpp in Sources */,
+				766F1C251E353EA10005D2A1 /* imgui.cpp in Sources */,
+				766F1C7B1E354FEF0005D2A1 /* camera.cpp in Sources */,
+				766F1C891E354FEF0005D2A1 /* texture.cpp in Sources */,
+				766F1C591E354E740005D2A1 /* perlin.cpp in Sources */,
+				766F1C231E353EA10005D2A1 /* imgui_demo.cpp in Sources */,
+				766F1C5A1E354E740005D2A1 /* quaternion.cpp in Sources */,
+				766F1C811E354FEF0005D2A1 /* gpu_particle_system.cpp in Sources */,
+				766F1C861E354FEF0005D2A1 /* render_surface.cpp in Sources */,
+				766F1C621E354E740005D2A1 /* voronoi.cpp in Sources */,
+				766F1C881E354FEF0005D2A1 /* static_mesh.cpp in Sources */,
+				766F1C581E354E740005D2A1 /* matrix.cpp in Sources */,
+				766F1C611E354E740005D2A1 /* voronoi_sphere.cpp in Sources */,
+				766F1C651E354EE80005D2A1 /* material_baker.cpp in Sources */,
+				766F1C561E354E740005D2A1 /* gpu_voronoi.cpp in Sources */,
+				766F1C3A1E354D140005D2A1 /* material_tool.cpp in Sources */,
+				766F1C5D1E354E740005D2A1 /* triangulation_3d.cpp in Sources */,
+				766F1C1E1E353E460005D2A1 /* main.cpp in Sources */,
+				766F1C7A1E354FEF0005D2A1 /* billboard.cpp in Sources */,
+				766F1C7F1E354FEF0005D2A1 /* glutility.cpp in Sources */,
+				766F1C5F1E354E740005D2A1 /* triangulation.cpp in Sources */,
+				766F1C7E1E354FEF0005D2A1 /* gl_error.cpp in Sources */,
+				766F1C5B1E354E740005D2A1 /* raytrace.cpp in Sources */,
+				766F1C531E354E740005D2A1 /* function.cpp in Sources */,
+				766F1C571E354E740005D2A1 /* math_utility.cpp in Sources */,
+				766F1C7C1E354FEF0005D2A1 /* draw_call.cpp in Sources */,
+				766F1C851E354FEF0005D2A1 /* render_surface_combiner.cpp in Sources */,
+				766F1C601E354E740005D2A1 /* vector.cpp in Sources */,
+				766F1C681E354F800005D2A1 /* imguinodegrapheditor.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		766F1C181E353DB80005D2A1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVES = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		766F1C191E353DB80005D2A1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVES = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		766F1C1B1E353DB80005D2A1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					__LOKI__,
+					"DEBUG=1",
+				);
+				HEADER_SEARCH_PATHS = (
+					/usr/local/include,
+					../../../gl3w/include,
+					../../../imgui/,
+					../../../imgui/examples/opengl3_example,
+					"../../loki/**",
+					"../../**",
+					"../../../imgui_addons/**",
+				);
+				LIBRARY_SEARCH_PATHS = /usr/local/lib;
+				OTHER_LDFLAGS = (
+					"-lSDL2_image",
+					"-lSDL2",
+					"-lglfw3",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		766F1C1C1E353DB80005D2A1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				GCC_PREPROCESSOR_DEFINITIONS = __LOKI__;
+				HEADER_SEARCH_PATHS = (
+					/usr/local/include,
+					../../../gl3w/include,
+					../../../imgui/,
+					../../../imgui/examples/opengl3_example,
+					"../../loki/**",
+					"../../**",
+					"../../../imgui_addons/**",
+				);
+				LIBRARY_SEARCH_PATHS = /usr/local/lib;
+				OTHER_LDFLAGS = (
+					"-lSDL2_image",
+					"-lSDL2",
+					"-lglfw3",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		766F1C0E1E353DB80005D2A1 /* Build configuration list for PBXProject "loki" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				766F1C181E353DB80005D2A1 /* Debug */,
+				766F1C191E353DB80005D2A1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		766F1C1A1E353DB80005D2A1 /* Build configuration list for PBXNativeTarget "loki" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				766F1C1B1E353DB80005D2A1 /* Debug */,
+				766F1C1C1E353DB80005D2A1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 766F1C0B1E353DB80005D2A1 /* Project object */;
+}
