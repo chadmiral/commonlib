@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include <math.h>
 
 #include <vector>
@@ -15,6 +16,7 @@
 #include "mesh_viewer.h"
 #include "animation_tool.h"
 #include "material_tool.h"
+#include "package_viewer.h"
 
 using namespace std;
 using namespace Math;
@@ -22,6 +24,7 @@ using namespace Math;
 static MeshViewer mesh_viewer;
 static AnimationTool animation_tool;
 static MaterialTool material_tool;
+static PackageViewer package_tool;
 
 static void error_callback(int error, const char* description)
 {
@@ -35,7 +38,6 @@ static inline ImVec2 operator-(const ImVec2& lhs, const ImVec2& rhs) { return Im
 
 static bool show_texture_tools = false;
 static bool show_package_builder = false;
-static bool show_shader_tools = true;
 static bool show_post_tools = false;
 
 static void ShowExampleMenuFile()
@@ -66,9 +68,8 @@ static void ShowExampleAppMainMenuBar()
     }
     if (ImGui::BeginMenu("View"))
     {
-      if (ImGui::MenuItem("Package Builder", NULL, show_package_builder)) { show_package_builder ^= 1; }
+      if (ImGui::MenuItem("Package Builder", NULL, package_tool.visible)) { package_tool.visible ^= 1; }
       if (ImGui::MenuItem("Animation Tools", NULL, animation_tool._visible)) { animation_tool._visible ^= 1; }
-      if (ImGui::MenuItem("Shader Tools", NULL, show_shader_tools)) { show_shader_tools ^= 1; }
       if (ImGui::MenuItem("Mesh Tools", NULL, mesh_viewer.visible)) { mesh_viewer.visible ^= 1; }
       if (ImGui::MenuItem("Texture Tools", NULL, show_texture_tools)) { show_texture_tools ^= 1; }
       ImGui::EndMenu();
@@ -384,13 +385,6 @@ int main(int argc, char **argv)
 
     ShowExampleAppMainMenuBar();
 
-    /*
-    if (show_shader_tools)
-    {
-      ShowExampleAppCustomNodeGraph(&show_shader_tools);
-    }
-    */
-
     static bool show_gradient_animation_tool = true;
     if (show_gradient_animation_tool)
     {
@@ -399,40 +393,7 @@ int main(int argc, char **argv)
       ImGui::End();
     }
 
-
-    if (show_package_builder)
-    {
-      ImGui::SetNextWindowSize(ImVec2(100, 100), ImGuiSetCond_FirstUseEver);
-      ImGui::Begin("Package Builder", &show_package_builder, ImGuiWindowFlags_MenuBar);
-      if (ImGui::BeginMenuBar())
-      {
-        if (ImGui::BeginMenu("File"))
-        {
-          if (ImGui::MenuItem("Open Package File...", NULL, false))
-          {
-
-          }
-          ImGui::EndMenu();
-        }
-        ImGui::EndMenuBar();
-      }
-
-      if (ImGui::TreeNode("Assets"))
-      {
-        if (ImGui::TreeNode("Shaders"))
-        {
-          ImGui::TreePop();
-        }
-        if (ImGui::TreeNode("Textures"))
-        {
-          ImGui::TreePop();
-        }
-        ImGui::TreePop();
-      }
-
-      ImGui::End();
-    }
-    
+    package_tool.render();
     animation_tool.render();
     mesh_viewer.render();
     material_tool.render();
