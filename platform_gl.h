@@ -1,12 +1,14 @@
 #pragma once
 
-#if defined(_WIN32)
-#include <Windows.h>
-#if defined __LOKI__
+//NOTE: glew *must* be included before gl.h
+#if defined(__LOKI__)
 #include <GL/gl3w.h>
 #else
 #include <GL/glew.h>
 #endif //__LOKI__
+
+#if defined(_WIN32)
+#include <Windows.h>
 #include <GL/gl.h>
 #endif //_WIN32
 

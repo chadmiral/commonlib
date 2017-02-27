@@ -1,7 +1,11 @@
-#if defined (_WIN32)
+#include "platform_gl.h"
+#include "platform_sdl.h"
+/*#if defined (_WIN32)
+
 #include <Windows.h>
 #include <SDL.h>
 #include <SDL_image.h>
+
 #ifndef __LOKI__
 #include <GL/glew.h>
 #include <GL/gl.h>
@@ -10,11 +14,12 @@
 #else
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
-#endif
+#endif //_WIN32
 
 #if defined(__APPLE__)
 #include <OpenGL/gl.h>
 #endif
+*/
 
 #include <iostream>
 #include <assert.h>
@@ -341,7 +346,7 @@ void PackageBaker::read_shader_file(ShaderTemplate &st, std::ostream &log)
 
   SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
   log << "Loading shader \"";
-  
+
   log << st._name << "\"" << endl;
   SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
 
@@ -675,7 +680,7 @@ void PackageBaker::read_animation_file(AnimationTemplate &at, std::ostream &log)
 
   SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
   log << "Loading Animation \"";
-  
+
   log << at._name << "\"" << endl;
   SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
 
@@ -754,7 +759,7 @@ void PackageBaker::read_ui_layout_file(UILayoutTemplate &ut, std::ostream &log)
   SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
 
   layout_asset->name = ut._name;
-  
+
   layout_asset->fname = ut._fname;
   log << "\tsource file: " << ut._fname << " ... ";
 

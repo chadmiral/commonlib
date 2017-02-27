@@ -4,12 +4,16 @@ CFLAGS=-I./include -I../mathlib/include -I../graphics/include
 CFLAGS+=-I/usr/local/include -I../game/include -I../game/include/animation
 CFLAGS+=-I./include/minilzo -I../
 CFLAGS+=$(shell pkg-config mxml --cflags)
+CFLAGS+=$(shell pkg-config sdl2 --cflags)
+CFLAGS+=$(shell pkg-config --cflags glew)
 #CFLAGS+=-Ofast
 CFLAGS+= -g3 -O0
 
 LIB_PATH=
 LDFLAGS=$(shell pkg-config mxml --libs)
+LDFLAGS+=$(shell pkg-config --libs sdl2)
 LDFLAGS+=$(shell pkg-config SDL2_image --libs)
+LDFLAGS+=$(shell pkg-config --libs glew)
 LDFLAGS+=-lgraphics -ltool -lmath
 SRCPATH=src/
 SRCS=src/static_mesh_baker.cpp src/bakery.cpp src/tool.cpp

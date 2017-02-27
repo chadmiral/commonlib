@@ -1,10 +1,11 @@
+#include "platform_gl.h"
+
 #include <iostream>
 #include <SDL.h>
 
 #include "tool.h"
 #include "shader_baker.h"
 #include "platform.h"
-#include "platform_gl.h"
 
 using namespace std;
 using namespace Tool;

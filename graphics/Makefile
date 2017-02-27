@@ -3,6 +3,7 @@ LIB_PATH=
 CFLAGS=-I../
 CFLAGS+=-I./include -I../mathlib/include -I/usr/include/libxml2 -I../fluids/include
 CFLAGS+=-I/usr/local/include -I../game/include -I../ui/include -I./include/vfx
+CFLAGS+=-I../../glm
 CFLAGS+=$(shell pkg-config freetype2 --cflags)
 CFLAGS+=$(shell pkg-config glew --cflags)
 CFLAGS+=$(shell pkg-config sdl2 --cflags)
