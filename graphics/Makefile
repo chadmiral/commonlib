@@ -3,7 +3,7 @@ LIB_PATH=
 CFLAGS=-I../
 CFLAGS+=-I./include -I../mathlib/include -I/usr/include/libxml2 -I../fluids/include
 CFLAGS+=-I/usr/local/include -I../game/include -I../ui/include -I./include/vfx
-CFLAGS+=-I../../glm
+CFLAGS+=-I../../glm -I../game/include/animation -I../game/include/ -I../game/include/switchboard
 CFLAGS+=$(shell pkg-config freetype2 --cflags)
 CFLAGS+=$(shell pkg-config glew --cflags)
 CFLAGS+=$(shell pkg-config sdl2 --cflags)
@@ -18,7 +18,7 @@ LDFLAGS+=$(shell pkg-config SDL2_image --libs)
 LDFLAGS+=-lmath -lgraphics -lfluids -lgame -lui
 SRCPATH=src/
 SRCS=src/font.cpp src/glutility.cpp src/material.cpp src/shader.cpp src/texture.cpp
-SRCS+=src/camera.cpp src/render_surface.cpp src/hdr_render_surface.cpp
+SRCS+=src/camera.cpp src/render_surface.cpp
 SRCS+=src/render_surface_combiner.cpp src/gpu_hair_sim.cpp src/static_mesh.cpp
 SRCS+=src/gpu_particle_system.cpp src/vfx/ribbon.cpp src/gl_error.cpp
 OBJS=$(SRCS:.cpp=.o)
@@ -97,9 +97,6 @@ $(BINPATH)camera.o: $(SRCPATH)camera.cpp
 
 $(BINPATH)render_surface.o: $(SRCPATH)render_surface.cpp
 	$(CC) $(CFLAGS) -c src/render_surface.cpp -o $(BINPATH)render_surface.o
-
-$(BINPATH)hdr_render_surface.o: $(SRCPATH)hdr_render_surface.cpp
-	$(CC) $(CFLAGS) -c src/hdr_render_surface.cpp -o $(BINPATH)hdr_render_surface.o
 
 $(BINPATH)render_surface_combiner.o: $(SRCPATH)render_surface_combiner.cpp
 	$(CC) $(CFLAGS) -c src/render_surface_combiner.cpp -o $(BINPATH)render_surface_combiner.o

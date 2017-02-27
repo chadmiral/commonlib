@@ -1,11 +1,4 @@
 #include <time.h>
-#if defined(__APPLE__)
-#include <OpenGL/glu.h>
-#endif
-#if defined(_WIN32)
-#include <Windows.h>
-#include <GL/glew.h>
-#endif
 #include "sdl_game.h"
 #include "camera.h"
 #include "gpu_hair_sim.h"
