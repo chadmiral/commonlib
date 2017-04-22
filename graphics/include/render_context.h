@@ -24,10 +24,9 @@ namespace Graphics
       //transform sun_pos?
       Math::Matrix4x4 eye_mat;
       _camera->get_model_view_matrix(&eye_mat);
+      eye_mat.transpose();
+      //eye_mat.invert();
 
-      //inverse transpose
-      //model_view_mat.transpose();
-      //model_view_mat.invert();
       Math::Float4 light_pos(l->get_pos(), 1.0f);
       Math::Float4 transformed_light_pos = eye_mat * light_pos;
 

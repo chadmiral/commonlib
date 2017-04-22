@@ -77,7 +77,11 @@ void Texture2D::init()
 
   //for depth textures
 #ifndef __LOKI__
-  if (internal_format == GL_DEPTH_COMPONENT || internal_format == GL_DEPTH_COMPONENT16 || internal_format == GL_DEPTH_COMPONENT24 || internal_format == GL_DEPTH_COMPONENT32)
+  if (internal_format == GL_DEPTH_COMPONENT ||
+      internal_format == GL_DEPTH_COMPONENT16 ||
+      internal_format == GL_DEPTH_COMPONENT24 ||
+      internal_format == GL_DEPTH_COMPONENT32 ||
+      internal_format == GL_DEPTH_COMPONENT32F)
   {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);

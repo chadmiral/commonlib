@@ -43,4 +43,8 @@ private:
   void render_ui_layout_ui();
 
   void add_new_asset();
+  void save_as();
+  void bake_package();
+
+  void move_selected_asset(Tool::PackageAssetType pat, int32_t amt);
 };

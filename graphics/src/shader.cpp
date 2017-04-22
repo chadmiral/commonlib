@@ -57,7 +57,9 @@ void print_log(GLuint obj, std::ostream &log)
     glGetProgramInfoLog(obj, maxLength, &infologLength, infoLog);
 
   if (infologLength > 0)
-    printf("%s\n", infoLog);
+  {
+    log << infoLog << endl;
+  }
 
   delete infoLog;
 }
@@ -134,9 +136,75 @@ void Shader::link_shader(std::ostream &log)
   print_log(gl_shader_program, log);
 }
 
-bool Shader::load_link_and_compile(std::ostream &log)
+std::string Shader::include_glsl(std::string inc_fname, std::vector<std::string> *path)
 {
-    log<<"loading vertex shader "<<gl_vertex_shader_fname.c_str()<<endl;
+  std::string source;
+  //cout << "including file " << inc_fname.c_str() << endl;
+  assert(path);
+
+  for (uint32_t i = 0; i < path->size(); i++)
+  {
+    std::string full_fname = (*path)[i] + inc_fname;
+    //cout << full_fname << endl;
+
+    FILE *f = fopen(full_fname.c_str(), "r");
+    if (f)
+    {
+      fseek(f, 0, SEEK_END);
+      uint32_t fsize = ftell(f);
+      rewind(f);
+
+      char *tmp = (char *)malloc(fsize + 1);//new char[(fsize + 1) / sizeof(char)];
+      memset(tmp, 0, fsize + 1);
+      fread(tmp, fsize, 1, f);
+      fclose(f);
+
+      source = tmp;
+      free(tmp);//delete tmp;
+      return source;
+    }
+  }
+
+  return source;
+}
+
+void Shader::parse_source(std::string source, std::string &dest, std::vector<std::string> *path)
+{
+  int last = 0; //must be int for npos comparison to work
+  int next = 0; //must be int for npos comparison to work
+  std::string line;
+
+  //loop through every line of the source
+  while ((next = source.find("\n", last)) != std::string::npos)
+  {
+    line = source.substr(last, next - last);
+
+    //see if we have a "#include in this line
+    int pos = line.find("#include");
+    if (pos != std::string::npos)
+    {
+      uint32_t start_quote = line.find("\"", pos);
+      uint32_t end_quote = line.find("\"", start_quote + 1);
+      std::string inc_fname = line.substr(start_quote + 1, end_quote - start_quote - 1);
+      std::string inc_src = include_glsl(inc_fname, path);
+      //cout << "pasting in this source: " << endl;
+      //cout << inc_src.c_str() << endl;
+      source.replace(last, next - last, inc_src);
+      next = last = 0;
+    }
+    else
+    {
+      last = next + 1;
+    }
+  }
+
+  //copy the new source into our destination
+  dest = source;
+}
+
+bool Shader::load_link_and_compile(std::vector<std::string> *path, std::ostream &log)
+{
+    log << "loading vertex shader " << gl_vertex_shader_fname.c_str() << endl;
 
     create_program();
 
@@ -153,7 +221,10 @@ bool Shader::load_link_and_compile(std::ostream &log)
       memset(gl_vertex_source, 0, string_size + 1);
       fread(gl_vertex_source, sizeof(char), string_size, fp);
 
-      gl_vertex_shader = compile_shader_from_source(GL_VERTEX_SHADER, gl_vertex_source);
+      std::string final_vs_source;
+      parse_source(gl_vertex_source, final_vs_source, path);
+
+      gl_vertex_shader = compile_shader_from_source(GL_VERTEX_SHADER, final_vs_source.c_str());
       print_log(gl_vertex_shader, log);
       print_log(gl_shader_program, log);
 
@@ -162,10 +233,10 @@ bool Shader::load_link_and_compile(std::ostream &log)
     }
     else
     {
-      log<<"could not open vertex shader file! (no file handle)"<<endl;
+      log << "could not open vertex shader file! (no file handle)" << endl;
     }
 
-    log<<"loading fragment shader "<<gl_fragment_shader_fname.c_str()<<endl;
+    log << "loading fragment shader " << gl_fragment_shader_fname.c_str() << endl;
     fp = NULL;
     FOPEN(fp, gl_fragment_shader_fname.c_str(), "r");
     if(fp)
@@ -178,7 +249,10 @@ bool Shader::load_link_and_compile(std::ostream &log)
       memset(gl_fragment_source, 0, string_size + 1);
       fread(gl_fragment_source, sizeof(char), string_size, fp);
 
-      gl_fragment_shader = compile_shader_from_source(GL_FRAGMENT_SHADER, gl_fragment_source);
+      std::string final_fs_source;
+      parse_source(gl_fragment_source, final_fs_source, path);
+
+      gl_fragment_shader = compile_shader_from_source(GL_FRAGMENT_SHADER, final_fs_source.c_str());
       print_log(gl_fragment_shader, log);
       print_log(gl_shader_program, log);
 

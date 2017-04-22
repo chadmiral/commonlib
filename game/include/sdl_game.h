@@ -48,8 +48,13 @@ public:
   DebugConsole             console;
   Graphics::RenderContext  render_context;
 
+  Graphics::Font          *widget_font;
+  std::string              widget_font_face;
+  unsigned int             widget_font_size;
+
   SDL_Window               *sdl_window;
   SDL_GLContext            *sdl_gl_context;
+  uint32_t                  window_resolution[2];
 
   std::vector<Game::Object3D *> active_game_objects;
 
@@ -71,7 +76,7 @@ protected:
   bool             recording_movie;
   int              movie_frame_counter;
 
-  int              resolution[2];
+  //int              resolution[2];
   SDL_Window       *win;
   SDL_GLContext    gl_context;
   int              gl_version[2];
@@ -84,9 +89,9 @@ protected:
   Graphics::Font   *font;    //font we want to use for mostly everything
   unsigned int     font_size;
 
-  std::string      widget_font_face;
-  Graphics::Font   *widget_font;
-  unsigned int     widget_font_size;
+  //std::string      widget_font_face;
+  //Graphics::Font   *widget_font;
+  //unsigned int     widget_font_size;
 
   int              fps_idx;
   float            prev_fps[SDL_GAME_NUM_FPS_FRAMES];
@@ -118,7 +123,7 @@ public:
   void set_gl_version(const int major, const int minor) { gl_version[0] = major; gl_version[1] = minor; }
 
   void set_resolution(const unsigned int w, const unsigned int h);
-  void get_resolution(unsigned int &w, unsigned int &h) { w = resolution[0]; h = resolution[1]; }
+  void get_resolution(unsigned int &w, unsigned int &h) { w = game_context.window_resolution[0]; h = game_context.window_resolution[1]; }
 
   void toggle_fullscreen();
   void enable_vsync(const bool v) { vsync_enabled = v; }
