@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include <assert.h>
+#include <vector>
 
 #include "math_utility.h"
 #include "gl_error.h"
@@ -27,7 +28,10 @@ namespace Graphics
     GLuint compile_shader_from_source(GLenum shader_type, const char *source, std::ostream &log = std::cout);
     void link_shader(std::ostream &log = std::cout);
     
-    bool load_link_and_compile(std::ostream &log = std::cout);
+    std::string include_glsl(std::string inc_fname, std::vector<std::string> *path);
+
+    void parse_source(std::string source, std::string &dest, std::vector<std::string> *path); //load includes, etc... before compiling
+    bool load_link_and_compile(std::vector<std::string> *path = NULL, std::ostream &log = std::cout);
     void render();
 
     GLuint gl_fragment_shader;

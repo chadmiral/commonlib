@@ -186,6 +186,18 @@ void PackageBaker::bake(mxml_node_t *tree, std::string output_filename, PackageT
 {
   parse_xml(tree, pt, log);
 
+  const char *mundus_root = std::getenv("MUNDUS_ROOT");
+  if (mundus_root)
+  {
+    log << tabs.c_str() << "Mundus root: " << mundus_root << endl;
+  }
+  else
+  {
+    SET_TEXT_COLOR(CONSOLE_COLOR_RED);
+    log << tabs.c_str() << "Environment variable MUNDUS_ROOT not set!!!" << endl;
+    SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
+  }
+
   if (pt._root_dir.length() > 0)
   {
     //change to said directory

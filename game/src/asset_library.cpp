@@ -162,7 +162,13 @@ void ShaderAsset::reload_from_disk()
   s->deinit();
   assert(files_monitored.size() == 2);
   s->set_shader_filenames(files_monitored[0].fname, files_monitored[1].fname);
-  s->load_link_and_compile();
+  
+  //TODO: store this in the package file
+  std::vector<std::string> shader_path;
+  shader_path.push_back("../data/shaders/include/");
+  shader_path.push_back("../../commonlib/data/shaders/include/");
+
+  s->load_link_and_compile(&shader_path);
 }
 
 void TextureAsset::reload_from_disk()

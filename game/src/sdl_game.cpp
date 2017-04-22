@@ -34,8 +34,8 @@ SDLGame::SDLGame(const int w, const int h,
 {
   flags = _flags;
 
-  resolution[0] = w;
-  resolution[1] = h;
+  game_context.window_resolution[0] = w;
+  game_context.window_resolution[1] = h;
 
   gl_version[0] = gl_major_version;
   gl_version[1] = gl_minor_version;
@@ -66,10 +66,10 @@ SDLGame::SDLGame(const int w, const int h,
 #endif //__APPLE__
 #if defined(_WIN32)
   font_face = "C:\\Windows\\Fonts\\Arial.ttf";
-  widget_font_face = "C:\\Windows\\Fonts\\Arial.ttf";
+  game_context.widget_font_face = "C:\\Windows\\Fonts\\Arial.ttf";
 #endif
   font_size = 24;
-  widget_font_size = 12;
+  game_context.widget_font_size = 12;
 
   pause_menu = NULL;
   if(flags & SDL_GAME_GENERATE_PAUSE_MENU)
@@ -104,8 +104,8 @@ SDLGame::~SDLGame()
 
 void SDLGame::set_resolution(const unsigned int w, const unsigned int h)
 {
-  resolution[0] = w;
-  resolution[1] = h;
+  game_context.window_resolution[0] = w;
+  game_context.window_resolution[1] = h;
 
   if(win)
   {
@@ -134,8 +134,8 @@ void SDLGame::init()
 
   if(init_file)
   {
-    fscanf(init_file, "%i", &resolution[0]);
-    fscanf(init_file, "%i", &resolution[1]);
+    fscanf(init_file, "%i", &game_context.window_resolution[0]);
+    fscanf(init_file, "%i", &game_context.window_resolution[1]);
     fclose(init_file);
   }
 #endif //_VR
@@ -145,11 +145,11 @@ void SDLGame::init()
   font->init();
   title_screen.set_font(font);
 
-  widget_font = new Font(widget_font_face.c_str(), widget_font_size);
-  widget_font->init();
-  game_context.console.set_font(widget_font);
+  game_context.widget_font = new Font(game_context.widget_font_face.c_str(), game_context.widget_font_size);
+  game_context.widget_font->init();
+  game_context.console.set_font(game_context.widget_font);
 
-  fps_label.set_font(widget_font);
+  fps_label.set_font(game_context.widget_font);
   fps_label.set_text(std::string("fps"));
   fps_label.init();
   fps_label.translate(Float2(10.0f, 10.0f));
@@ -169,8 +169,8 @@ void SDLGame::init()
 
     //move to the middle of the screen
     Float2 dim = pause_menu->get_dim();
-    float x = resolution[0] / 2.0f - dim[0] / 2.0f;
-    float y = resolution[1] / 2.0f - dim[1] / 2.0f;
+    float x = game_context.window_resolution[0] / 2.0f - dim[0] / 2.0f;
+    float y = game_context.window_resolution[1] / 2.0f - dim[1] / 2.0f;
     pause_menu->translate(Float2(x, y));
   }
 
@@ -406,16 +406,16 @@ void SDLGame::generate_ui_from_layout(std::string name)
     //fix alignments
     if (w->flags & UI_LAYOUT_FLAG_ALIGN_CENTER_X)
     {
-      float center_x = (float)resolution[0] / 2.0f;
+      float center_x = (float)game_context.window_resolution[0] / 2.0f;
       w->offset[0] = center_x - (w->dim[0] / 2.0f) + w->offset[0];
     }
     if (w->flags & UI_LAYOUT_FLAG_ALIGN_RIGHT)
     {
-      w->offset[0] = (float)resolution[0] - w->offset[0] - w->dim[0];
+      w->offset[0] = (float)game_context.window_resolution[0] - w->offset[0] - w->dim[0];
     }
     if (w->flags & UI_LAYOUT_FLAG_ALIGN_BOTTOM)
     {
-      w->offset[1] = (float)resolution[1] - w->offset[1] - w->dim[1];
+      w->offset[1] = (float)game_context.window_resolution[1] - w->offset[1] - w->dim[1];
     }
 
     if (w->type != WIDGET_TOOLBOX && w->type != WIDGET_RADIO_GROUP)
@@ -448,7 +448,7 @@ void SDLGame::generate_ui_from_layout(std::string name)
           assert(false);
       }
 
-      rw->set_font(widget_font);
+      rw->set_font(game_context.widget_font);
       rw->scale(w->dim);
       rw->translate(w->offset);
       rw->set_tooltip(w->tool_tip);
@@ -488,7 +488,7 @@ void SDLGame::generate_ui_from_layout(std::string name)
         {
           tb->make_vertical();
         }
-        tb->set_font(widget_font);
+        tb->set_font(game_context.widget_font);
         tb->init();
         tb->show();
         w->real_widget = tb;
@@ -530,16 +530,16 @@ void SDLGame::set_main_font(std::string font_face_name, unsigned int size)
 
 void SDLGame::set_widget_font(std::string font_face_name, unsigned int size)
 {
-  widget_font_face = font_face_name;
-  widget_font_size = size;
+  game_context.widget_font_face = font_face_name;
+  game_context.widget_font_size = size;
 }
 
 void SDLGame::screenshot()
 {
   game_context.console.console_log<<"taking screenshot..."<<endl;
-  SDL_Surface *image = SDL_CreateRGBSurface(SDL_SWSURFACE, resolution[0], resolution[1], 24, 0x000000FF, 0x0000FF00, 0x00FF0000, 0);
+  SDL_Surface *image = SDL_CreateRGBSurface(SDL_SWSURFACE, game_context.window_resolution[0], game_context.window_resolution[1], 24, 0x000000FF, 0x0000FF00, 0x00FF0000, 0);
 
-  glReadPixels(0, 0, resolution[0], resolution[1], GL_RGB, GL_UNSIGNED_BYTE, image->pixels);
+  glReadPixels(0, 0, game_context.window_resolution[0], game_context.window_resolution[1], GL_RGB, GL_UNSIGNED_BYTE, image->pixels);
 
   char filename[256];
   sprintf(filename, "capture/%s%i.bmp", window_title.c_str(), movie_frame_counter++);
@@ -586,7 +586,7 @@ void SDLGame::sdl_init_verbose()
 void SDLGame::init_sdl_gl_context()
 {
   //Create window
-  win = SDL_CreateWindow(window_title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, resolution[0], resolution[1], SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+  win = SDL_CreateWindow(window_title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, game_context.window_resolution[0], game_context.window_resolution[1], SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
   game_context.sdl_window = win;
   assert(win);
 

@@ -61,7 +61,7 @@ void RenderSurfaceCombiner::init()
     //TODO: this is bad cause we never deallocate this shader!
     shader = new Shader;
     shader->set_shader_filenames(vertex_shader_name, fragment_shader_name);
-    shader->load_link_and_compile(std::cout);
+    shader->load_link_and_compile();
   }
   mat.set_shader(shader);
 

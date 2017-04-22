@@ -165,6 +165,75 @@ void PackageViewer::save_package(std::string pkg_fname)
   of.close();
 }
 
+void PackageViewer::save_as()
+{
+  std::string fname = open_file_dialog("/packages/", "Game Package\0*.pkg.xml\0");
+  save_package(fname);
+}
+
+void PackageViewer::bake_package()
+{
+  Tool::PackageBaker pb;
+
+  FILE *fp = fopen(_curr_pkg_fname.c_str(), "r");
+  if (fp)
+  {
+    mxml_node_t *tree = mxmlLoadFile(NULL, fp, MXML_TEXT_CALLBACK);
+    assert(tree);
+
+    fclose(fp);
+
+    std::string output_fname = _curr_pkg_fname + ".bin";
+    
+    mxml_node_t *node = mxmlFindElement(tree, tree, "package", "version", NULL, MXML_DESCEND);
+    if (node)
+    {
+      Tool::PackageTemplate pt;
+      pt._version = atoi(mxmlElementGetAttr(node, "version"));
+      pb.bake(tree, output_fname, pt, std::cout, "");
+    }
+  }
+}
+
+void PackageViewer::move_selected_asset(Tool::PackageAssetType pat, int32_t amt)
+{
+  int sel = _ui_curr_selection[pat] + amt;
+  if (sel < 0) { return; }
+  switch (pat)
+  {
+  case Tool::PACKAGE_ASSET_ANIMATION:
+    if (sel >= _pt._animations.size()) { return; }
+    break;
+  case Tool::PACKAGE_ASSET_MATERIAL:
+    if (sel >= _pt._materials.size()) { return; }
+    break;
+  case Tool::PACKAGE_ASSET_MESH:
+    if (sel >= _pt._meshes.size()) { return; }
+    break;
+  case Tool::PACKAGE_ASSET_SHADER:
+    if (sel >= _pt._shaders.size()) { return; }
+    break;
+  case Tool::PACKAGE_ASSET_SKELETON:
+    if (sel >= _pt._skeletons.size()) { return; }
+    break;
+  case Tool::PACKAGE_ASSET_TEXTURE:
+  {
+    if (sel >= _pt._textures.size()) { return; }
+    Tool::TextureTemplate tt = _pt._textures[_ui_curr_selection[pat]];
+    _pt._textures.erase(_pt._textures.begin() + _ui_curr_selection[pat]);
+    _ui_texture_names.erase(_ui_texture_names.begin() + _ui_curr_selection[pat]);
+    _pt._textures.insert(_pt._textures.begin() + amt, tt);
+    _ui_texture_names.insert(_ui_texture_names.begin() + amt, tt._name);
+    break;
+  }
+  case Tool::PACKAGE_ASSET_UI_LAYOUT:
+    if (sel >= _pt._ui_layouts.size()) { return; }
+    break;
+  default:
+    return;
+  }
+}
+
 void PackageViewer::render()
 {
   if (visible)
@@ -185,14 +254,24 @@ void PackageViewer::render()
         {
           if (_curr_pkg_fname.length() == 0)
           {
-            _curr_pkg_fname = open_file_dialog("/packages/", "Game Package\0*.pkg.xml\0");
+            save_as();
           }
-          save_package(_curr_pkg_fname);
+          else
+          {
+            save_package(_curr_pkg_fname);
+          }
         }
         if (ImGui::MenuItem("Save As..."))
         {
-          std::string fname = open_file_dialog("/packages/", "Game Package\0*.pkg.xml\0");
-          save_package(fname);
+          save_as();
+        }
+        if (ImGui::MenuItem("Bake"))
+        {
+          if (_curr_pkg_fname.length() == 0)
+          {
+            save_as();
+          }
+          bake_package();
         }
         ImGui::EndMenu();
       }
@@ -210,9 +289,9 @@ void PackageViewer::render()
       ImGui::Button("-"); ImGui::SameLine();
       ImGui::Combo("", &_curr_new_asset, Tool::Package_asset_names, Tool::NUM_PACKAGE_ASSET_TYPES);
 
-
       ImGuiTreeNodeFlags leaf_flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 
+      //ImGui::SetNextTreeNodeOpen(_ui_curr_selection[Tool::PACKAGE_ASSET_MESH] != -1);
       if (ImGui::TreeNode("Meshes"))
       {
         if (ImGui::ListBox("", &_ui_curr_selection[Tool::PACKAGE_ASSET_MESH], _ui_mesh_names, _ui_mesh_names.size(), 5))
@@ -243,6 +322,16 @@ void PackageViewer::render()
         if (ImGui::ListBox("", &_ui_curr_selection[Tool::PACKAGE_ASSET_TEXTURE], _ui_texture_names, _ui_texture_names.size(), 5))
         {
           reset_selection(Tool::PACKAGE_ASSET_TEXTURE);
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("^"))
+        {
+          move_selected_asset(Tool::PACKAGE_ASSET_TEXTURE, -1);
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("v"))
+        {
+          move_selected_asset(Tool::PACKAGE_ASSET_TEXTURE, 1);
         }
         ImGui::TreePop();
       }
@@ -567,10 +656,12 @@ void PackageViewer::reset_selection(int32_t mask_id)
 
 void PackageViewer::add_new_asset()
 {
+  reset_selection(_curr_new_asset);
   switch (_curr_new_asset)
   {
   case Tool::PACKAGE_ASSET_MESH:
   {
+    _ui_curr_selection[_curr_new_asset] = _ui_mesh_names.size();
     Tool::MeshTemplate mt;
     mt._name = "NewMesh";
     mt._fname = "";
@@ -580,6 +671,7 @@ void PackageViewer::add_new_asset()
   }
   case Tool::PACKAGE_ASSET_MATERIAL:
   {
+    _ui_curr_selection[_curr_new_asset] = _ui_material_names.size();
     Tool::MaterialTemplate mt;
     mt._name = "NewMaterial";
     mt._fname = "";
@@ -589,6 +681,7 @@ void PackageViewer::add_new_asset()
   }
   case Tool::PACKAGE_ASSET_SHADER:
   {
+    _ui_curr_selection[_curr_new_asset] = _ui_shader_names.size();
     Tool::ShaderTemplate st;
     st._name = "NewShader";
     st._vs_fname = "";
@@ -599,6 +692,7 @@ void PackageViewer::add_new_asset()
   }
   case Tool::PACKAGE_ASSET_TEXTURE:
   {
+    _ui_curr_selection[_curr_new_asset] = _ui_texture_names.size();
     Tool::TextureTemplate tt;
     tt._name = "NewTexture";
     tt._fname = "";
@@ -611,6 +705,7 @@ void PackageViewer::add_new_asset()
   }
   case Tool::PACKAGE_ASSET_ANIMATION:
   {
+    _ui_curr_selection[_curr_new_asset] = _ui_animation_names.size();
     Tool::AnimationTemplate at;
     at._name = "NewAnimation";
     at._fname = "";
@@ -620,6 +715,7 @@ void PackageViewer::add_new_asset()
   }
   case Tool::PACKAGE_ASSET_SKELETON:
   {
+    _ui_curr_selection[_curr_new_asset] = _ui_skeleton_names.size();
     Tool::SkeletonTemplate st;
     st._name = "NewSkeleton";
     st._fname = "";
@@ -629,6 +725,7 @@ void PackageViewer::add_new_asset()
   }
   case Tool::PACKAGE_ASSET_UI_LAYOUT:
   {
+    _ui_curr_selection[_curr_new_asset] = _ui_ui_layout_names.size();
     Tool::UILayoutTemplate ut;
     ut._name = "NewUILayout";
     ut._fname = "";

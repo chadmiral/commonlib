@@ -13,6 +13,7 @@
 #endif //_WIN32
 
 #if defined(__APPLE__)
+#include <GL/glew.h>
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
 #endif
