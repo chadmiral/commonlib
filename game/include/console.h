@@ -27,7 +27,7 @@ private:
 public:
   ConsoleVariable(std::string n) { name = n; }
   ~ConsoleVariable() {}
-}; 
+};
 
 class ConsoleVariableFloat : public ConsoleVariable
 {
@@ -147,7 +147,7 @@ public:
   void process_event(const SDL_Event &e);
 
   void print_line(std::string s);
-  
+
   void render_gl();
   void render_console_log();
   void render_default();
@@ -155,7 +155,7 @@ public:
 
   void set_bg_color(Math::Float3 c) { bg_color = c; }
   void set_text_color(Math::Float3 c) { text_color = c; }
-  
+
   void read_param_file();
   void write_param_file();
 

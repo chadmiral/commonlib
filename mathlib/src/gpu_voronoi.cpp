@@ -159,6 +159,7 @@ void GPUVoronoi2D::build_voronoi_diagram()
   glMatrixMode(GL_MODELVIEW);
 
   //render a cone for each site
+  //TODO: instanced rendering
   for(unsigned int i = 0; i < sites.size(); i++)
   {
     glLoadIdentity();
@@ -177,7 +178,6 @@ void GPUVoronoi2D::build_voronoi_diagram()
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cone_ibo);
     glDrawElements(GL_TRIANGLE_FAN, num_cone_verts, GL_UNSIGNED_INT, (void *)0);
-
   }
 
   // set the FBO back to default
@@ -226,6 +226,7 @@ void GPUVoronoi2D::render_voronoi_texture()
 
 void GPUVoronoi2D::render_fullscreen_quad()
 {
+  //TODO: VBO
   glBegin(GL_QUADS);
     glColor3f(1.0f, 1.0f, 1.0f);
     glTexCoord2f(0.0f, 0.0f);

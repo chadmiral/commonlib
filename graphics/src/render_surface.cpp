@@ -207,7 +207,7 @@ float RenderSurface::compute_frame_luminosity() const
 
   uint32_t largest_dim = max(_fbo_res[0], _fbo_res[1]);
 
-  GLint lowest_mip_level = (GLint)(min(floor(log2(largest_dim)), GL_TEXTURE_MAX_LEVEL) - 1);
+  GLint lowest_mip_level = (GLint)(min((int)floor(log2(largest_dim)), GL_TEXTURE_MAX_LEVEL) - 1);
 
   float pixels[4];
 

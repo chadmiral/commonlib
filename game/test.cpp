@@ -22,19 +22,19 @@ private:
     bool bool_vars[3];
     Float3 float3_vars[2];
 
-    console.register_variable(&float_vars[0], "apple_sauce");
-    console.register_variable(&float_vars[1], "peanut_butter");
-    console.register_variable(&float_vars[2], "app");
-    console.register_variable(&float_vars[3], "flossy");
-    console.register_variable(&float_vars[4], "razzle");
+    game_context.console.register_variable(&float_vars[0], "apple_sauce");
+    game_context.console.register_variable(&float_vars[1], "peanut_butter");
+    game_context.console.register_variable(&float_vars[2], "app");
+    game_context.console.register_variable(&float_vars[3], "flossy");
+    game_context.console.register_variable(&float_vars[4], "razzle");
 
-    console.register_variable(&bool_vars[0], "razzle2");
-    console.register_variable(&bool_vars[1], "RAZZLE");
-    console.register_variable(&bool_vars[2], "pig_snack");
+    game_context.console.register_variable(&bool_vars[0], "razzle2");
+    game_context.console.register_variable(&bool_vars[1], "RAZZLE");
+    game_context.console.register_variable(&bool_vars[2], "pig_snack");
 
-    console.register_variable(&float3_vars[0], "mouse");
-    console.register_variable(&float3_vars[1], "sauce");
-    console.register_variable(&float3_vars[2], "flossy");
+    game_context.console.register_variable(&float3_vars[0], "mouse");
+    game_context.console.register_variable(&float3_vars[1], "sauce");
+    game_context.console.register_variable(&float3_vars[2], "flossy");
   }
   void user_run() {}
   void user_process_event(const SDL_Event &event) {}

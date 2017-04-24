@@ -3,17 +3,8 @@
 
 #include <iostream>
 
-#if defined(__APPLE__)
-#include <OpenGL/glu.h>
-#endif
-
-#if defined(_WIN32)
-#include <Windows.h>
-#include <GL/glew.h>
-#include <SDL.h>
-#else
-#include <SDL2/SDL.h>
-#endif //_WIN32
+#include "platform_gl.h"
+#include "platform_sdl.h"
 
 #include "math_utility.h"
 #include "font.h"

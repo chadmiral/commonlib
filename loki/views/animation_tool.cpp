@@ -28,6 +28,7 @@ void AnimationTool::build_skeleton_tree()
 
 void AnimationTool::load_animation()
 {
+#if defined (WIN32)
   char szFile[100];
   OPENFILENAME ofn;
 
@@ -57,6 +58,7 @@ void AnimationTool::load_animation()
     build_skeleton_tree();
   }
   //_anim->init();
+#endif //WIN32
 }
 
 void AnimationTool::render_menu()

@@ -62,7 +62,7 @@ SDLGame::SDLGame(const int w, const int h,
   font = NULL;
 #if defined(__APPLE__)
   font_face = "/Library/Fonts/Andale Mono.ttf";
-  widget_font_face = "/Library/Fonts/Andale Mono.ttf";
+  game_context.widget_font_face = "/Library/Fonts/Andale Mono.ttf";
 #endif //__APPLE__
 #if defined(_WIN32)
   font_face = "C:\\Windows\\Fonts\\Arial.ttf";
