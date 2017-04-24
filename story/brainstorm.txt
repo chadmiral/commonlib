@@ -1,0 +1,17 @@
+Procedural Story Telling
+
+Story {
+  Actor(char *name);
+  Interaction(Actor *a, Actor *b);
+  Event
+};
+
+what is a story?
+A sequence of events.
+
+what is an event?
+A collection of interactions between actors
+
+Yarn:
+A node-based story writing tool that allows you to connect actors to interactions,
+build events, etc. to write a story
