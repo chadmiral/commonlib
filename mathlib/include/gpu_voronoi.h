@@ -1,21 +1,7 @@
 #ifndef __GPU_VORONOI_H__
 #define __GPU_VORONOI_H__
 
-#if defined(_WIN32)
-#include <Windows.h>
-#if defined __LOKI__
-#include <GL/gl3w.h>
-#include <GL/gl.h>
-#else
-#include <gl/glew.h>
-#endif //__LOKI__
-#endif //_WIN32
-
-#if defined (__APPLE__)
-#include <OpenGL/GL.h>
-#else
-#include <GL/GL.h>
-#endif
+#include "platform_gl.h"
 
 #include <vector>
 #include "math_utility.h"

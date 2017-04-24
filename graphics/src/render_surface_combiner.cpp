@@ -111,7 +111,7 @@ void RenderSurfaceCombiner::render()
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
-  Shader *shader = mat.get_shader();
+  //Shader *shader = mat.get_shader();
 
   mat.render();
   glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, (void *)0);
