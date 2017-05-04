@@ -5,6 +5,7 @@
 *.ilk
 *.VC.db
 *.openDB
+*.bphys
 *.vcxproj.user
 *.a
 *console.log
