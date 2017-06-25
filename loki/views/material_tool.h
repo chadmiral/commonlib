@@ -128,5 +128,5 @@ private:
   void add_attrib(std::string name, uint32_t offset, uint32_t stride);
   void delete_attrib(uint32_t idx);
 
-  void generate_glsl(std::ostream &codex = std::cout); //TODO: put this elsewhere (make a ShaderView class?)
+  void generate_glsl(int pipeline_stage, std::ostream &codex = std::cout); //TODO: put this elsewhere (make a ShaderView class?)
 };

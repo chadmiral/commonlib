@@ -1,5 +1,6 @@
 #include "animation_tool.h"
 #include "math_utility.h"
+#include "platform.h"
 
 using namespace Math;
 using namespace Animation;
@@ -28,7 +29,7 @@ void AnimationTool::build_skeleton_tree()
 
 void AnimationTool::load_animation()
 {
-#if defined (WIN32)
+#if defined (_WIN32)
   char szFile[100];
   OPENFILENAME ofn;
 

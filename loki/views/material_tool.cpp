@@ -148,6 +148,10 @@ MaterialTool::MaterialTool()
   //vertex shader
   _nge[0].addNode(SHADER_NODE_VS_OUTPUT, ImVec2(600, 300));
   MeshInputNode *vs_input_node = (MeshInputNode *)_nge[0].addNode(SHADER_NODE_VS_INPUT, ImVec2(150, 300));
+
+  //fragment shader
+  _nge[1].addNode(SHADER_NODE_FS_OUTPUT, ImVec2(600, 300));
+  FSInputNode *fs_input_node = (FSInputNode *)_nge[1].addNode(SHADER_NODE_FS_INPUT, ImVec2(150, 300));
   
   for (uint32_t i = 0; i < _attribs.size(); i++)
   {
@@ -155,19 +159,6 @@ MaterialTool::MaterialTool()
     GLSLType type = GLSL_VEC3;
     vs_input_node->add_var(var_name, type);
   }
-
-  //fragment shader
-  _nge[1].addNode(SHADER_NODE_FS_OUTPUT, ImVec2(600, 300));
-  FSInputNode *fs_input_node = (FSInputNode *)_nge[1].addNode(SHADER_NODE_FS_INPUT, ImVec2(150, 300));
-
-  /*
-  for (uint32_t i = 0; i < _attribs.size(); i++)
-  {
-    std::string var_name = _attribs[i]._name;
-    GLSLType type = GLSL_VEC3;
-    input_node->add_var(var_name, type);
-  }
-  */
 }
 
 void MaterialTool::render()
@@ -195,7 +186,8 @@ void MaterialTool::render()
         }
         if (ImGui::MenuItem("Generate GLSL", NULL, false))
         {
-          generate_glsl();
+          generate_glsl(0);
+          generate_glsl(1);
         }
         ImGui::EndMenu();
       }
@@ -600,29 +592,45 @@ void MaterialTool::delete_attrib(uint32_t idx)
   _ui_attrib_names.erase(_ui_attrib_names.begin() + idx);
 }
 
-void MaterialTool::generate_glsl(std::ostream &codex)
+void MaterialTool::generate_glsl(int pipeline_stage, std::ostream &codex)
 {
   //vertex shader
   ImVector<ImGui::Node *> vs_in_nodes,
-                          vs_out_nodes,
+                          fs_in_nodes,
+                          out_nodes,
                           glsl_nodes,
                           uniform_nodes,
                           constant_nodes,
                           texture_nodes;
-  _nge[0].getAllNodesOfType(SHADER_NODE_VS_OUTPUT, &vs_out_nodes);
-  _nge[0].getAllNodesOfType(SHADER_NODE_GLSL, &glsl_nodes);
-  _nge[0].getAllNodesOfType(SHADER_NODE_UNIFORM_VARIABLE, &uniform_nodes);
-  _nge[0].getAllNodesOfType(SHADER_NODE_CONSTANT_VARIABLE, &constant_nodes);
-  _nge[0].getAllNodesOfType(SHADER_NODE_TEXTURE2D, &texture_nodes);
-  _nge[0].getAllNodesOfType(SHADER_NODE_VS_INPUT, &vs_in_nodes);
+  
+  _nge[pipeline_stage].getAllNodesOfType(SHADER_NODE_GLSL, &glsl_nodes);
+  _nge[pipeline_stage].getAllNodesOfType(SHADER_NODE_UNIFORM_VARIABLE, &uniform_nodes);
+  _nge[pipeline_stage].getAllNodesOfType(SHADER_NODE_CONSTANT_VARIABLE, &constant_nodes);
+  _nge[pipeline_stage].getAllNodesOfType(SHADER_NODE_TEXTURE2D, &texture_nodes);
+  _nge[pipeline_stage].getAllNodesOfType(SHADER_NODE_VS_INPUT, &vs_in_nodes);
+  _nge[pipeline_stage].getAllNodesOfType(SHADER_NODE_FS_INPUT, &fs_in_nodes);
 
-  assert(vs_in_nodes.size() == 1);
-  MeshInputNode *in_node = (MeshInputNode *)vs_in_nodes[0];
-
-  for (int i = 0; i < vs_out_nodes.size(); i++) //really, there should only ever be one
+  MeshInputNode *in_node = NULL;
+  if(pipeline_stage == 0)
   {
-    VertexShaderOutputNode *n = (VertexShaderOutputNode *)vs_out_nodes[i];
-    codex << "// Generated VS Output: " << n->getName() << endl;
+    _nge[pipeline_stage].getAllNodesOfType(SHADER_NODE_VS_OUTPUT, &out_nodes);
+
+    assert(vs_in_nodes.size() == 1);
+    in_node = (MeshInputNode *)vs_in_nodes[0];
+  }
+  else
+  {
+    _nge[pipeline_stage].getAllNodesOfType(SHADER_NODE_FS_OUTPUT, &out_nodes);
+
+    assert(fs_in_nodes.size() == 1);
+    in_node = (FSInputNode *)fs_in_nodes[0];
+  }
+
+  for (int i = 0; i < out_nodes.size(); i++) //really, there should only ever be one
+  {
+    VertexShaderOutputNode *vs_out_node = (VertexShaderOutputNode *)out_nodes[i];
+    FragmentShaderOutputNode *fs_out_node = (FragmentShaderOutputNode *)out_nodes[i];
+    codex << "// Generated VS Output: " << out_nodes[i]->getName() << endl;
     codex << "#version 450" << endl;
     codex << endl;
 
@@ -695,32 +703,22 @@ void MaterialTool::generate_glsl(std::ostream &codex)
     codex << "void main()" << endl;
     codex << "{" << endl;
 
-    //prefetch textures
-    //actually... I think we need to back-trace to all the previous nodes and
-    // have them spit out their prefetch declaration
-    n->generate_prefetch_declarations("\t", codex, -1);
-    /*
-    for (uint32_t j = 0; j < texture_nodes.size(); j++)
+    if (pipeline_stage == 0)
     {
-      TextureNode *tex_node = (TextureNode *)texture_nodes[j];
-      codex << "\tvec4 " << tex_node->get_prefetch_name() << " = ";
-      tex_node->generate_prefetch_glsl(codex, -1);
-      codex << ";" << endl;
-    }
+      //prefetch textures
+      vs_out_node->generate_prefetch_declarations("\t", codex, -1);
 
-    //prefetch glsl blocks
-    for (uint32_t j = 0; j < glsl_nodes.size(); j++)
+      //now trace back up the path
+      vs_out_node->generate_glsl(codex, -1);
+    }
+    else
     {
-      TextNode *text_node = (TextNode *)glsl_nodes[j];
-      std::string ret_type = "vec4"; //TODO
-      codex << "\t"<< ret_type << " " << text_node->get_prefetch_name() << " = ";
-      text_node->generate_prefetch_glsl(codex, -1);
-      codex << ";" << endl;
-    }
-    */
+      //prefetch textures
+      fs_out_node->generate_prefetch_declarations("\t", codex, -1);
 
-    //now trace back up the path
-    n->generate_glsl(codex, -1);
+      //now trace back up the path
+      fs_out_node->generate_glsl(codex, -1);
+    }
 
     codex << "}" << endl;
   }

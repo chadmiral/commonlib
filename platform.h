@@ -26,6 +26,7 @@ enum ConsoleColor
 
 #if defined (_WIN32)
 #include <Windows.h>
+#include <commdlg.h>
 #include <direct.h>
 #define GETCWD _getcwd
 #define CHDIR _chdir
