@@ -64,6 +64,20 @@ void LensFlareElement::init()
   vertex_data[3].v0 = 1.0f;
   
   Renderable::init_buffers();
+
+  assert(material);
+
+  //collect shader uniform variables
+  _proj_mat = (ShaderUniformMatrix4x4 *)material->find_uniform(Math::hash_value_from_string("proj_mat"));
+  _center_point = (ShaderUniformFloat2 *)material->find_uniform(Math::hash_value_from_string("screen_center_point"));
+  _screen_resolution = (ShaderUniformFloat2 *)material->find_uniform(Math::hash_value_from_string("screen_resolution"));
+  _tint = (ShaderUniformFloat4 *)material->find_uniform(Math::hash_value_from_string("sun_lens_flare_tint"));
+  _scale = (ShaderUniformFloat2 *)material->find_uniform(Math::hash_value_from_string("screen_scale"));
+  _position_offset = (ShaderUniformFloat2 *)material->find_uniform(Math::hash_value_from_string("screen_offset"));
+
+  _tint->set_var(Float4(random(0.0f, 1.0f), random(0.0f, 1.0f), random(0.0f, 1.0f), 1.0f));
+  _scale->set_var(Float2(random(0.0f, 1.0f), random(0.0f, 1.0f)));
+  _position_offset->set_var(Float2(random(-0.5f, 0.5f), random(-0.5f, 0.5f)));
 }
 
 void LensFlareElement::simulate(const double game_time, const double frame_time)

@@ -20,22 +20,27 @@ namespace Graphics
   
   class LensFlareElement : public Renderable<LensFlareVertex>
   {
-  private:
-    Math::Float2                    _position_offset;   //TODO: uniform variables?
-    Math::Float2                    _scale;
-    float                           _rotation_offset;
-    
-    Graphics::ShaderVertexAttrib    _xyz_attrib;
-    Graphics::ShaderVertexAttrib    _uv0_attrib;
+    friend class LensFlare;
+  private:    
+    Graphics::ShaderVertexAttrib       _xyz_attrib;
+    Graphics::ShaderVertexAttrib       _uv0_attrib;
+
+    Graphics::ShaderUniformMatrix4x4  *_proj_mat;
+    Graphics::ShaderUniformFloat2     *_center_point;
+    Graphics::ShaderUniformFloat2     *_screen_resolution;
+
+    Graphics::ShaderUniformFloat4     *_tint;
+    Graphics::ShaderUniformFloat2     *_scale;
+    Graphics::ShaderUniformFloat2     *_position_offset;
     
   public:
-    LensFlareElement() : Renderable<LensFlareVertex>() { _rotation_offset = 0.0f; }
-    //LensFlareElement(Graphics::Material *mat, Math::Float2 pos_offset, Math::Float2 scale, float rot_offset);
+    LensFlareElement() : Renderable<LensFlareVertex>() {}
     ~LensFlareElement() { deallocate_buffers(); }
     
-    void set_position_offset(Math::Float2 pos_offset) { _position_offset = pos_offset; }
-    void set_scale(Math::Float2 scale) { _scale = scale; }
-    void set_rotation_offset(float rot_offset) { _rotation_offset = rot_offset; }
+    void set_position_offset(Math::Float2 pos_offset) { _position_offset->set_var(pos_offset); }
+    void set_scale(Math::Float2 scale) { _scale->set_var(scale); }
+    void set_rotation_offset(float rot_offset) {  }
+    void set_tint(Math::Float4 &c) { _tint->set_var(c); }
     
     virtual void init();
     virtual void simulate(const double game_time, const double frame_time);
@@ -48,16 +53,6 @@ namespace Graphics
   private:
     std::vector<LensFlareElement> _elements;
     
-    /*GLuint _vbo;
-    GLuint _ibo;
-    
-    uint32_t _num_vertices;
-    uint32_t _num_indices;
-    
-    LensFlareVertex *_vertices;
-    uint32_t        *_indices;
-    */
-    
     float _occlusion_radius;
     
   public:
@@ -65,7 +60,26 @@ namespace Graphics
     ~LensFlare();
     
     void set_occlusion_radius(float r) { _occlusion_radius = r; }
-    void add_element(LensFlareElement &element) { _elements.push_back(element); }
+
+    void set_screen_resolution(Math::Float2 sr)
+    {
+      for (uint32_t i = 0; i < _elements.size(); i++)
+      {
+        _elements[i]._screen_resolution->set_var(sr);
+      }
+    }
+    void set_center_point(Math::Float2 cp)
+    {
+      for (uint32_t i = 0; i < _elements.size(); i++)
+      {
+        _elements[i]._center_point->set_var(cp);
+      }
+    }
+
+    void add_element(LensFlareElement &element)
+    {
+      _elements.push_back(element);
+    }
     
     virtual void init(const double game_time);
     virtual void simulate(const double game_time, const double frame_time);
