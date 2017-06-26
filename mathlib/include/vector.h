@@ -184,6 +184,7 @@ namespace Math {
   inline Float3 operator*(const float &l, const Float3 &r) { return Float3(l * r._val[0], l * r._val[1], l * r._val[2]); }
   inline Float4 operator*(const float &l, const Float4 &r) { return Float4(l * r._val[0], l * r._val[1], l * r._val[2], l * r._val[3]); }
   
+  inline std::ostream &operator<<(std::ostream &os, const Float4 &obj) { os << "(" << obj[0] << ", " << obj[1] << ", " << obj[2] << ", " << obj[3] << ")"; return os; }
   inline std::ostream &operator<<(std::ostream &os, const Float3 &obj) { os << "(" << obj[0] << ", " << obj[1] << ", " << obj[2] << ")"; return os; }
   inline std::ostream &operator<<(std::ostream &os, const Float2 &obj) { os << "(" << obj[0] << ", " << obj[1] << ")"; return os; }
 

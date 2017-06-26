@@ -248,6 +248,18 @@ Matrix4x4::Matrix4x4(const Matrix3x3 &mat, const Float3 &pos)
   //transpose();
 }
 
+Matrix4x4::Matrix4x4(const double *mat)
+{
+  int k = 0;
+  for (int i = 0; i < 3; i++)
+  {
+    for (int j = 0; j < 3; j++)
+    {
+      m[j][i] = (float)mat[k++];
+    }
+  }
+}
+
 /*
 Matrix4x4::Matrix4x4(const Float3 &a, const Float3 &b, const Float3 &c)
 {

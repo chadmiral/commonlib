@@ -71,6 +71,7 @@ namespace Math {
               const float _30, const float _31, const float _32, const float _33);
     //Matrix4x4(const Float4 &a, const Float4 &b, const Float4 &c, const Float4 &d);
     Matrix4x4(const Matrix3x3 &m, const Float3 &pos);
+    Matrix4x4(const double *gl_mat);
 
     ~Matrix4x4() {};
 
