@@ -255,7 +255,7 @@ Matrix4x4::Matrix4x4(const double *mat)
   {
     for (int j = 0; j < 3; j++)
     {
-      m[j][i] = (float)mat[k++];
+      m[i][j] = (float)mat[k++];
     }
   }
 }

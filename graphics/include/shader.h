@@ -123,6 +123,18 @@ namespace Graphics
     void set_var(const Math::Float3 v) { var = v; }
   };
 
+  class ShaderUniformFloat4 : public ShaderUniformVariable
+  {
+  private:
+    Math::Float4 var;
+  public:
+    ShaderUniformFloat4() : ShaderUniformVariable() {}
+    ~ShaderUniformFloat4() {}
+
+    virtual void render() const { glUniform4f(_loc, var._val[0], var._val[1], var._val[2], var._val[3]); }
+    void set_var(const Math::Float4 v) { var = v; }
+  };
+
   class ShaderUniformMatrix3x3 : public ShaderUniformVariable
   {
   private:

@@ -71,6 +71,6 @@ Float4::Float4(const float x, const float y, const float z, const float w)
   _val[0] = x;
   _val[1] = y;
   _val[2] = z;
-  _val[2] = w;
+  _val[3] = w;
 }
 

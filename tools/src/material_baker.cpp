@@ -200,6 +200,15 @@ void MaterialBaker::load_xml(mxml_node_t *tree, TmpMaterial &tmp_mat, std::strin
         uni._val[1] = 0.0f;
         uni._val[2] = 0.0f;
       }
+      else if (stricmp(buffer, "float4") == 0)
+      {
+        uni._type = TMP_UNIFORM_FLOAT4;
+        uni._val = new float[4];
+        uni._val[0] = 0.0f;
+        uni._val[1] = 0.0f;
+        uni._val[2] = 0.0f;
+        uni._val[3] = 0.0f;
+      }
       else if (stricmp(buffer, "mat4x4") == 0)
       {
         uni._type = TMP_UNIFORM_MAT4X4;
