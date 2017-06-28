@@ -69,14 +69,15 @@ void LensFlareElement::init()
 
   //collect shader uniform variables
   _proj_mat = (ShaderUniformMatrix4x4 *)material->find_uniform(Math::hash_value_from_string("proj_mat"));
-  _center_point = (ShaderUniformFloat2 *)material->find_uniform(Math::hash_value_from_string("screen_center_point"));
+  _center_point = (ShaderUniformFloat2 *)material->find_uniform(Math::hash_value_from_string("screen_flare_pos"));
   _screen_resolution = (ShaderUniformFloat2 *)material->find_uniform(Math::hash_value_from_string("screen_resolution"));
   _tint = (ShaderUniformFloat4 *)material->find_uniform(Math::hash_value_from_string("sun_lens_flare_tint"));
   _scale = (ShaderUniformFloat2 *)material->find_uniform(Math::hash_value_from_string("screen_scale"));
   _position_offset = (ShaderUniformFloat2 *)material->find_uniform(Math::hash_value_from_string("screen_offset"));
+  _element_depth = (ShaderUniformFloat *)material->find_uniform(Math::hash_value_from_string("element_depth"));
 
-  _tint->set_var(Float4(random(0.0f, 1.0f), random(0.0f, 1.0f), random(0.0f, 1.0f), 1.0f));
-  _scale->set_var(Float2(random(0.0f, 1.0f), random(0.0f, 1.0f)));
+  _tint->set_var(Float4(random(0.0f, 1.0f), random(0.0f, 1.0f), random(0.0f, 1.0f), 0.2f));
+  _scale->set_var(Float2(random(1.0f, 2.0f), random(0.0f, 0.2f)));
   _position_offset->set_var(Float2(random(-0.5f, 0.5f), random(-0.5f, 0.5f)));
 }
 

@@ -32,6 +32,7 @@ namespace Graphics
     Graphics::ShaderUniformFloat4     *_tint;
     Graphics::ShaderUniformFloat2     *_scale;
     Graphics::ShaderUniformFloat2     *_position_offset;
+    Graphics::ShaderUniformFloat      *_element_depth;
     
   public:
     LensFlareElement() : Renderable<LensFlareVertex>() {}
@@ -41,6 +42,7 @@ namespace Graphics
     void set_scale(Math::Float2 scale) { _scale->set_var(scale); }
     void set_rotation_offset(float rot_offset) {  }
     void set_tint(Math::Float4 &c) { _tint->set_var(c); }
+    void set_element_depth(float d) { _element_depth->set_var(d); }
     
     virtual void init();
     virtual void simulate(const double game_time, const double frame_time);
@@ -80,6 +82,11 @@ namespace Graphics
     {
       _elements.push_back(element);
     }
+
+    uint32_t size() const { return _elements.size(); }
+
+    inline LensFlareElement &operator[](const int idx) { return _elements[idx]; }
+    inline LensFlareElement operator[](const int idx) const { return _elements[idx]; }
     
     virtual void init(const double game_time);
     virtual void simulate(const double game_time, const double frame_time);
