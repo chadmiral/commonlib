@@ -19,6 +19,16 @@ namespace Tool
     NUM_TMP_UNIFORM_TYPES
   };
 
+  static uint8_t DefaultUniformValueCounts[NUM_TMP_UNIFORM_TYPES] =
+  {
+    1,
+    2,
+    3,
+    4,
+    9,
+    16
+  };
+
   struct TmpUniform
   {
     std::string    _name;

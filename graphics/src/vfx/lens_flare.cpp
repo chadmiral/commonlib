@@ -76,9 +76,9 @@ void LensFlareElement::init()
   _position_offset = (ShaderUniformFloat2 *)material->find_uniform(Math::hash_value_from_string("screen_offset"));
   _element_depth = (ShaderUniformFloat *)material->find_uniform(Math::hash_value_from_string("element_depth"));
 
-  _tint->set_var(Float4(random(0.0f, 1.0f), random(0.0f, 1.0f), random(0.0f, 1.0f), 0.2f));
-  _scale->set_var(Float2(random(1.0f, 2.0f), random(0.0f, 0.2f)));
-  _position_offset->set_var(Float2(random(-0.5f, 0.5f), random(-0.5f, 0.5f)));
+  //_tint->set_var(Float4(random(0.0f, 1.0f), random(0.0f, 1.0f), random(0.0f, 1.0f), 0.2f));
+  //_scale->set_var(Float2(random(1.0f, 2.0f), random(0.0f, 0.2f)));
+  //_position_offset->set_var(Float2(random(-0.5f, 0.5f), random(-0.5f, 0.5f)));
 }
 
 void LensFlareElement::simulate(const double game_time, const double frame_time)
