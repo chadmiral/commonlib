@@ -4,7 +4,7 @@
 #include <vector>
 #include "account.h"
 
-namespace Finance
+namespace Economy
 {
   class Portfolio
   {
@@ -28,7 +28,7 @@ namespace Finance
 
     for(int i = 0; i < p._accounts.size(); i++)
     {
-      os << (*p._accounts[i]);
+      os << (*p._accounts[i]) << std::endl;
     }
 
     return os;

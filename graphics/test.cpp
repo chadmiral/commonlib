@@ -252,7 +252,7 @@ private:
 
   void render_gl()
   {
-    glViewport(0, 0, resolution[0], resolution[1]);
+    glViewport(0, 0, game_context.window_resolution[0], game_context.window_resolution[1]);
     glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glDepthRange(0.0f, 1.0f);
@@ -509,7 +509,7 @@ private:
 
   void user_init()
   {
-    cam.set_window_dimensions(Float2((float)resolution[0], (float)resolution[1]));
+    cam.set_window_dimensions(Float2((float)game_context.window_resolution[0], (float)game_context.window_resolution[1]));
     particle_init();
     hair_init();
     static_mesh_init();

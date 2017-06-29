@@ -41,7 +41,7 @@ namespace Graphics
     void set_position_offset(Math::Float2 pos_offset) { _position_offset->set_var(pos_offset); }
     void set_scale(Math::Float2 scale) { _scale->set_var(scale); }
     void set_rotation_offset(float rot_offset) {  }
-    void set_tint(Math::Float4 &c) { _tint->set_var(c); }
+    void set_tint(Math::Float4 c) { _tint->set_var(c); }
     void set_element_depth(float d) { _element_depth->set_var(d); }
     
     virtual void init();

@@ -1,12 +1,13 @@
 #pragma once
 
 #include <iostream>
+#include <unordered_map>
 #include <vector>
 #include <string>
 
 #include "currency.h"
 
-namespace Finance
+namespace Economy
 {
   class Account
   {
@@ -17,8 +18,11 @@ namespace Finance
 
       float calculate_total_value(Currency c);
 
-      std::string                              _name;
-      std::vector<std::pair<Currency, float> > _currency_balances;
+      void deposit(Currency c, float amt);
+      void withdrawl(Currency c, float amt);
+
+      std::string                    _name;
+      std::unordered_map<int, float> _currency_balances;
 
       struct Holding
       {
@@ -33,12 +37,13 @@ namespace Finance
   {
     os << a._name << std::endl;
 
-    for(int i = 0; i < a._currency_balances.size(); i++)
+    for(int i = 0; i < NUM_CURRENCIES; i++)
     {
-      os << CurrencyShortNames[a._currency_balances[i].first];
-
-      //TODO: currency symbol, decimal formatting
-      os << ": " << a._currency_balances[i].second << std::endl;
+      try
+      {
+        float balance = a._currency_balances.at(i);
+        std::cout << CurrencyShortNames[i] << ": " << balance << std::endl;
+      } catch(...) {}
     }
 
     return os;

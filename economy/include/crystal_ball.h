@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Finance
+namespace Economy
 {
   class CrystalBall
   {
