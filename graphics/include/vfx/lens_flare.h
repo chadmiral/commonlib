@@ -59,16 +59,23 @@ namespace Graphics
 
     Graphics::StaticMesh             *_occlusion_mesh;
     float                             _occlusion_radius;
-    
+    float                             _occlusion_pct;
+
+    float                             _screen_gunk_contribution;
   public:
     LensFlare();
     ~LensFlare();
     
     void set_occlusion_mesh(Graphics::StaticMesh *m) { assert(m); _occlusion_mesh = m; }
     void set_occlusion_radius(float r) { _occlusion_radius = r; }
+    void set_occlusion_pct(const float op) { _occlusion_pct = op; }
+    float get_occlusion_pct() const { return _occlusion_pct; }
 
     Graphics::StaticMesh *get_occlusion_mesh() { return _occlusion_mesh; }
     float get_occlusion_radius() const { return _occlusion_radius; }
+
+    void set_screen_gunk_contribution(float sg) { _screen_gunk_contribution = sg; }
+    float get_screen_gunk_contribution() const { return _screen_gunk_contribution; }
 
     void set_screen_resolution(Math::Float2 sr)
     {
@@ -97,7 +104,7 @@ namespace Graphics
     
     virtual void init(const double game_time);
     virtual void simulate(const double game_time, const double frame_time);
-    virtual void render(const double game_time, const float occlusion_pct);
+    virtual void render(const double game_time);
   };
 };
 

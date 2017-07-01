@@ -89,6 +89,9 @@ LensFlare::LensFlare()
 {
   _occlusion_mesh = NULL;
   _occlusion_radius = 1.0f;
+  _occlusion_pct = 0.0f;
+
+  _screen_gunk_contribution = 1.0f;
 }
 
 LensFlare::~LensFlare()
@@ -113,11 +116,11 @@ void LensFlare::simulate(const double game_time, const double frame_time)
   Object3D::simulate(game_time, frame_time);
 }
 
-void LensFlare::render(const double game_time, float occlusion_pct)
+void LensFlare::render(const double game_time)
 {
   for(uint32_t i = 0; i < _elements.size(); i++)
   {
-    _elements[i]._brightness->set_var(occlusion_pct);
+    _elements[i]._brightness->set_var(_occlusion_pct);
     _elements[i].render(game_time);
   }
 }
