@@ -44,6 +44,9 @@ namespace Graphics
 
     void set_data(uint32_t num_verts, StaticMeshVertex *verts, uint32_t num_indices, uint32_t *indices);
 
+    int get_num_vertices() const { return _num_vertices; }
+    StaticMeshVertex *get_vertices() { return _vertices; }
+
   protected:
     std::vector<DrawCall<StaticMeshVertex> > draw_calls;
 

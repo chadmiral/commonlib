@@ -3,17 +3,6 @@
 using namespace Graphics;
 using namespace Math;
 
-/*
-LensFlareElement() :
-  Renderable<LensFlareVertex>()
-{
-  _position_offset = pos_offset;
-  _scale = scale;
-  _rotation_offset = rot_offset;
-  set_material(mat);
-  set_geometry(GL_QUADS);
-}
-*/
 
 void LensFlareElement::init()
 {
@@ -75,10 +64,7 @@ void LensFlareElement::init()
   _scale = (ShaderUniformFloat2 *)material->find_uniform(Math::hash_value_from_string("screen_scale"));
   _position_offset = (ShaderUniformFloat2 *)material->find_uniform(Math::hash_value_from_string("screen_offset"));
   _element_depth = (ShaderUniformFloat *)material->find_uniform(Math::hash_value_from_string("element_depth"));
-
-  //_tint->set_var(Float4(random(0.0f, 1.0f), random(0.0f, 1.0f), random(0.0f, 1.0f), 0.2f));
-  //_scale->set_var(Float2(random(1.0f, 2.0f), random(0.0f, 0.2f)));
-  //_position_offset->set_var(Float2(random(-0.5f, 0.5f), random(-0.5f, 0.5f)));
+  _brightness = (ShaderUniformFloat *)material->find_uniform(Math::hash_value_from_string("brightness"));
 }
 
 void LensFlareElement::simulate(const double game_time, const double frame_time)
@@ -101,6 +87,8 @@ void LensFlareElement::render(const double game_time)
 
 LensFlare::LensFlare()
 {
+  _occlusion_mesh = NULL;
+  _occlusion_radius = 1.0f;
 }
 
 LensFlare::~LensFlare()
@@ -125,10 +113,11 @@ void LensFlare::simulate(const double game_time, const double frame_time)
   Object3D::simulate(game_time, frame_time);
 }
 
-void LensFlare::render(const double game_time)
+void LensFlare::render(const double game_time, float occlusion_pct)
 {
   for(uint32_t i = 0; i < _elements.size(); i++)
   {
+    _elements[i]._brightness->set_var(occlusion_pct);
     _elements[i].render(game_time);
   }
 }
