@@ -9,6 +9,30 @@ using namespace Graphics;
 using namespace Math;
 using namespace std;
 
+#define VERTEX_MERGE_THRESHOLD 0.001f
+
+bool verts_equal(StaticMeshVertex &a, StaticMeshVertex &b)
+{
+  float d = (a.x - b.x) * (a.x - b.x);
+  d += (a.y - b.y) * (a.y - b.y);
+  d += (a.z - b.z) * (a.z - b.z);
+
+  d += (a.r - b.r) * (a.r - b.r);
+  d += (a.g - b.g) * (a.r - b.g);
+  d += (a.b - b.b) * (a.b - b.b);
+
+  d += (a.nx - b.nx) * (a.nx - b.nx);
+  d += (a.ny - b.ny) * (a.ny - b.ny);
+  d += (a.nz - b.nz) * (a.nz - b.nz);
+
+  d += (a.u0 - b.u0) * (a.u0 - b.u0);
+  d += (a.v0 - b.v0) * (a.v0 - b.v0);
+
+  //cout << "vert dist: " << d << endl;
+
+  return (d < VERTEX_MERGE_THRESHOLD);
+}
+
 void StaticMeshBaker::bake(mxml_node_t *tree, std::string output_fname, std::string tabs)
 {
   tabs = tabs + "\t";
@@ -136,65 +160,76 @@ void StaticMeshBaker::bake(mxml_node_t *tree, std::string output_fname, std::str
   } while(face_node);
 
   //build render data
-  //cout<<endl<<endl<<"\t"<<mesh_faces.size()<<" faces."<<endl;
-  uint32_t num_indices = mesh_faces.size() * 3;
-  unsigned int *indices = new unsigned int[num_indices];
-  int index_counter = 0;
-
-  uint32_t num_render_verts = mesh_faces.size() * 3;
-  StaticMeshVertex *render_verts = new StaticMeshVertex[num_render_verts];
+  std::vector<uint32_t> indices;
+  std::vector<StaticMeshVertex> render_verts;
   int rvi = 0;
 
   for(uint32_t i = 0; i < mesh_faces.size(); i++)
   {
     MeshFace *mf = &mesh_faces[i];
-    //cout<<"\tvert_idx:\n";
     for(int j = 0; j < 3; j++)
     {
       uint32_t vert_idx = mf->vert_idx[j];
-      indices[index_counter] = index_counter;//vert_idx;
-      index_counter++;
 
-      //cout<<"\t\t"<<mf->vert_idx[j]<<" ";
-      //cout<<vertex_xyz[i]<<endl;
+      StaticMeshVertex smv;
 
-      render_verts[rvi].x = vertex_xyz[vert_idx][0];
-      render_verts[rvi].y = vertex_xyz[vert_idx][1];
-      render_verts[rvi].z = vertex_xyz[vert_idx][2];
+      smv.x = vertex_xyz[vert_idx][0];
+      smv.y = vertex_xyz[vert_idx][1];
+      smv.z = vertex_xyz[vert_idx][2];
 
-      render_verts[rvi].r = mf->rgb[j][0];
-      render_verts[rvi].g = mf->rgb[j][1];
-      render_verts[rvi].b = mf->rgb[j][2];
+      smv.r = mf->rgb[j][0];
+      smv.g = mf->rgb[j][1];
+      smv.b = mf->rgb[j][2];
 
-      render_verts[rvi].nx = vertex_normal[vert_idx][0];//mf->normal[0];
-      render_verts[rvi].ny = vertex_normal[vert_idx][1];//mf->normal[1];
-      render_verts[rvi].nz = vertex_normal[vert_idx][2];//mf->normal[2];
+      smv.nx = vertex_normal[vert_idx][0];//mf->normal[0];
+      smv.ny = vertex_normal[vert_idx][1];//mf->normal[1];
+      smv.nz = vertex_normal[vert_idx][2];//mf->normal[2];
 
-      render_verts[rvi].u0 = mf->uvs[j][0];
-      render_verts[rvi].v0 = mf->uvs[j][1];
+      smv.u0 = mf->uvs[j][0];
+      smv.v0 = mf->uvs[j][1];
 
-      rvi++;
+      bool found_twin = false;
+      int indices_idx = render_verts.size();
+
+      //see if we can find a duplicate vert
+      //TODO: KD-tree for optimization
+      for(int k = 0; k < render_verts.size(); k++)
+      {
+        if(verts_equal(smv, render_verts[k]))
+        {
+          indices_idx = k;
+          found_twin = true;
+          break;
+        }
+      }
+
+      if(!found_twin)
+      {
+        render_verts.push_back(smv);
+      }
+      indices.push_back(indices_idx);
     }
-    //cout<<endl;
   }
 
-  cout<< tabs.c_str() << "opening file "<<output_fname.c_str()<<"..."<<endl;
+  cout << tabs.c_str() << "opening file " << output_fname.c_str() << "..." << endl;
   FILE *f = fopen(output_fname.c_str(), "wb");
   assert(f);
 
   int version = 1;
-  cout<< tabs.c_str() << "file version: "<<version<<endl;
+  cout << tabs.c_str() << "file version: " << version << endl;
   fwrite(&version, sizeof(int), 1, f);
 
   //write vertex data
-  cout<< tabs.c_str() << "writing "<<num_render_verts<<" render verts"<<endl;
+  int num_render_verts = render_verts.size();
+  cout << tabs.c_str() << "writing " << num_render_verts << " render verts"<<endl;
   fwrite(&num_render_verts, sizeof(uint32_t), 1, f);
-  fwrite(render_verts, sizeof(StaticMeshVertex), num_render_verts, f);
+  fwrite(render_verts.data(), sizeof(StaticMeshVertex), num_render_verts, f);
 
   //write index data
-  cout<< tabs.c_str() << "writing "<<num_indices<<" indices"<<endl;
+  int num_indices = indices.size();
+  cout << tabs.c_str() << "writing " << num_indices << " indices" << endl;
   fwrite(&num_indices, sizeof(int), 1, f);
-  fwrite(indices, sizeof(unsigned int), num_indices, f);
+  fwrite(indices.data(), sizeof(unsigned int), num_indices, f);
 
   //DrawCall<StaticMeshVertex> dc;
   //dc.num_indices = mesh_faces.size();
@@ -202,7 +237,4 @@ void StaticMeshBaker::bake(mxml_node_t *tree, std::string output_fname, std::str
   //dc.vertex_data = render_verts;
 
   fclose(f);
-
-  delete indices;
-  delete render_verts;
 }

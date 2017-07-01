@@ -3,6 +3,11 @@
 using namespace Graphics;
 using namespace Math;
 
+// The lens flare code was largely written in the summer of 2017. Lila and I are living in a 2 bedroom house
+// in the Central District in Seattle with our baby pupper Freyja. I largely got this code working in the week I
+// finaled Destiny 2, and now, finishing up the code, Lila and I are on a plane bound to Champaign, IL to visit
+// my parents.
+
 
 void LensFlareElement::init()
 {
@@ -63,8 +68,11 @@ void LensFlareElement::init()
   _tint = (ShaderUniformFloat4 *)material->find_uniform(Math::hash_value_from_string("sun_lens_flare_tint"));
   _scale = (ShaderUniformFloat2 *)material->find_uniform(Math::hash_value_from_string("screen_scale"));
   _position_offset = (ShaderUniformFloat2 *)material->find_uniform(Math::hash_value_from_string("screen_offset"));
+  _rotation_offset = (ShaderUniformFloat *)material->find_uniform(Math::hash_value_from_string("rotation_offset"));
+  _rotation_speed = (ShaderUniformFloat *)material->find_uniform(Math::hash_value_from_string("rotation_speed"));
   _element_depth = (ShaderUniformFloat *)material->find_uniform(Math::hash_value_from_string("element_depth"));
   _brightness = (ShaderUniformFloat *)material->find_uniform(Math::hash_value_from_string("brightness"));
+  _eye_dot_flare = (ShaderUniformFloat *)material->find_uniform(Math::hash_value_from_string("eye_dot_flare"));
 }
 
 void LensFlareElement::simulate(const double game_time, const double frame_time)
@@ -92,6 +100,7 @@ LensFlare::LensFlare()
   _occlusion_pct = 0.0f;
 
   _screen_gunk_contribution = 1.0f;
+  _eye_dot_flare = 1.0f;
 }
 
 LensFlare::~LensFlare()
@@ -120,6 +129,7 @@ void LensFlare::render(const double game_time)
 {
   for(uint32_t i = 0; i < _elements.size(); i++)
   {
+    _elements[i]._eye_dot_flare->set_var(_eye_dot_flare);
     _elements[i]._brightness->set_var(_occlusion_pct);
     _elements[i].render(game_time);
   }

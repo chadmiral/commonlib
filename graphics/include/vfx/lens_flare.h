@@ -35,6 +35,9 @@ namespace Graphics
     Graphics::ShaderUniformFloat2     *_position_offset;
     Graphics::ShaderUniformFloat      *_element_depth;
     Graphics::ShaderUniformFloat      *_brightness;
+    Graphics::ShaderUniformFloat      *_rotation_speed;
+    Graphics::ShaderUniformFloat      *_rotation_offset;
+    Graphics::ShaderUniformFloat      *_eye_dot_flare;
     
   public:
     LensFlareElement() : Renderable<LensFlareVertex>() {}
@@ -42,7 +45,8 @@ namespace Graphics
     
     void set_position_offset(Math::Float2 pos_offset) { _position_offset->set_var(pos_offset); }
     void set_scale(Math::Float2 scale) { _scale->set_var(scale); }
-    void set_rotation_offset(float rot_offset) {  }
+    void set_rotation_speed(float s) { _rotation_speed->set_var(s); }
+    void set_rotation_offset(float rot_offset) { _rotation_offset->set_var(rot_offset); }
     void set_tint(Math::Float4 c) { _tint->set_var(c); }
     void set_element_depth(float d) { _element_depth->set_var(d); }
     
@@ -62,6 +66,7 @@ namespace Graphics
     float                             _occlusion_pct;
 
     float                             _screen_gunk_contribution;
+    float                             _eye_dot_flare;
   public:
     LensFlare();
     ~LensFlare();
@@ -70,6 +75,8 @@ namespace Graphics
     void set_occlusion_radius(float r) { _occlusion_radius = r; }
     void set_occlusion_pct(const float op) { _occlusion_pct = op; }
     float get_occlusion_pct() const { return _occlusion_pct; }
+    void set_eye_dot_flare(const float d) { _eye_dot_flare = d; }
+    float get_eye_dot_flare() const { return _eye_dot_flare; }
 
     Graphics::StaticMesh *get_occlusion_mesh() { return _occlusion_mesh; }
     float get_occlusion_radius() const { return _occlusion_radius; }
