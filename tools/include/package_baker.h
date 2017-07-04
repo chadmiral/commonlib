@@ -10,6 +10,7 @@
 #include "skeleton_baker.h"
 #include "static_mesh_baker.h"
 #include "animation_baker.h"
+#include "lens_flare_baker.h"
 
 #if defined __LOKI__
 #define GL_CLAMP 0x2900 //TODO: do this more gracefully
@@ -99,6 +100,7 @@ namespace Tool
     std::vector<AnimationTemplate>    _animations;
     std::vector<MaterialTemplate>     _materials;
     std::vector<UILayoutTemplate>     _ui_layouts;
+    std::vector<BasicTemplate>        _lens_flares;
   };
 
   class PackageBaker
@@ -108,6 +110,7 @@ namespace Tool
     std::vector<PackageAsset *> assets;
     std::vector<std::string> asset_path;
 
+    void parse_basic_xml(mxml_node_t *baic_node, BasicTemplate &bt);
     void parse_shader_xml(mxml_node_t *shader_node, ShaderTemplate &st);
     void parse_material_xml(mxml_node_t *material_node, MaterialTemplate &mt);
     void parse_texture_xml(mxml_node_t *texture_node, TextureTemplate &tt);
@@ -124,6 +127,7 @@ namespace Tool
     void read_skeleton_file(SkeletonTemplate &st, std::ostream &log = std::cout);
     void read_animation_file(AnimationTemplate &at, std::ostream &log = std::cout);
     void read_ui_layout_file(UILayoutTemplate &ut, std::ostream &log = std::cout);
+    void read_lens_flare_file(BasicTemplate &bt, std::ostream &log = std::cout);
 
     void write_package(std::string output_fname, std::string tabs = "", std::ostream &log = std::cout);
 
@@ -136,6 +140,7 @@ namespace Tool
     void write_skeleton_packlet(FILE *fp, SkeletonPackageAsset *s, std::string tabs = "", std::ostream &log = std::cout);
     void write_animation_packlet(FILE *fp, AnimationPackageAsset *a, std::string tabs = "", std::ostream &log = std::cout);
     void write_ui_layout_packlet(FILE *fp, UILayoutPackageAsset *u, std::string tabs = "", std::ostream &log = std::cout);
+    void write_lens_flare_packlet(FILE *fp, LensFlarePackageAsset *lf, std::string tabs = "", std::ostream &log = std::cout);
   public:
     PackageBaker() { file_version = PACKAGE_FILE_VERSION; }
     ~PackageBaker() {}

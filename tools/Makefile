@@ -20,7 +20,7 @@ SRCS=src/static_mesh_baker.cpp src/bakery.cpp src/tool.cpp
 SRCS+=src/bphys_baker.cpp src/shader_baker.cpp
 SRCS+=src/minilzo/minilzo.cpp src/package_baker.cpp
 SRCS+=src/skeleton_baker.cpp src/animation_baker.cpp
-SRCS+=src/material_baker.cpp
+SRCS+=src/material_baker.cpp src/lens_flare_baker.cpp
 OBJS=$(SRCS:.cpp=.o)
 
 UNAME := $(shell uname)
@@ -76,6 +76,9 @@ $(BINPATH)animation_baker.o: $(SRCPATH)animation_baker.cpp
 
 $(BINPATH)material_baker.o: $(SRCPATH)material_baker.cpp
 	$(CC) $(CFLAGS) -c src/material_baker.cpp -o $(BINPATH)material_baker.o
+
+$(BINPATH)lens_flare_baker.o: $(SRCPATH)lens_flare_baker.cpp
+	$(CC) $(CFLAGS) -c src/lens_flare_baker.cpp -o $(BINPATH)lens_flare_baker.o
 
 $(BINPATH)minilzo.o: $(SRCPATH)minilzo/minilzo.cpp
 	$(CC) $(CFLAGS) -c src/minilzo/minilzo.cpp -o $(BINPATH)minilzo.o

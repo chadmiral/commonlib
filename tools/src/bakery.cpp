@@ -16,6 +16,7 @@ void Bakery::init()
   skeleton_baker.init();
   bphys_baker.init();
   shader_baker.init();
+  lens_flare_baker.init();
 }
 
 void Bakery::bake(std::string fname, std::string out_fname)
@@ -82,6 +83,13 @@ void Bakery::bake(std::string fname, std::string out_fname)
       if (node)
       {
         animation_baker.bake(tree, output_fname);
+      }
+
+      //lens flare
+      node = mxmlFindElement(tree, tree, "lens_flare", "version", NULL, MXML_DESCEND);
+      if(node)
+      {
+        lens_flare_baker.bake(tree, output_fname);
       }
 
       //package

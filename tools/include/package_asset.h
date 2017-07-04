@@ -13,12 +13,13 @@ namespace Tool
     PACKAGE_ASSET_SKELETON,
     PACKAGE_ASSET_ANIMATION,
     PACKAGE_ASSET_UI_LAYOUT,
-    
+    PACKAGE_ASSET_LENS_FLARE,
+
     NUM_PACKAGE_ASSET_TYPES,
     INVALID_PACKAGE_ASSET
   };
 
-  static const char *Package_asset_names[] = 
+  static const char *Package_asset_names[] =
   {
     "Shader",
     "Material",

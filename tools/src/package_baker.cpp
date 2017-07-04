@@ -1,25 +1,5 @@
 #include "platform_gl.h"
 #include "platform_sdl.h"
-/*#if defined (_WIN32)
-
-#include <Windows.h>
-#include <SDL.h>
-#include <SDL_image.h>
-
-#ifndef __LOKI__
-#include <GL/glew.h>
-#include <GL/gl.h>
-#endif //__LOKI__
-
-#else
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
-#endif //_WIN32
-
-#if defined(__APPLE__)
-#include <OpenGL/gl.h>
-#endif
-*/
 
 #include <iostream>
 #include <assert.h>
@@ -34,6 +14,7 @@
 #include "static_mesh_baker.h"
 #include "skeleton_baker.h"
 #include "animation_baker.h"
+#include "lens_flare_baker.h"
 
 
 using namespace Math;
@@ -180,6 +161,20 @@ void PackageBaker::parse_xml(mxml_node_t *tree, PackageTemplate &pt, std::ostrea
     }
     start_node = asset_node;
   } while (asset_node);
+
+  //parse all the lens flares
+  start_node = tree;
+  do
+  {
+    asset_node = mxmlFindElement(start_node, tree, "lens_flare", NULL, NULL, MXML_DESCEND);
+    if (asset_node)
+    {
+      BasicTemplate bt;
+      parse_basic_xml(asset_node, bt);
+      pt._lens_flares.push_back(bt);
+    }
+    start_node = asset_node;
+  } while (asset_node);
 }
 
 void PackageBaker::bake(mxml_node_t *tree, std::string output_filename, PackageTemplate &pt, std::ostream &log, std::string tabs)
@@ -260,6 +255,11 @@ void PackageBaker::bake(mxml_node_t *tree, std::string output_filename, PackageT
   {
     read_ui_layout_file(pt._ui_layouts[i], log);
   }
+  for (uint32_t i = 0; i < pt._lens_flares.size(); i++)
+  {
+    cout << "num lens flares: " << pt._lens_flares.size() << endl;
+    read_lens_flare_file(pt._lens_flares[i], log);
+  }
 
   write_package(pt._output_file);
 }
@@ -294,6 +294,15 @@ std::string ShaderPackageAsset::include_shader(std::string inc_fname)
   }
 
   return source;
+}
+
+void PackageBaker::parse_basic_xml(mxml_node_t *layout_node, BasicTemplate &bt)
+{
+  const char *buffer = NULL;
+  buffer = mxmlElementGetAttr(layout_node, "name");
+  bt._name = buffer;
+  buffer = mxmlGetText(layout_node, NULL);
+  bt._fname = buffer;
 }
 
 void ShaderPackageAsset::parse_source(std::string source, std::string *dest)
@@ -802,6 +811,11 @@ void PackageBaker::read_ui_layout_file(UILayoutTemplate &ut, std::ostream &log)
   }
 }
 
+void PackageBaker::read_lens_flare_file(BasicTemplate &bt, std::ostream &log)
+{
+  cout << "IMPLEMENT ME" << endl;
+}
+
 void PackageBaker::write_package(std::string output_filename, std::string tabs, std::ostream &log)
 {
   log << endl << tabs.c_str() <<"Writing game package to " << output_filename.c_str() << endl;
@@ -817,6 +831,7 @@ void PackageBaker::write_package(std::string output_filename, std::string tabs, 
     std::vector<SkeletonPackageAsset *>  skeletons;
     std::vector<AnimationPackageAsset *> animations;
     std::vector<UILayoutPackageAsset *>  ui_layouts;
+    std::vector<LensFlarePackageAsset *> lens_flares;
 
     for (uint32_t i = 0; i < assets.size(); i++)
     {
@@ -843,6 +858,9 @@ void PackageBaker::write_package(std::string output_filename, std::string tabs, 
       case PACKAGE_ASSET_UI_LAYOUT:
         ui_layouts.push_back((UILayoutPackageAsset *)assets[i]);
         break;
+      case PACKAGE_ASSET_LENS_FLARE:
+        lens_flares.push_back((LensFlarePackageAsset *)assets[i]);
+        break;
       }
     }
     uint32_t shader_count = shaders.size();
@@ -852,6 +870,7 @@ void PackageBaker::write_package(std::string output_filename, std::string tabs, 
     uint32_t skeleton_count = skeletons.size();
     uint32_t animation_count = animations.size();
     uint32_t ui_layout_count = ui_layouts.size();
+    uint32_t lens_flare_count = lens_flares.size();
 
     log << tabs.c_str() << "Packaging " << shader_count << " shaders..." << endl;
     log << tabs.c_str() << "Packaging " << texture_count << " textures..." << endl;
@@ -860,6 +879,7 @@ void PackageBaker::write_package(std::string output_filename, std::string tabs, 
     log << tabs.c_str() << "Packaging " << skeleton_count << " skeletons..." << endl;
     log << tabs.c_str() << "Packaging " << animation_count << " animations..." << endl;
     log << tabs.c_str() << "Packaging " << ui_layout_count << " ui layouts..." << endl;
+    log << tabs.c_str() << "Packaging " << lens_flare_count << " lens flares ..." << endl;
 
     //file header
     fwrite(&file_version, sizeof(uint32_t), 1, fp);
@@ -870,6 +890,7 @@ void PackageBaker::write_package(std::string output_filename, std::string tabs, 
     fwrite(&skeleton_count, sizeof(uint32_t), 1, fp);
     fwrite(&animation_count, sizeof(uint32_t), 1, fp);
     fwrite(&ui_layout_count, sizeof(uint32_t), 1, fp);
+    fwrite(&lens_flare_count, sizeof(uint32_t), 1, fp);
 
     SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
     log << tabs.c_str() << "Writing shader packlets..." << endl;
@@ -932,6 +953,15 @@ void PackageBaker::write_package(std::string output_filename, std::string tabs, 
     {
       UILayoutPackageAsset *u = ui_layouts[i];
       write_ui_layout_packlet(fp, u);
+    }
+
+    SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
+    log << tabs.c_str() << "Writing lens flare packlets..." << endl;
+    SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
+    for (uint32_t i = 0; i < lens_flares.size(); i++)
+    {
+      LensFlarePackageAsset *lf = lens_flares[i];
+      write_lens_flare_packlet(fp, lf);
     }
 
     fclose(fp);
@@ -1102,4 +1132,28 @@ void PackageBaker::write_ui_layout_packlet(FILE *fp, UILayoutPackageAsset *u, st
   fwrite(u->name.c_str(), sizeof(char), name_length, fp);
   fwrite(u->fname.c_str(), sizeof(char), fname_length, fp);
   fwrite(u->xml_source.c_str(), sizeof(char), xml_length, fp);
+}
+
+void PackageBaker::write_lens_flare_packlet(FILE *fp, LensFlarePackageAsset *lf, std::string tabs, std::ostream &log)
+{
+  //uint32_t hash_id = Math::hash_value_from_string(u->get_name().c_str());
+  //log << tabs.c_str() << "\"" << u->get_name().c_str() << "\"" << " -> " << hash_id << endl;
+
+  write_packlet_header(fp, lf, log);
+
+/*
+  uint32_t name_length = (u->name.size() + 1) * sizeof(char);
+  uint32_t fname_length = (u->fname.size() + 1) * sizeof(char);
+  uint32_t xml_length = (u->xml_source.size() + 1) * sizeof(char);
+
+  //fwrite(&hash_id, sizeof(uint32_t), 1, fp);
+  //fwrite(&name_length, sizeof(uint32_t), 1, fp);
+  //fwrite(&fname_length, sizeof(uint32_t), 1, fp);
+
+  fwrite(&xml_length, sizeof(uint32_t), 1, fp);
+
+  fwrite(u->name.c_str(), sizeof(char), name_length, fp);
+  fwrite(u->fname.c_str(), sizeof(char), fname_length, fp);
+  fwrite(u->xml_source.c_str(), sizeof(char), xml_length, fp);
+  */
 }

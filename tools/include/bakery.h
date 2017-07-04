@@ -9,6 +9,7 @@
 #include "animation_baker.h"
 #include "bphys_baker.h"
 #include "package_baker.h"
+#include "lens_flare_baker.h"
 
 
 namespace Tool
@@ -29,6 +30,7 @@ namespace Tool
     ShaderBaker       shader_baker;
     SkeletonBaker     skeleton_baker;
     AnimationBaker    animation_baker;
+    LensFlareBaker    lens_flare_baker;
   };
 };
 

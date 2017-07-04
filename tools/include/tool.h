@@ -7,6 +7,13 @@
 
 namespace Tool
 {
+
+  struct BasicTemplate
+  {
+    std::string _name;
+    std::string _fname;
+  };
+
   std::string mxml_read_text(mxml_node_t *node);
   Math::Float2 mxml_read_float2(const mxml_node_t *node);
   Math::Float3 mxml_read_float3(const mxml_node_t *node);
