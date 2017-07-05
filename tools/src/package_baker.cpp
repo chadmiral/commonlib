@@ -813,7 +813,46 @@ void PackageBaker::read_ui_layout_file(UILayoutTemplate &ut, std::ostream &log)
 
 void PackageBaker::read_lens_flare_file(BasicTemplate &bt, std::ostream &log)
 {
-  cout << "IMPLEMENT ME" << endl;
+  LensFlarePackageAsset *lens_flare_asset = new LensFlarePackageAsset(bt);
+  assets.push_back(lens_flare_asset);
+
+  SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
+  log << "Loading Lens Flare \"";
+  log << bt._name.c_str() << "\"" << endl;
+  SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
+
+  log << "\tsource file: " << bt._fname << " ... " << endl;
+
+  std::string output_fname = lens_flare_asset->fname + ".bin";
+  FILE *fp = fopen(lens_flare_asset->fname.c_str(), "r");
+  if (fp)
+  {
+    mxml_node_t *tree = mxmlLoadFile(NULL, fp, MXML_TEXT_CALLBACK);
+    assert(tree);
+
+    //don't need the file anymore now that we have the xml tree
+    fclose(fp);
+
+    LensFlareBaker lfb;
+    lfb.bake(tree, output_fname);
+  }
+
+  //and now open the binary file, read it and add it to the asset
+  fp = fopen(output_fname.c_str(), "rb");
+  if (fp)
+  {
+    /*
+    int version;
+    fread(&version, sizeof(int), 1, fp);
+
+    uint32_t num_lens_flares;
+    fread(&num_skeletons, sizeof(uint32_t), 1, fp);
+    fread(&skeleton_asset->num_bones, sizeof(uint32_t), 1, fp);
+    skeleton_asset->bones = new Animation::Bone[skeleton_asset->num_bones];
+    fread(skeleton_asset->bones, sizeof(Animation::Bone), skeleton_asset->num_bones, fp);
+    */
+    fclose(fp);
+  }
 }
 
 void PackageBaker::write_package(std::string output_filename, std::string tabs, std::ostream &log)

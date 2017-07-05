@@ -27,7 +27,8 @@ namespace Tool
     "Mesh",
     "Skeleton",
     "Animation",
-    "UI Layout"
+    "UI Layout",
+    "Lens Flare",
   };
 
   class PackageAsset
