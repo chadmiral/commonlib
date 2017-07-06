@@ -839,18 +839,10 @@ void PackageBaker::read_lens_flare_file(BasicTemplate &bt, std::ostream &log)
 
   //and now open the binary file, read it and add it to the asset
   fp = fopen(output_fname.c_str(), "rb");
-  if (fp)
+  if(fp)
   {
-    /*
-    int version;
-    fread(&version, sizeof(int), 1, fp);
-
-    uint32_t num_lens_flares;
-    fread(&num_skeletons, sizeof(uint32_t), 1, fp);
-    fread(&skeleton_asset->num_bones, sizeof(uint32_t), 1, fp);
-    skeleton_asset->bones = new Animation::Bone[skeleton_asset->num_bones];
-    fread(skeleton_asset->bones, sizeof(Animation::Bone), skeleton_asset->num_bones, fp);
-    */
+    TmpLensFlare tlf;
+    tlf.read_from_file(fp);
     fclose(fp);
   }
 }

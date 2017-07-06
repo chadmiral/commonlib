@@ -23,17 +23,19 @@ namespace Tool
     ~TmpLensFlare() {}
 
     void write_to_file(FILE *f);
-    void read_from_file(FILE *f) {}
+    void read_from_file(FILE *f);
 
     uint32_t                          _version;
     std::string                       _name;
 
     Math::Float3                      _center;
-    
+
     float                             _occlusion_radius;
     std::string                       _occlusion_mesh;
 
     std::vector<TmpLensFlareElement>  _elements;
+  private:
+    uint32_t calculate_element_file_size();
   };
 
   class LensFlarePackageAsset : public PackageAsset

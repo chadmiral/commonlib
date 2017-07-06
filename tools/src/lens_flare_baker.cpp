@@ -7,9 +7,26 @@
 using namespace std;
 using namespace Tool;
 
+uint32_t TmpLensFlare::calculate_element_file_size()
+{
+  uint32_t size = 0;
+  for(uint32_t i = 0; i < _elements.size(); i++)
+  {
+    size += sizeof(uint16_t) * 2; // to store the length of the strings
+
+    size += (_elements[i]._name.size() + 1) * sizeof(char);
+    size += (_elements[i]._material.size() + 1) * sizeof(char);
+  }
+
+  return size;
+}
+
 void TmpLensFlare::write_to_file(FILE *f)
 {
   fwrite(&_version, sizeof(uint32_t), 1, f);
+
+  uint32_t element_file_size = calculate_element_file_size();
+  fwrite(&element_file_size, sizeof(uint32_t), 1, f);
 
   uint16_t str_len = _name.size() + 1;
   fwrite(&str_len, sizeof(uint16_t), 1, f);
@@ -25,8 +42,33 @@ void TmpLensFlare::write_to_file(FILE *f)
   uint16_t num_elements = _elements.size();
   fwrite(&num_elements, sizeof(uint16_t), 1, f);
 
-  //todo: calculate total size of all elements
-  //fwrite(_elements.data(), )
+  for(uint32_t i = 0; i < _elements.size(); i++)
+  {
+    //element name
+    str_len = _elements[i]._name.size() + 1;
+    fwrite(&str_len, sizeof(uint16_t), 1, f);
+    fwrite(_elements[i]._name.c_str(), sizeof(char), str_len, f);
+
+    //material name
+    str_len = _elements[i]._material.size() + 1;
+    fwrite(&str_len, sizeof(uint16_t), 1, f);
+    fwrite(_elements[i]._material.c_str(), sizeof(char), str_len, f);
+  }
+}
+
+void TmpLensFlare::read_from_file(FILE *f)
+{
+  char buffer[1024];
+
+  fread(&_version, sizeof(uint32_t), 1, f);
+
+  uint32_t element_file_size;
+  fread(&element_file_size, sizeof(uint32_t), 1, f);
+
+  uint16_t str_len;
+  fread(&str_len, sizeof(uint16_t), 1, f);
+  fread(buffer, sizeof(char), str_len, f);
+  _name = std::string(buffer);
 }
 
 void LensFlareBaker::load_xml(mxml_node_t *tree, TmpLensFlare &tlf, std::string tabs, std::ostream &log)
