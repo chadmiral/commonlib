@@ -154,6 +154,16 @@ SkeletonAnimation *AssetLibrary::retrieve_animation(std::string name)
   return anim_asset->a;
 }
 
+LensFlare *AssetLibrary::retrieve_lens_flare(std::string name)
+{
+  LensFlareAsset *lf_asset = (LensFlareAsset *)retrieve_asset(name);
+  assert(lf_asset);
+  if (!lf_asset) { return NULL; }
+  assert(lf_asset->type == LENS_FLARE_ASSET);
+  assert(lf_asset->lf);
+  return lf_asset->lf;
+}
+
 void ShaderAsset::reload_from_disk()
 {
   cout << "Reloading shader from disk" << endl;
