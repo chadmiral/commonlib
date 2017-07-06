@@ -63,7 +63,7 @@ void LensFlareElement::init()
 
   //collect shader uniform variables
   _proj_mat = (ShaderUniformMatrix4x4 *)material->find_uniform(Math::hash_value_from_string("proj_mat"));
-  _center_point = (ShaderUniformFloat2 *)material->find_uniform(Math::hash_value_from_string("screen_flare_pos"));
+  _screen_space_center_point = (ShaderUniformFloat2 *)material->find_uniform(Math::hash_value_from_string("screen_flare_pos"));
   _screen_resolution = (ShaderUniformFloat2 *)material->find_uniform(Math::hash_value_from_string("screen_resolution"));
   _tint = (ShaderUniformFloat4 *)material->find_uniform(Math::hash_value_from_string("sun_lens_flare_tint"));
   _scale = (ShaderUniformFloat2 *)material->find_uniform(Math::hash_value_from_string("screen_scale"));

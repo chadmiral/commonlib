@@ -78,6 +78,9 @@
     <ClInclude Include="..\..\tools\include\package_asset.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\tools\include\lens_flare_baker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\tools\src\bakery.cpp">
@@ -148,6 +151,9 @@
     </ClCompile>
     <ClCompile Include="..\..\graphics\src\shader.cpp">
       <Filter>Source Files\commonlib\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\tools\src\lens_flare_baker.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -27,7 +27,7 @@ namespace Graphics
     Graphics::ShaderVertexAttrib       _uv0_attrib;
 
     Graphics::ShaderUniformMatrix4x4  *_proj_mat;
-    Graphics::ShaderUniformFloat2     *_center_point;
+    Graphics::ShaderUniformFloat2     *_screen_space_center_point;
     Graphics::ShaderUniformFloat2     *_screen_resolution;
 
     Graphics::ShaderUniformFloat4     *_tint;
@@ -91,11 +91,11 @@ namespace Graphics
         _elements[i]._screen_resolution->set_var(sr);
       }
     }
-    void set_center_point(Math::Float2 cp)
+    void set_screenspace_center_point(Math::Float2 cp)
     {
       for (uint32_t i = 0; i < _elements.size(); i++)
       {
-        _elements[i]._center_point->set_var(cp);
+        _elements[i]._screen_space_center_point->set_var(cp);
       }
     }
 

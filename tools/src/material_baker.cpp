@@ -13,11 +13,11 @@ void TmpMaterial::write_to_file(FILE *f)
 
   fwrite(&_vertex_size, sizeof(uint8_t), 1, f);
 
-  string_len = _target_buffer.size() + 1;
+  string_len = (uint16_t)_target_buffer.size() + 1;
   fwrite(&string_len, sizeof(uint16_t), 1, f);
   fwrite(_target_buffer.c_str(), sizeof(char), string_len, f);
 
-  string_len = _shader_name.size() + 1;
+  string_len = (uint16_t)_shader_name.size() + 1;
   fwrite(&string_len, sizeof(uint16_t), 1, f);
   fwrite(_shader_name.c_str(), sizeof(char), string_len, f);
 

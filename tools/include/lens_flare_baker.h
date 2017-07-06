@@ -41,16 +41,28 @@ namespace Tool
   class LensFlarePackageAsset : public PackageAsset
   {
   public:
-    LensFlarePackageAsset() : PackageAsset(PACKAGE_ASSET_LENS_FLARE) { }
-    LensFlarePackageAsset(BasicTemplate &bt) : PackageAsset(PACKAGE_ASSET_LENS_FLARE)
+    LensFlarePackageAsset() : PackageAsset(PACKAGE_ASSET_LENS_FLARE)
     {
-      name = bt._name;
-      fname = bt._fname;
+      _file_size = 0;
+      _file_data = NULL;
     }
-    ~LensFlarePackageAsset() { if (bones) { delete bones; } }
 
-    uint32_t            num_bones;
-    Animation::Bone    *bones;
+    LensFlarePackageAsset(BasicTemplate &mt) : PackageAsset(PACKAGE_ASSET_LENS_FLARE)
+    {
+      _file_size = 0;
+      _file_data = NULL;
+
+      name = mt._name;
+      fname = mt._fname;
+    }
+
+    ~LensFlarePackageAsset()
+    {
+      if (_file_data) { delete _file_data; }
+    }
+
+    uint32_t _file_size;
+    uint8_t *_file_data;
   };
 
   class LensFlareBaker

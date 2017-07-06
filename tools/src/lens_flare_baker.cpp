@@ -106,7 +106,7 @@ void LensFlareBaker::load_xml(mxml_node_t *tree, TmpLensFlare &tlf, std::string 
   if(occlusion_mesh_node)
   {
     tlf._occlusion_mesh = mxmlGetText(occlusion_mesh_node, NULL);
-    log << tabs.c_str() << "occlusion mesh: "<< tlf._occlusion_mesh << endl;
+    log << tabs.c_str() << "occlusion mesh: " << tlf._occlusion_mesh.c_str() << endl;
   }
 
   //read in each lens flare element
@@ -114,16 +114,19 @@ void LensFlareBaker::load_xml(mxml_node_t *tree, TmpLensFlare &tlf, std::string 
   do {
     mxml_node_t *lf_element_node = mxmlFindElement(start_node, lf_node, "element", NULL, NULL, MXML_DESCEND);
 
-    TmpLensFlareElement lfe;
+    if (lf_element_node)
+    {
+      TmpLensFlareElement lfe;
 
-    buffer = mxmlElementGetAttr(lf_element_node, "name");
-    if(buffer) { lfe._name = buffer; }
-    buffer = mxmlElementGetAttr(lf_element_node, "material");
-    if(buffer) { lfe._material = buffer; }
+      buffer = mxmlElementGetAttr(lf_element_node, "name");
+      if (buffer) { lfe._name = buffer; }
+      buffer = mxmlElementGetAttr(lf_element_node, "material");
+      if (buffer) { lfe._material = buffer; }
 
-    //log << tabs.c_str() << "element : " << lfe._name << endl;
-    //log << tabs.c_str() << "\tmaterial: " << lfe._material << endl;
-    tlf._elements.push_back(lfe);
+      //log << tabs.c_str() << "element : " << lfe._name << endl;
+      //log << tabs.c_str() << "\tmaterial: " << lfe._material << endl;
+      tlf._elements.push_back(lfe);
+    }
 
     start_node = lf_element_node;
   } while(start_node);

@@ -839,10 +839,16 @@ void PackageBaker::read_lens_flare_file(BasicTemplate &bt, std::ostream &log)
 
   //and now open the binary file, read it and add it to the asset
   fp = fopen(output_fname.c_str(), "rb");
-  if(fp)
+  if (fp)
   {
-    TmpLensFlare tlf;
-    tlf.read_from_file(fp);
+    fseek(fp, 0, SEEK_END);
+    long int file_size = ftell(fp);
+    rewind(fp);
+
+    //allocate a byte array of the appropriate size
+    lens_flare_asset->_file_size = file_size;
+    lens_flare_asset->_file_data = new uint8_t[file_size];
+    fread(lens_flare_asset->_file_data, file_size, 1, fp);
     fclose(fp);
   }
 }
@@ -1145,18 +1151,11 @@ void PackageBaker::write_animation_packlet(FILE *fp, AnimationPackageAsset *a, s
 
 void PackageBaker::write_ui_layout_packlet(FILE *fp, UILayoutPackageAsset *u, std::string tabs, std::ostream &log)
 {
-  //uint32_t hash_id = Math::hash_value_from_string(u->get_name().c_str());
-  //log << tabs.c_str() << "\"" << u->get_name().c_str() << "\"" << " -> " << hash_id << endl;
-
   write_packlet_header(fp, u, log);
 
   uint32_t name_length = (u->name.size() + 1) * sizeof(char);
   uint32_t fname_length = (u->fname.size() + 1) * sizeof(char);
   uint32_t xml_length = (u->xml_source.size() + 1) * sizeof(char);
-
-  //fwrite(&hash_id, sizeof(uint32_t), 1, fp);
-  //fwrite(&name_length, sizeof(uint32_t), 1, fp);
-  //fwrite(&fname_length, sizeof(uint32_t), 1, fp);
 
   fwrite(&xml_length, sizeof(uint32_t), 1, fp);
 
@@ -1167,24 +1166,14 @@ void PackageBaker::write_ui_layout_packlet(FILE *fp, UILayoutPackageAsset *u, st
 
 void PackageBaker::write_lens_flare_packlet(FILE *fp, LensFlarePackageAsset *lf, std::string tabs, std::ostream &log)
 {
-  //uint32_t hash_id = Math::hash_value_from_string(u->get_name().c_str());
-  //log << tabs.c_str() << "\"" << u->get_name().c_str() << "\"" << " -> " << hash_id << endl;
-
   write_packlet_header(fp, lf, log);
 
-/*
-  uint32_t name_length = (u->name.size() + 1) * sizeof(char);
-  uint32_t fname_length = (u->fname.size() + 1) * sizeof(char);
-  uint32_t xml_length = (u->xml_source.size() + 1) * sizeof(char);
+  //same code as material ... consolidate / genericize?
+  uint32_t name_length = (lf->name.size() + 1) * sizeof(char);
+  uint32_t fname_length = (lf->fname.size() + 1) * sizeof(char);
+  fwrite(&lf->_file_size, sizeof(uint32_t), 1, fp);
 
-  //fwrite(&hash_id, sizeof(uint32_t), 1, fp);
-  //fwrite(&name_length, sizeof(uint32_t), 1, fp);
-  //fwrite(&fname_length, sizeof(uint32_t), 1, fp);
-
-  fwrite(&xml_length, sizeof(uint32_t), 1, fp);
-
-  fwrite(u->name.c_str(), sizeof(char), name_length, fp);
-  fwrite(u->fname.c_str(), sizeof(char), fname_length, fp);
-  fwrite(u->xml_source.c_str(), sizeof(char), xml_length, fp);
-  */
+  fwrite(lf->name.c_str(), sizeof(char), name_length, fp);
+  fwrite(lf->fname.c_str(), sizeof(char), fname_length, fp);
+  fwrite(lf->_file_data, sizeof(uint8_t), lf->_file_size, fp);
 }

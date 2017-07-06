@@ -12,6 +12,7 @@
 #include "layout.h"
 #include "static_mesh.h"
 #include "skeleton.h"
+#include "lens_flare.h"
 
 namespace Game
 {
@@ -24,6 +25,7 @@ namespace Game
     SKELETON_ASSET,
     ANIMATION_ASSET,
     UI_LAYOUT_ASSET,
+    LENS_FLARE_ASSET,
     AUDIO_ASSET
   };
 
@@ -121,6 +123,17 @@ namespace Game
 
     UI::Layout *l;
   };
+
+  class LensFlareAsset : public GameAsset
+  {
+  public:
+    LensFlareAsset() : GameAsset(LENS_FLARE_ASSET) {}
+    ~LensFlareAsset() {}
+
+    virtual void reload_from_disk() { assert(false); }
+
+    Graphics::LensFlare *lf;
+  };
   
   class AssetLibrary
   {
@@ -140,6 +153,7 @@ namespace Game
     Graphics::StaticMesh *retrieve_mesh(std::string name);
     Animation::Skeleton *retrieve_skeleton(std::string name);
     Animation::SkeletonAnimation *retrieve_animation(std::string name);
+    Graphics::LensFlare *retrieve_lens_flare(std::string name);
 
     void init();
     void simulate(const double game_time, const double frame_time);
