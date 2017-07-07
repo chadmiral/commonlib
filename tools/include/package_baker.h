@@ -129,7 +129,7 @@ namespace Tool
     void read_ui_layout_file(UILayoutTemplate &ut, std::ostream &log = std::cout);
     void read_lens_flare_file(BasicTemplate &bt, std::ostream &log = std::cout);
 
-    void write_package(std::string output_fname, std::string tabs = "", std::ostream &log = std::cout);
+    void write_package(std::string output_fname, std::ostream &log = std::cout, std::string tabs = "");
 
     void write_packlet_header(FILE *fp, PackageAsset *a, std::ostream &log = std::cout);
 

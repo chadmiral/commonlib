@@ -257,11 +257,11 @@ void PackageBaker::bake(mxml_node_t *tree, std::string output_filename, PackageT
   }
   for (uint32_t i = 0; i < pt._lens_flares.size(); i++)
   {
-    cout << "num lens flares: " << pt._lens_flares.size() << endl;
+    log << "num lens flares: " << pt._lens_flares.size() << endl;
     read_lens_flare_file(pt._lens_flares[i], log);
   }
 
-  write_package(pt._output_file);
+  write_package(pt._output_file, log);
 }
 
 std::string ShaderPackageAsset::include_shader(std::string inc_fname)
@@ -526,17 +526,17 @@ void PackageBaker::read_texture_file(TextureTemplate &tt, std::ostream &log)
   assets.push_back(texture_asset);
 
   SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
-  log << "\tLoading texture \"";
+  log << "Loading texture \"";
   log << tt._name.c_str() << "\"" << endl;
   SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
 
   texture_asset->name = tt._name;
 
-  log << "\t\ttexture format: " << tt._format << endl;
+  log << "\ttexture format: " << tt._format << endl;
   tt._format = tt._format;
 
   texture_asset->fname = tt._fname;
-  log << "\t\tsource file: " << tt._fname.c_str() << " ... ";
+  log << "\tsource file: " << tt._fname.c_str() << " ... ";
 
   SDL_Surface *image = IMG_Load(texture_asset->fname.c_str());
   if (!image)
@@ -551,8 +551,8 @@ void PackageBaker::read_texture_file(TextureTemplate &tt, std::ostream &log)
   log << "OK" << endl;
   SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
 
-  log << "\t\twidth: "<< image->w <<endl;
-  log << "\t\theight: " << image->h << endl;
+  log << "\twidth: "<< image->w <<endl;
+  log << "\theight: " << image->h << endl;
   texture_asset->bpp = image->format->BytesPerPixel;
   texture_asset->width = image->w;
   texture_asset->height = image->h;
@@ -588,11 +588,11 @@ void PackageBaker::read_mesh_file(MeshTemplate &mt, std::ostream &log)
   assets.push_back(mesh_asset);
 
   SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
-  log << "\tLoading mesh geometry \"";
+  log << "Loading mesh geometry \"";
   log << mt._name << "\"" << endl;
   SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
 
-  log << "\t\tsource file: " << mt._fname << " ... " << endl;
+  log << "\tsource file: " << mt._fname << " ... " << endl;
 
   std::string output_fname = mesh_asset->fname + ".bin";
   FILE *fp = fopen(mesh_asset->fname.c_str(), "r");
@@ -853,7 +853,7 @@ void PackageBaker::read_lens_flare_file(BasicTemplate &bt, std::ostream &log)
   }
 }
 
-void PackageBaker::write_package(std::string output_filename, std::string tabs, std::ostream &log)
+void PackageBaker::write_package(std::string output_filename, std::ostream &log, std::string tabs)
 {
   log << endl << tabs.c_str() <<"Writing game package to " << output_filename.c_str() << endl;
   FILE *fp;
@@ -935,7 +935,7 @@ void PackageBaker::write_package(std::string output_filename, std::string tabs, 
     for (uint32_t i = 0; i < shaders.size(); i++)
     {
       ShaderPackageAsset *s = shaders[i];
-      write_shader_packlet(fp, s, tabs);
+      write_shader_packlet(fp, s, tabs, log);
     }
 
     SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
@@ -944,7 +944,7 @@ void PackageBaker::write_package(std::string output_filename, std::string tabs, 
     for (uint32_t i = 0; i < textures.size(); i++)
     {
       TexturePackageAsset *t = textures[i];
-      write_texture_packlet(fp, t, tabs);
+      write_texture_packlet(fp, t, tabs, log);
     }
 
     SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
@@ -953,7 +953,7 @@ void PackageBaker::write_package(std::string output_filename, std::string tabs, 
     for (uint32_t i = 0; i < materials.size(); i++)
     {
       MaterialPackageAsset *m = materials[i];
-      write_material_packlet(fp, m, tabs);
+      write_material_packlet(fp, m, tabs, log);
     }
 
     SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
@@ -962,7 +962,7 @@ void PackageBaker::write_package(std::string output_filename, std::string tabs, 
     for (uint32_t i = 0; i < meshes.size(); i++)
     {
       MeshPackageAsset *m = meshes[i];
-      write_mesh_packlet(fp, m, tabs);
+      write_mesh_packlet(fp, m, tabs, log);
     }
 
     SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
@@ -971,7 +971,7 @@ void PackageBaker::write_package(std::string output_filename, std::string tabs, 
     for (uint32_t i = 0; i < skeletons.size(); i++)
     {
       SkeletonPackageAsset *m = skeletons[i];
-      write_skeleton_packlet(fp, m, tabs);
+      write_skeleton_packlet(fp, m, tabs, log);
     }
 
     SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
@@ -980,7 +980,7 @@ void PackageBaker::write_package(std::string output_filename, std::string tabs, 
     for (uint32_t i = 0; i < animations.size(); i++)
     {
       AnimationPackageAsset *m = animations[i];
-      write_animation_packlet(fp, m, tabs);
+      write_animation_packlet(fp, m, tabs, log);
     }
 
     SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
@@ -989,7 +989,7 @@ void PackageBaker::write_package(std::string output_filename, std::string tabs, 
     for (uint32_t i = 0; i < ui_layouts.size(); i++)
     {
       UILayoutPackageAsset *u = ui_layouts[i];
-      write_ui_layout_packlet(fp, u);
+      write_ui_layout_packlet(fp, u, tabs, log);
     }
 
     SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
@@ -998,7 +998,7 @@ void PackageBaker::write_package(std::string output_filename, std::string tabs, 
     for (uint32_t i = 0; i < lens_flares.size(); i++)
     {
       LensFlarePackageAsset *lf = lens_flares[i];
-      write_lens_flare_packlet(fp, lf);
+      write_lens_flare_packlet(fp, lf, tabs, log);
     }
 
     fclose(fp);

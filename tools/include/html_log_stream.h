@@ -19,17 +19,33 @@ namespace Tool
     //called when a std::endl is received
     virtual int sync()
     {
+      std::string tmp = str();
       std::cout << str();
+     
+      //count preceding tabs
+      uint32_t num_tabs = 0;
+      for (uint32_t i = 0; i < tmp.size(); i++)
+      {
+        if (tmp[i] == '\t') { num_tabs++; }
+      }
 
       //write to log file
-      for (uint8_t i = 0; i < _indentation; i++)
+      _file_stream << "<p style=\"margin-left: " << 40 * num_tabs << "px\">";
+      
+      if (num_tabs == 0)
       {
-        _file_stream << "<p style=\"margin-left: 40px\">";
+        _file_stream << "<b>";
       }
       
       //chop off the \n & replace w/ <br>
-      std::string tmp = str();
-      _file_stream << tmp.substr(0, tmp.size() -1) << "<br>" << std::endl;
+      //_file_stream << tmp.substr(0, tmp.size() -1) << "<br>" << std::endl;
+
+      _file_stream << tmp;
+
+      if (num_tabs == 0)
+      {
+        _file_stream << "</b>";
+      }
 
       str(""); //clear buffer
       return 0;
