@@ -30,11 +30,11 @@ void TmpMaterial::write_to_file(FILE *f)
   fwrite(&_depth_write, sizeof(bool), 1, f);
 
   //write all the texture names
-  uint16_t tex_count = _texture_names.size();
+  uint16_t tex_count = (uint16_t)_texture_names.size();
   fwrite(&tex_count, sizeof(uint16_t), 1, f);
   for (uint16_t i = 0; i < tex_count; i++)
   {
-    string_len = _texture_names[i].size() + 1;
+    string_len = (uint16_t)_texture_names[i].size() + 1;
     fwrite(&string_len, sizeof(uint16_t), 1, f);
     fwrite(_texture_names[i].c_str(), sizeof(char), string_len, f);
   }
@@ -259,7 +259,7 @@ void MaterialBaker::load_xml(mxml_node_t *tree, TmpMaterial &tmp_mat, std::strin
   } while (start_node);
 }
 
-void MaterialBaker::bake(mxml_node_t *tree, string output_fname, string tabs, std::ostream &log)
+void MaterialBaker::bake(mxml_node_t *tree, string output_fname, std::ostream &log, string tabs)
 {
   tabs += "\t";
 

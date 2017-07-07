@@ -19,7 +19,7 @@ void Bakery::init()
   lens_flare_baker.init();
 }
 
-void Bakery::bake(std::string fname, std::string out_fname)
+void Bakery::bake(std::string fname, std::string out_fname, std::ostream &log)
 {
   //extract the file extension
   //march backwards from the end of the string
@@ -29,7 +29,7 @@ void Bakery::bake(std::string fname, std::string out_fname)
 
   if(fname_ext == std::string("bphys"))
   {
-    cout<<"Baking Blender physics file to texture..."<<endl;
+    log << "Baking Blender physics file to texture..." << endl;
     FILE *fp = fopen(fname.c_str(), "rb");
     if(fp)
     {
@@ -37,7 +37,7 @@ void Bakery::bake(std::string fname, std::string out_fname)
     }
     else
     {
-      cerr<<"Bakery::bake() - Could not open file! "<<endl<<"\t"<<fname.c_str()<<endl;
+      log << "Bakery::bake() - Could not open file! " << endl << "\t" << fname.c_str() << endl;
     }
   }
   else
@@ -61,35 +61,35 @@ void Bakery::bake(std::string fname, std::string out_fname)
       node = mxmlFindElement(tree, tree, "static_mesh", "version", NULL, MXML_DESCEND);
       if(node)
       {
-        static_mesh_baker.bake(tree, output_fname);
+        static_mesh_baker.bake(tree, output_fname, log);
       }
 
       //shader
       node = mxmlFindElement(tree, tree, "shader_graph", "version", NULL, MXML_DESCEND);
       if(node)
       {
-        shader_baker.bake(tree, output_fname);
+        shader_baker.bake(tree, output_fname, log);
       }
 
       //skeleton
       node = mxmlFindElement(tree, tree, "skeleton", "version", NULL, MXML_DESCEND);
       if (node)
       {
-        skeleton_baker.bake(tree, output_fname);
+        skeleton_baker.bake(tree, output_fname, log);
       }
 
       //animation
       node = mxmlFindElement(tree, tree, "animation", "version", NULL, MXML_DESCEND);
       if (node)
       {
-        animation_baker.bake(tree, output_fname);
+        animation_baker.bake(tree, output_fname, log);
       }
 
       //lens flare
       node = mxmlFindElement(tree, tree, "lens_flare", "version", NULL, MXML_DESCEND);
       if(node)
       {
-        lens_flare_baker.bake(tree, output_fname);
+        lens_flare_baker.bake(tree, output_fname, log);
       }
 
       //package
@@ -98,12 +98,12 @@ void Bakery::bake(std::string fname, std::string out_fname)
       {
         PackageTemplate pt;
         pt._version = atoi(mxmlElementGetAttr(node, "version"));
-        package_baker.bake(tree, output_fname, pt);
+        package_baker.bake(tree, output_fname, pt, log);
       }
     }
     else
     {
-      cerr<<"Bakery::bake() - Could not open file! "<<endl<<"\t"<<fname.c_str()<<endl;
+      log << "Bakery::bake() - Could not open file! " << endl << "\t" << fname.c_str() << endl;
     }
   }
 }

@@ -1,12 +1,17 @@
 #include <iostream>
 #include "bakery.h"
 #include "platform.h"
+#include "html_log_stream.h"
 
 using namespace std;
 using namespace Tool;
 
 int main(int argc, char **argv)
 {
+  HtmlLogStream log_buffer;
+  log_buffer.open("test_log.html");
+  std::ostream log_stream(&log_buffer);
+
   Bakery bakery;
   bakery.init();
 
@@ -14,7 +19,7 @@ int main(int argc, char **argv)
 
   char cwd[FILENAME_MAX];
   GETCWD(cwd, sizeof(cwd));
-  cout << "working dir: " << cwd << endl;
+  log_stream << "working dir: " << cwd << endl;
 
   if(argc > 1)
   {
@@ -22,10 +27,12 @@ int main(int argc, char **argv)
     {
       in_fname = argv[i];
       out_fname = make_nice_filename(std::string(""), std::string(""), i);
-      cout<<"Baking "<<in_fname.c_str()<<"..."<<endl;
-      bakery.bake(in_fname, out_fname);
+      log_stream << "Baking " << in_fname.c_str() << "..." << endl;
+      bakery.bake(in_fname, out_fname, log_stream);
     }
   }
+
+  log_buffer.close();
 
 #if defined (_WIN32)
   Sleep(60 * 1000);

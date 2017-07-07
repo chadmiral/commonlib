@@ -476,7 +476,7 @@ void PackageBaker::read_material_file(MaterialTemplate &mt, std::ostream &log)
     fclose(fp);
 
     MaterialBaker mb;
-    mb.bake(tree, output_fname);
+    mb.bake(tree, output_fname, log);
   }
 
   //and now open the binary file, read it and add it to the asset
@@ -605,7 +605,7 @@ void PackageBaker::read_mesh_file(MeshTemplate &mt, std::ostream &log)
     fclose(fp);
 
     StaticMeshBaker smb;
-    smb.bake(tree, output_fname);
+    smb.bake(tree, output_fname, log);
   }
 
   //and now open the binary file, read it and add it to the asset
@@ -664,7 +664,7 @@ void PackageBaker::read_skeleton_file(SkeletonTemplate &st, std::ostream &log)
     fclose(fp);
 
     SkeletonBaker sb;
-    sb.bake(tree, output_fname);
+    sb.bake(tree, output_fname, log);
   }
 
   //and now open the binary file, read it and add it to the asset
@@ -718,7 +718,7 @@ void PackageBaker::read_animation_file(AnimationTemplate &at, std::ostream &log)
     fclose(fp);
 
     AnimationBaker ab;
-    ab.bake(tree, output_fname);
+    ab.bake(tree, output_fname, log);
   }
 
   //and now open the binary file, read it and add it to the asset
@@ -834,7 +834,7 @@ void PackageBaker::read_lens_flare_file(BasicTemplate &bt, std::ostream &log)
     fclose(fp);
 
     LensFlareBaker lfb;
-    lfb.bake(tree, output_fname);
+    lfb.bake(tree, output_fname, log);
   }
 
   //and now open the binary file, read it and add it to the asset

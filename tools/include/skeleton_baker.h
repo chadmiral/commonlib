@@ -34,6 +34,6 @@ namespace Tool
     ~SkeletonBaker() {}
 
     void init() {}
-    void bake(mxml_node_t *tree, std::string output_fname, std::string tabs = "");
+    void bake(mxml_node_t *tree, std::string output_fname, std::ostream &log = std::cout, std::string tabs = "");
   };
 };

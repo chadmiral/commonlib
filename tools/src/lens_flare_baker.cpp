@@ -74,7 +74,7 @@ void TmpLensFlare::read_from_file(FILE *f)
 void LensFlareBaker::load_xml(mxml_node_t *tree, TmpLensFlare &tlf, std::string tabs, std::ostream &log)
 {
   const char *buffer = NULL;
-  cout << tabs.c_str() << "Parsing lens flare xml..." << endl;
+  log << tabs.c_str() << "Parsing lens flare xml..." << endl;
 
   mxml_node_t *lf_node = mxmlFindElement(tree, tree, "lens_flare", NULL, NULL, MXML_DESCEND);
   assert(lf_node);
@@ -134,7 +134,7 @@ void LensFlareBaker::load_xml(mxml_node_t *tree, TmpLensFlare &tlf, std::string 
   log << tabs.c_str() << tlf._elements.size() << " lens flare elements..." << endl;
 }
 
-void LensFlareBaker::bake(mxml_node_t *tree, std::string output_fname, std::string tabs, std::ostream &log)
+void LensFlareBaker::bake(mxml_node_t *tree, std::string output_fname, std::ostream &log, std::string tabs)
 {
   tabs = tabs + "\t";
 
@@ -143,7 +143,7 @@ void LensFlareBaker::bake(mxml_node_t *tree, std::string output_fname, std::stri
   load_xml(tree, tlf, tabs, log);
 
   //ok, we've gathered all our data, now write to a binary file
-  cout << tabs.c_str() << "opening file " << output_fname.c_str() << "..." << endl;
+  log << tabs.c_str() << "opening file " << output_fname.c_str() << "..." << endl;
   FILE *f = fopen(output_fname.c_str(), "wb");
   assert(f);
   tlf.write_to_file(f);

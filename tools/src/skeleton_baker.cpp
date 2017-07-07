@@ -7,12 +7,12 @@ using namespace Tool;
 using namespace std;
 using namespace Math;
 
-void SkeletonBaker::bake(mxml_node_t *tree, std::string output_fname, std::string tabs)
+void SkeletonBaker::bake(mxml_node_t *tree, std::string output_fname, std::ostream &log, std::string tabs)
 {
   tabs += "\t";
   const char *buffer = NULL;
 
-  cout << tabs.c_str() << "Parsing skeleton xml..." << endl;
+  log << tabs.c_str() << "Parsing skeleton xml..." << endl;
 
   //read all the skeletons
   mxml_node_t *skeleton_node = NULL;
@@ -31,7 +31,7 @@ void SkeletonBaker::bake(mxml_node_t *tree, std::string output_fname, std::strin
     if (skeleton_node)
     {
       buffer = mxmlElementGetAttr(skeleton_node, "name");
-      cout << tabs.c_str() << "Skeleton Name: " << buffer << endl;
+      log << tabs.c_str() << "Skeleton Name: " << buffer << endl;
 
       num_skeletons++;
       assert(num_skeletons == 1); //TODO: allow multiple skeletons per rig?
@@ -50,7 +50,7 @@ void SkeletonBaker::bake(mxml_node_t *tree, std::string output_fname, std::strin
 
           //retrieve bone name
           buffer = mxmlElementGetAttr(bone_node, "name");
-          cout << tabs.c_str() << "Bone: " << buffer << endl;
+          log << tabs.c_str() << "Bone: " << buffer << endl;
           bone_names.push_back(buffer);
           new_bone._hash_id = Math::hash_value_from_string(buffer);
 
@@ -58,7 +58,7 @@ void SkeletonBaker::bake(mxml_node_t *tree, std::string output_fname, std::strin
           buffer = mxmlElementGetAttr(bone_node, "parent");
           if (buffer)
           {
-            cout << tabs.c_str() << "parent: " << buffer << endl;
+            log << tabs.c_str() << "parent: " << buffer << endl;
             bone_parent_names.push_back(buffer);
           }
           else
@@ -71,14 +71,14 @@ void SkeletonBaker::bake(mxml_node_t *tree, std::string output_fname, std::strin
           assert(head_node);
           Float3 head_pos = mxml_read_float3(head_node->child);
           new_bone._head_pos = head_pos;
-          cout << tabs.c_str() << "head pos: " << head_pos << endl;
+          log << tabs.c_str() << "head pos: " << head_pos << endl;
 
           //retrieve tail position
           mxml_node_t *tail_node = mxmlFindElement(bone_node, tree, "tail", NULL, NULL, MXML_DESCEND);
           assert(tail_node);
           Float3 tail_pos = mxml_read_float3(tail_node->child);
           new_bone._tail_pos = tail_pos;
-          cout << tabs.c_str() << "tail pos: " << tail_pos << endl;
+          log << tabs.c_str() << "tail pos: " << tail_pos << endl;
 
           bones.push_back(new_bone);
         }
@@ -104,12 +104,12 @@ void SkeletonBaker::bake(mxml_node_t *tree, std::string output_fname, std::strin
   }
 
   //now write the data to file
-  cout << tabs.c_str() << "opening file " << output_fname.c_str() << "..." << endl;
+  log << tabs.c_str() << "opening file " << output_fname.c_str() << "..." << endl;
   FILE *f = fopen(output_fname.c_str(), "wb");
   assert(f);
 
   int version = 1;
-  cout << tabs.c_str() << "file version: " << version << endl;
+  log << tabs.c_str() << "file version: " << version << endl;
   fwrite(&version, sizeof(int), 1, f);
 
   uint32_t num_bones = bones.size();

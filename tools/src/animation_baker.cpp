@@ -17,12 +17,12 @@ struct TmpAnimCurve
   std::vector<Float2> _frames;
 };
 
-void AnimationBaker::bake(mxml_node_t *tree, std::string output_fname, std::string tabs)
+void AnimationBaker::bake(mxml_node_t *tree, std::string output_fname, std::ostream &log, std::string tabs)
 {
   tabs += "\t";
   const char *buffer = NULL;
 
-  cout << tabs.c_str() << "Parsing animation xml...";
+  log << tabs.c_str() << "Parsing animation xml...";
   tabs += "\t";
 
   mxml_node_t *animation_node = mxmlFindElement(tree, tree, "animation", NULL, NULL, MXML_DESCEND);
@@ -31,15 +31,15 @@ void AnimationBaker::bake(mxml_node_t *tree, std::string output_fname, std::stri
   buffer = mxmlElementGetAttr(animation_node, "version");
   uint32_t version = atoi(buffer);
 
-  cout << "version " << version << endl;
+  log << "version " << version << endl;
 
   buffer = mxmlElementGetAttr(animation_node, "length_frames");
   uint32_t length_frames = atoi(buffer);
-  cout << tabs.c_str() << "# frames: " << length_frames << endl;
+  log << tabs.c_str() << "# frames: " << length_frames << endl;
 
   buffer = mxmlElementGetAttr(animation_node, "fps");
   uint32_t fps = atoi(buffer);
-  cout << tabs.c_str() << "fps: " << fps << endl;
+  log << tabs.c_str() << "fps: " << fps << endl;
 
   //now loop through all the anim_curves
   mxml_node_t *curve_node = NULL;
@@ -58,7 +58,7 @@ void AnimationBaker::bake(mxml_node_t *tree, std::string output_fname, std::stri
 
       buffer = mxmlElementGetAttr(curve_node, "bone");
       std::string bone_name = buffer;
-      //cout << tabs.c_str() << "bone: " << bone_name.c_str() << endl;
+      //log << tabs.c_str() << "bone: " << bone_name.c_str() << endl;
       tac._bone_name = bone_name;
 
       //add the bone, if unique
@@ -71,7 +71,7 @@ void AnimationBaker::bake(mxml_node_t *tree, std::string output_fname, std::stri
 
       buffer = mxmlElementGetAttr(curve_node, "data_type");
       std::string data_type = buffer;
-      //cout << tabs.c_str() << "data type: " << data_type.c_str() << endl;
+      //log << tabs.c_str() << "data type: " << data_type.c_str() << endl;
 
       tac._transform_type = BONE_TRANSFORM_INVALID;
       if (data_type.compare("rotation_quaternion") == 0)
@@ -90,7 +90,7 @@ void AnimationBaker::bake(mxml_node_t *tree, std::string output_fname, std::stri
 
       buffer = mxmlElementGetAttr(curve_node, "axis");
       std::string axis = buffer;
-      //cout << tabs.c_str() << "axis: " << axis.c_str() << endl;
+      //log << tabs.c_str() << "axis: " << axis.c_str() << endl;
 
       tac._transform_axis = BONE_TRANSFORM_AXIS_INVALID;
       if (axis.compare("x") == 0)
@@ -127,7 +127,7 @@ void AnimationBaker::bake(mxml_node_t *tree, std::string output_fname, std::stri
         {
           Float2 f = mxml_read_float2(frame_node->child);
           tac._frames.push_back(f);
-          //cout << tabs.c_str() << f << endl;
+          //log << tabs.c_str() << f << endl;
         }
 
         start_node = frame_node;
@@ -209,10 +209,10 @@ void AnimationBaker::bake(mxml_node_t *tree, std::string output_fname, std::stri
     bone_animation._tracks.push_back(bat);
   }
 
-  cout << tabs.c_str() << "unique bone names: " << endl;
+  log << tabs.c_str() << "unique bone names: " << endl;
   for (uint32_t i = 0; i < bone_names.size(); i++)
   {
-    cout << tabs.c_str() << "\t" << bone_names[i].c_str() << endl;
+    log << tabs.c_str() << "\t" << bone_names[i].c_str() << endl;
   }
 
   //TODO: optimize frames based on curvature of the animation curve
@@ -221,12 +221,12 @@ void AnimationBaker::bake(mxml_node_t *tree, std::string output_fname, std::stri
 
   // ok, sweet - now we have our data in game format, more or less...
   // blast it into a .bin file.
-  cout << tabs.c_str() << "opening file " << output_fname.c_str() << "..." << endl;
+  log << tabs.c_str() << "opening file " << output_fname.c_str() << "..." << endl;
   FILE *f = fopen(output_fname.c_str(), "wb");
   assert(f);
 
   version = 1;
-  cout << tabs.c_str() << "file version: " << version << endl;
+  log << tabs.c_str() << "file version: " << version << endl;
   fwrite(&version, sizeof(uint32_t), 1, f);
 
   uint32_t num_tracks = bone_animation.get_num_tracks();

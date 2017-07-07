@@ -33,10 +33,10 @@ bool verts_equal(StaticMeshVertex &a, StaticMeshVertex &b)
   return (d < VERTEX_MERGE_THRESHOLD);
 }
 
-void StaticMeshBaker::bake(mxml_node_t *tree, std::string output_fname, std::string tabs)
+void StaticMeshBaker::bake(mxml_node_t *tree, std::string output_fname, std::ostream &log, std::string tabs)
 {
   tabs = tabs + "\t";
-  cout << tabs.c_str() << "Parsing static mesh xml..." << endl;
+  log << tabs.c_str() << "Parsing static mesh xml..." << endl;
 
   //read all the materials
   mxml_node_t *material_node = NULL;
@@ -50,7 +50,6 @@ void StaticMeshBaker::bake(mxml_node_t *tree, std::string output_fname, std::str
       mxml_node_t *diff_node = mxmlFindElement(material_node, material_node, "diffuse_color", NULL, NULL, MXML_DESCEND);
       assert(diff_node);
       Float3 diff_color = mxml_read_float3(diff_node->child);
-      //cout<<"\tdiffuse: "<<diff_color<<endl;
     }
 
     //read all the textures used by this material
@@ -84,13 +83,11 @@ void StaticMeshBaker::bake(mxml_node_t *tree, std::string output_fname, std::str
       assert(pos_node);
       Float3 vert_pos = mxml_read_float3(pos_node->child);
       vertex_xyz.push_back(vert_pos);
-      //cout<<"\tv: "<<vert_pos<<endl;
 
       mxml_node_t *norm_node = mxmlFindElement(vert_node, vert_node, "normal", NULL, NULL, MXML_DESCEND);
       assert(norm_node);
       Float3 vert_normal = mxml_read_float3(norm_node->child);
       vertex_normal.push_back(vert_normal);
-      //cout<<"\tn: "<<vert_normal<<endl;
 
       start_node = vert_node;
     }
@@ -193,7 +190,7 @@ void StaticMeshBaker::bake(mxml_node_t *tree, std::string output_fname, std::str
 
       //see if we can find a duplicate vert
       //TODO: KD-tree for optimization
-      for(int k = 0; k < render_verts.size(); k++)
+      for(uint32_t k = 0; k < render_verts.size(); k++)
       {
         if(verts_equal(smv, render_verts[k]))
         {

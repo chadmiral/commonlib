@@ -41,12 +41,12 @@ namespace Tool
     BPhysBaker() {}
     ~BPhysBaker() {}
 
-    void init();
-    void bake(FILE *f, std::string output_filename, std::string tabs = "");
+    void init(std::ostream &log = std::cout);
+    void bake(FILE *f, std::string output_filename, std::ostream &log = std::cout, std::string tabs = "");
   private:
     std::string out_fname;
 
-    void read_smoke_data(FILE *f);
+    void read_smoke_data(FILE *f, std::ostream &log = std::cout);
     /*void write_vertical_voxel_slice(float *voxels,
                                     unsigned int *vox_dim,
                                     Math::Float2 vox_range,

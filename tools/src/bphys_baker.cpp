@@ -12,16 +12,16 @@ using namespace std;
 using namespace Tool;
 using namespace Graphics;
 
-void BPhysBaker::init()
+void BPhysBaker::init(std::ostream &log)
 {
-  cout<<"Initializing Blender Point Cache (Physics) Baker..."<<endl;
+  log << "Initializing Blender Point Cache (Physics) Baker..."<<endl;
   if (lzo_init() != LZO_E_OK)
   {
     cerr<<"BPhysBaker::init() - Failed to initialize lzo compression!"<<endl;
   }
 }
 
-void BPhysBaker::bake(FILE *f, std::string output_filename, std::string tabs)
+void BPhysBaker::bake(FILE *f, std::string output_filename, std::ostream &log, std::string tabs)
 {
   BPhysHeader bph;
   fread(&bph, sizeof(BPhysHeader), 1, f);
@@ -87,10 +87,10 @@ static int ptcache_file_compressed_read(unsigned char *result, unsigned int len,
   return r;
 }
 
-void BPhysBaker::read_smoke_data(FILE *f)
+void BPhysBaker::read_smoke_data(FILE *f, std::ostream &log)
 {
   assert(f);
-  cout<<"reading smoke sim data..."<<endl;
+  log << "reading smoke sim data..."<<endl;
 
   //WTF DOES THIS BLOCK OF DATA DO?!?!?!
   char unknown_data[11];
@@ -111,11 +111,11 @@ void BPhysBaker::read_smoke_data(FILE *f)
   fread(&res, 3, sizeof(unsigned int), f);
   fread(&dx, 1, sizeof(float), f);
 
-  cout<<"version: "<<version<<endl;
-  cout<<"fluid fields: "<<fluid_fields<<endl;
-  cout<<"active fields: "<<active_fields<<endl;
-  cout<<"resolution: "<<res[0]<<"x"<<res[1]<<"x"<<res[2]<<endl;
-  cout<<"dx: "<<dx<<endl;
+  log<<"version: "<<version<<endl;
+  log<<"fluid fields: "<<fluid_fields<<endl;
+  log<<"active fields: "<<active_fields<<endl;
+  log<<"resolution: "<<res[0]<<"x"<<res[1]<<"x"<<res[2]<<endl;
+  log<<"dx: "<<dx<<endl;
 
   unsigned int alloc_res = res[0] * res[1] * res[2];
   const unsigned int out_len = (unsigned int)(alloc_res) * sizeof(float);
@@ -137,13 +137,13 @@ void BPhysBaker::read_smoke_data(FILE *f)
   float sphere_radius = 0.75f;
   int img_res[2] = { 1024, 512 };//{ 1024, 512 };
 
-  cout<<"reading shadow voxels..."<<endl;
+  log<<"reading shadow voxels..."<<endl;
   std::string fname = "shadow" + out_fname + ".tga";
   ptcache_file_compressed_read((unsigned char *)shadow_voxels, out_len, f); //shadow
   Float2 shadow_range(0.0f, 1.0f);
   splat_voxel_data_onto_sphere_surface(res, shadow_range, shadow_range, shadow_range, false, sphere_radius, img_res[0], img_res[1], fname, shadow_voxels);
 
-  cout<<"reading density voxels..."<<endl;
+  log<<"reading density voxels..."<<endl;
   fname = "density" + out_fname + ".tga";
   ptcache_file_compressed_read((unsigned char *)density_voxels, out_len, f); //density
   Float2 density_range(0.0f, 1.0f);
@@ -151,7 +151,7 @@ void BPhysBaker::read_smoke_data(FILE *f)
 
   if(fluid_fields & SM_ACTIVE_HEAT)
   {
-    cout<<"reading heat voxels..."<<endl;
+    log<<"reading heat voxels..."<<endl;
     heat_voxels = new float[alloc_res];
     heat_old_voxels = new float[alloc_res];
     ptcache_file_compressed_read((unsigned char *)heat_voxels, out_len, f); //heat
@@ -164,7 +164,7 @@ void BPhysBaker::read_smoke_data(FILE *f)
   }
   if(fluid_fields & SM_ACTIVE_FIRE)
   {
-    cout<<"reading fire voxels..."<<endl;
+    log<<"reading fire voxels..."<<endl;
     flame_voxels = new float[alloc_res];
     fuel_voxels = new float[alloc_res];
     react_voxels = new float[alloc_res];
@@ -180,7 +180,7 @@ void BPhysBaker::read_smoke_data(FILE *f)
   }
   if(fluid_fields & SM_ACTIVE_COLORS)
   {
-    cout<<"reading color voxels..."<<endl;
+    log<<"reading color voxels..."<<endl;
     color_voxels_r = new float[alloc_res];
     color_voxels_g = new float[alloc_res];
     color_voxels_b = new float[alloc_res];
@@ -192,7 +192,7 @@ void BPhysBaker::read_smoke_data(FILE *f)
   }
 
   //velocity
-  cout<<"reading velocity voxels..."<<endl;
+  log<<"reading velocity voxels..."<<endl;
   ptcache_file_compressed_read((unsigned char *)velocity_voxels_x, out_len, f); //vx
   ptcache_file_compressed_read((unsigned char *)velocity_voxels_y, out_len, f); //vy
   ptcache_file_compressed_read((unsigned char *)velocity_voxels_z, out_len, f); //vz
@@ -271,7 +271,7 @@ float sample_voxel(float *voxels, unsigned int *vox_dim, const Float3 &uvw, bool
     voxel_xyz[v_idx_i] = (float)v_idx[v_idx_i];
   }
 
-  //cout<<scaled_uvw - voxel_xyz<<endl;
+  //log<<scaled_uvw - voxel_xyz<<endl;
 
   float center_val = voxels[voxel_idx(v_idx, vox_dim)];
   if(trilinear_filter)

@@ -72,7 +72,7 @@ namespace Tool
     ~LensFlareBaker() {}
 
     void init() {}
-    void bake(mxml_node_t *tree, std::string output_fname, std::string tabs = "", std::ostream &log = std::cout);
+    void bake(mxml_node_t *tree, std::string output_fname, std::ostream &log = std::cout, std::string tabs = "");
     void load_xml(mxml_node_t *tree, TmpLensFlare &tmp_lf, std::string tabs, std::ostream &log);
   };
 };

@@ -22,7 +22,7 @@ namespace Tool
 
     void init();
 
-    void bake(std::string fname, std::string out_fname);
+    void bake(std::string fname, std::string out_fname, std::ostream &log = std::cout);
   private:
     BPhysBaker        bphys_baker;
     PackageBaker      package_baker;

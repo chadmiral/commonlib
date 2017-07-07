@@ -81,6 +81,9 @@
     <ClInclude Include="..\..\tools\include\lens_flare_baker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\tools\include\html_log_stream.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\tools\src\bakery.cpp">

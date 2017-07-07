@@ -156,6 +156,7 @@
     <ClInclude Include="..\..\tools\include\animation_baker.h" />
     <ClInclude Include="..\..\tools\include\bakery.h" />
     <ClInclude Include="..\..\tools\include\bphys_baker.h" />
+    <ClInclude Include="..\..\tools\include\html_log_stream.h" />
     <ClInclude Include="..\..\tools\include\lens_flare_baker.h" />
     <ClInclude Include="..\..\tools\include\material_baker.h" />
     <ClInclude Include="..\..\tools\include\minilzo\lzoconf.h" />

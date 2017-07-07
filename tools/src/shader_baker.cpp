@@ -24,7 +24,7 @@ void ShaderBaker::init()
 #endif //__LOKI__
 }
 
-void ShaderBaker::bake(mxml_node_t *tree, std::string output_fname, std::string tabs)
+void ShaderBaker::bake(mxml_node_t *tree, std::string output_fname, std::ostream &log, std::string tabs)
 {
-  cerr << "I didn't implement this shit yet!!!" << endl;
+  log << "I didn't implement this shit yet!!!" << endl;
 }
