@@ -21,7 +21,7 @@ namespace Tool
     {
       std::string tmp = str();
       std::cout << str();
-     
+
       //count preceding tabs
       uint32_t num_tabs = 0;
       for (uint32_t i = 0; i < tmp.size(); i++)
@@ -31,21 +31,22 @@ namespace Tool
 
       //write to log file
       _file_stream << "<p style=\"margin-left: " << 40 * num_tabs << "px\">";
-      
+
       if (num_tabs == 0)
       {
-        _file_stream << "<b>";
+        _file_stream << "<div class=\"fatal_error\">";
       }
-      
+
       //chop off the \n & replace w/ <br>
-      //_file_stream << tmp.substr(0, tmp.size() -1) << "<br>" << std::endl;
+      _file_stream << tmp.substr(0, tmp.size() -1);
 
-      _file_stream << tmp;
+      //_file_stream << tmp;
 
       if (num_tabs == 0)
       {
-        _file_stream << "</b>";
+        _file_stream << "</div>";
       }
+      _file_stream << "<br>" << std::endl;
 
       str(""); //clear buffer
       return 0;
@@ -55,19 +56,15 @@ namespace Tool
     {
       _file_stream.open(fname.c_str());
       _file_stream << "<html>" << std::endl;
-      
-      /*
       _file_stream << "<head>" << std::endl;
-      _file_stream << "\t<style type = \"text/css\">" << std::endl;
-      _file_stream << "\t<!--" << std::endl;
-      _file_stream << "\t\t.tab{ margin - left: 40px; }" << std::endl;
-      _file_stream << "\t-->" << std::endl;
-      _file_stream << "\t< / style>" << std::endl;
+      _file_stream << "<title>" << _title << "</title>" << std::endl;
+      _file_stream << "<link rel=\"stylesheet\" type=\"text/css\" href=\"http://fonts.googleapis.com/css?family=Ubuntu\" />" << std::endl;
+      _file_stream << "<link rel=\"stylesheet\" type=\"text/css\" href=\"mundus_log.css\">" << std:: endl;
       _file_stream << "</head>" << std::endl;
-      */
-      
-      _file_stream << "\t<body>" << std::endl;
-      _file_stream << "\t<h1>" << _title << "</h1>" << std::endl;
+      _file_stream << "<body>" << std::endl;
+      _file_stream << "<h1>" << _title << "</h1>" << std::endl;
+      _file_stream << "<hr>" << std::endl;
+      _file_stream << std::endl;
     }
 
     void close()

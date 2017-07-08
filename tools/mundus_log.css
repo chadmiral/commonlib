@@ -1,0 +1,28 @@
+body {
+  font-family: Ubuntu;
+  font-size: 12px;
+  font-weight: 50;
+  background-color: #222222;
+  color: #ffffff;
+  width: 80%;
+  border: 1px solid #ffffff;
+  border-radius: 8px;
+  padding: 25px 25px 25px 25px;
+  margin: auto;
+  line-height: 2px;
+}
+
+h1 {
+  font-family: Ubuntu;
+  font-size: 32px;
+  color: #ffffff;
+  text-align: right;
+}
+
+.fatal_error {
+  color:#ff0000;
+}
+
+.warning {
+  color:#ffff00;
+}
