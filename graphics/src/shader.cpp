@@ -58,7 +58,7 @@ void print_log(GLuint obj, std::ostream &log)
 
   if (infologLength > 0)
   {
-    log << infoLog << endl;
+    log << endl << "\31" << infoLog << endl;
   }
 
   delete infoLog;
@@ -77,9 +77,9 @@ void Shader::compile_and_link_from_source(const char *vs, const char *fs, std::o
   create_program(log);
 
   log << "compiling vertex shader..." << endl;
-  gl_vertex_shader = compile_shader_from_source(GL_VERTEX_SHADER, vs);
+  gl_vertex_shader = compile_shader_from_source(GL_VERTEX_SHADER, vs, log);
   log << "compiling fragment shader..." << endl;
-  gl_fragment_shader = compile_shader_from_source(GL_FRAGMENT_SHADER, fs);
+  gl_fragment_shader = compile_shader_from_source(GL_FRAGMENT_SHADER, fs, log);
   link_shader(log);
 }
 
@@ -103,7 +103,7 @@ GLuint Shader::compile_shader_from_source(GLenum shader_type, const char *source
   	glGetShaderInfoLog(my_shader, maxLength, &maxLength, &errorLog[0]);
 
     SET_TEXT_COLOR(CONSOLE_COLOR_RED);
-    log << errorLog << endl;
+    log << "\31" << errorLog << endl;
     SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
 
   	glDeleteShader(my_shader);
@@ -112,7 +112,7 @@ GLuint Shader::compile_shader_from_source(GLenum shader_type, const char *source
   else
   {
     SET_TEXT_COLOR(CONSOLE_COLOR_CYAN);
-    log << "OK" << endl;
+    log << endl << "\32" << "OK" << endl;
     SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
   }
 

@@ -9,7 +9,7 @@ body {
   border-radius: 8px;
   padding: 25px 25px 25px 25px;
   margin: auto;
-  line-height: 2px;
+  line-height: 8px;
 }
 
 h1 {
@@ -17,6 +17,10 @@ h1 {
   font-size: 32px;
   color: #ffffff;
   text-align: right;
+}
+
+.success {
+  color:#00ff00;
 }
 
 .fatal_error {

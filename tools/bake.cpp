@@ -8,7 +8,7 @@ using namespace Tool;
 
 int main(int argc, char **argv)
 {
-  HtmlLogStream log_buffer("Mundus Import Log");
+  HtmlLogStream log_buffer("Import Log");
   log_buffer.open("test_log.html");
   std::ostream log_stream(&log_buffer);
 

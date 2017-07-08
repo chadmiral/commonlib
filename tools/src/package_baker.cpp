@@ -375,7 +375,7 @@ void PackageBaker::read_shader_file(ShaderTemplate &st, std::ostream &log)
 
   if (st._vs_fname.length() > 0)
   {
-    log << "\tvs: " << st._vs_fname.c_str() << " ... ";
+    log << "\tvs: " << st._vs_fname.c_str() << " ... " << endl;
 
     FILE *fp = NULL;
     FOPEN(fp, st._vs_fname.c_str(), "r");
@@ -393,7 +393,7 @@ void PackageBaker::read_shader_file(ShaderTemplate &st, std::ostream &log)
       fclose(fp);
 
       SET_TEXT_COLOR(CONSOLE_COLOR_GREEN);
-      cout << "OK" << endl;
+      cout << "\32OK" << endl;
       SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
     }
     else
@@ -406,7 +406,7 @@ void PackageBaker::read_shader_file(ShaderTemplate &st, std::ostream &log)
 
   if(st._fs_fname.length() > 0)
   {
-    log << "\tfs: " << st._fs_fname.c_str() << " ... ";
+    log << "\tfs: " << st._fs_fname.c_str() << " ... " << endl;
 
     FILE *fp = NULL;
     FOPEN(fp, st._fs_fname.c_str(), "r");
@@ -424,7 +424,7 @@ void PackageBaker::read_shader_file(ShaderTemplate &st, std::ostream &log)
       fclose(fp);
 
       SET_TEXT_COLOR(CONSOLE_COLOR_GREEN);
-      log << "OK" << endl;
+      log << "\32OK" << endl;
       SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
     }
     else

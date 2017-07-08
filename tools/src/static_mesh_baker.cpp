@@ -3,6 +3,7 @@
 
 #include "tool.h"
 #include "static_mesh_baker.h"
+#include "kdtree.h"
 
 using namespace Tool;
 using namespace Graphics;
@@ -161,6 +162,8 @@ void StaticMeshBaker::bake(mxml_node_t *tree, std::string output_fname, std::ost
   std::vector<StaticMeshVertex> render_verts;
   int rvi = 0;
 
+  Structures::KDTree3D<int> vert_tree;
+
   for(uint32_t i = 0; i < mesh_faces.size(); i++)
   {
     MeshFace *mf = &mesh_faces[i];
@@ -190,7 +193,7 @@ void StaticMeshBaker::bake(mxml_node_t *tree, std::string output_fname, std::ost
 
       //see if we can find a duplicate vert
       //TODO: KD-tree for optimization
-      for(uint32_t k = 0; k < render_verts.size(); k++)
+      /*for(uint32_t k = 0; k < render_verts.size(); k++)
       {
         if(verts_equal(smv, render_verts[k]))
         {
@@ -199,32 +202,43 @@ void StaticMeshBaker::bake(mxml_node_t *tree, std::string output_fname, std::ost
           break;
         }
       }
+      */
+      Structures::KDNode<int> *closest = vert_tree.find_nearest_neighbor(Float3(smv.x, smv.y, smv.z));
+      if (closest)
+      {
+        if (verts_equal(smv, render_verts[closest->data]))
+        {
+          indices_idx = closest->data;
+          found_twin = true;
+        }
+      }
 
       if(!found_twin)
       {
+        vert_tree.insert_element(Float3(smv.x, smv.y, smv.z), render_verts.size());
         render_verts.push_back(smv);
       }
       indices.push_back(indices_idx);
     }
   }
 
-  cout << tabs.c_str() << "opening file " << output_fname.c_str() << "..." << endl;
+  log << tabs.c_str() << "opening file " << output_fname.c_str() << "..." << endl;
   FILE *f = fopen(output_fname.c_str(), "wb");
   assert(f);
 
   int version = 1;
-  cout << tabs.c_str() << "file version: " << version << endl;
+  log << tabs.c_str() << "file version: " << version << endl;
   fwrite(&version, sizeof(int), 1, f);
 
   //write vertex data
   int num_render_verts = render_verts.size();
-  cout << tabs.c_str() << "writing " << num_render_verts << " render verts"<<endl;
+  log << tabs.c_str() << "writing " << num_render_verts << " render verts"<<endl;
   fwrite(&num_render_verts, sizeof(uint32_t), 1, f);
   fwrite(render_verts.data(), sizeof(StaticMeshVertex), num_render_verts, f);
 
   //write index data
   int num_indices = indices.size();
-  cout << tabs.c_str() << "writing " << num_indices << " indices" << endl;
+  log << tabs.c_str() << "writing " << num_indices << " indices" << endl;
   fwrite(&num_indices, sizeof(int), 1, f);
   fwrite(indices.data(), sizeof(unsigned int), num_indices, f);
 

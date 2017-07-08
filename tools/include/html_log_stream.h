@@ -23,29 +23,49 @@ namespace Tool
       std::cout << str();
 
       //count preceding tabs
+      bool fatal_error = false;
+      bool success = false;
+
+      
+      switch (tmp[0])
+      {
+        case '\31':
+          fatal_error = true;
+          tmp.erase(tmp.begin());
+          break;
+        case '\32':
+          success = true;
+          tmp.erase(tmp.begin());
+          break;
+        default:
+           break;
+      }
+
       uint32_t num_tabs = 0;
       for (uint32_t i = 0; i < tmp.size(); i++)
       {
-        if (tmp[i] == '\t') { num_tabs++; }
+        if (tmp[i] == '\t' && num_tabs == i) { num_tabs++; }
       }
 
       //write to log file
-      _file_stream << "<p style=\"margin-left: " << 40 * num_tabs << "px\">";
-
-      if (num_tabs == 0)
+      _file_stream << "<div ";
+      if (fatal_error)
       {
-        _file_stream << "<div class=\"fatal_error\">";
+        _file_stream << "class=\"fatal_error\"";
       }
+      else if (success)
+      {
+        _file_stream << "class=\"success\"";
+      }
+      _file_stream << " style = \"margin-left: " << 40 * num_tabs << "px\">";
+
 
       //chop off the \n & replace w/ <br>
       _file_stream << tmp.substr(0, tmp.size() -1);
 
       //_file_stream << tmp;
 
-      if (num_tabs == 0)
-      {
-        _file_stream << "</div>";
-      }
+       _file_stream << "</div>";
       _file_stream << "<br>" << std::endl;
 
       str(""); //clear buffer
