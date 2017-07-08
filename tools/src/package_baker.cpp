@@ -440,7 +440,7 @@ void PackageBaker::read_shader_file(ShaderTemplate &st, std::ostream &log)
 
   //TODO - test compile to make sure there are no errors
   Shader s;
-  s.compile_and_link_from_source(shader_asset->vs_source.c_str(), shader_asset->fs_source.c_str(), cout);
+  s.compile_and_link_from_source(shader_asset->vs_source.c_str(), shader_asset->fs_source.c_str(), log);
 }
 
 void PackageBaker::parse_material_xml(mxml_node_t *mat_node, MaterialTemplate &mt)
