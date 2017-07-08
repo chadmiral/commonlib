@@ -16,6 +16,7 @@
 #include "switchboard.h"
 #include "object_3d.h"
 #include "render_context.h"
+#include "html_log_stream.h"
 
 //TODO: framerate counter
 
@@ -57,10 +58,13 @@ public:
 class SDLGame
 {
 protected:
-  Game::GameControllerContext game_controller_context;
-  GameContext game_context;
+  Game::GameControllerContext   game_controller_context;
+  GameContext                   game_context;
+  
+  Tool::HtmlLogStream           _html_logger;
+  std::ostream                  _log;
 
-  UI::WidgetWrangler      ww;
+  UI::WidgetWrangler       ww;
 
   uint32_t         flags;
 

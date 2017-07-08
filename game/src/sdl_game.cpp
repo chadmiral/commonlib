@@ -30,8 +30,13 @@ SDLGame::SDLGame(const int w, const int h,
                  std::string title,
                  const unsigned int _flags,
                  const int _gl_context_profile,
-                 const int gl_major_version, const int gl_minor_version)
+                 const int gl_major_version, const int gl_minor_version) :
+  _html_logger("SDLGame Log"),
+  _log(&_html_logger)
 {
+
+  _html_logger.open("game_log.html");
+
   flags = _flags;
 
   game_context.window_resolution[0] = w;
@@ -100,6 +105,7 @@ SDLGame::~SDLGame()
   {
     delete pause_menu;
   }
+  _html_logger.close();
 }
 
 void SDLGame::set_resolution(const unsigned int w, const unsigned int h)

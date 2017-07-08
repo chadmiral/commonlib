@@ -35,7 +35,7 @@ int main(int argc, char **argv)
   log_buffer.close();
 
 #if defined (_WIN32)
-  Sleep(60 * 1000);
+  //Sleep(60 * 1000);
 #endif
 
   return 0;
