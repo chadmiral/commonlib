@@ -14,6 +14,7 @@ void Graphics::gl_check_error(std::ostream &log)
   GLenum err = glGetError();
   if (err != GL_NO_ERROR)
   {
+    log << __CONSOLE_LOG_RED__;
     switch (err)
     {
     case GL_INVALID_ENUM:

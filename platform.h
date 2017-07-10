@@ -24,6 +24,11 @@ enum ConsoleColor
 #define CONSOLE_COLOR_DEFAULT CONSOLE_COLOR_LIGHT_GREY
 #define CONSOLE_COLOR_ERROR   CONSOLE_COLOR_LIGHT_RED
 
+// ANSI escape codes
+#define __CONSOLE_LOG_RED__       '\31'
+#define __CONSOLE_LOG_GREEN__     '\32'
+#define __CONSOLE_LOG_YELLOW__    '\33'
+
 #if defined (_WIN32)
 #include <Windows.h>
 #include <commdlg.h>

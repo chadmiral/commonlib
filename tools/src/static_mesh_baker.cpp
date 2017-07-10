@@ -10,7 +10,7 @@ using namespace Graphics;
 using namespace Math;
 using namespace std;
 
-#define VERTEX_MERGE_THRESHOLD 0.001f
+#define VERTEX_MERGE_THRESHOLD 0.001f //TODO: make this user-specified?
 
 bool verts_equal(StaticMeshVertex &a, StaticMeshVertex &b)
 {
@@ -28,8 +28,6 @@ bool verts_equal(StaticMeshVertex &a, StaticMeshVertex &b)
 
   d += (a.u0 - b.u0) * (a.u0 - b.u0);
   d += (a.v0 - b.v0) * (a.v0 - b.v0);
-
-  //cout << "vert dist: " << d << endl;
 
   return (d < VERTEX_MERGE_THRESHOLD);
 }
@@ -191,18 +189,7 @@ void StaticMeshBaker::bake(mxml_node_t *tree, std::string output_fname, std::ost
       bool found_twin = false;
       int indices_idx = render_verts.size();
 
-      //see if we can find a duplicate vert
-      //TODO: KD-tree for optimization
-      /*for(uint32_t k = 0; k < render_verts.size(); k++)
-      {
-        if(verts_equal(smv, render_verts[k]))
-        {
-          indices_idx = k;
-          found_twin = true;
-          break;
-        }
-      }
-      */
+      //see if we can find a duplicate vert and weld it
       Structures::KDNode<int> *closest = vert_tree.find_nearest_neighbor(Float3(smv.x, smv.y, smv.z));
       if (closest)
       {

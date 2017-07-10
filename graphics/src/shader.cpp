@@ -39,29 +39,61 @@ void Shader::set_shader_filenames(std::string vs_fname, std::string fs_fname)
   gl_fragment_shader_fname = fs_fname;
 }
 
+vector<string> split_string(const char *str, char c = ' ')
+{
+  vector<string> result;
+
+  do
+  {
+    const char *begin = str;
+
+    while (*str != c && *str)
+      str++;
+
+    result.push_back(string(begin, str));
+  } while (0 != *str++);
+
+  return result;
+}
+
 void print_log(GLuint obj, std::ostream &log)
 {
   int infologLength = 0;
-  int maxLength = 1024;
+  int maxLength = 4096;//1024;
 
   if (glIsShader(obj))
     glGetShaderiv(obj, GL_INFO_LOG_LENGTH, &maxLength);
   else
     glGetProgramiv(obj, GL_INFO_LOG_LENGTH, &maxLength);
 
-  char *infoLog = new char[maxLength];
+  char *info_log = new char[maxLength];
 
   if (glIsShader(obj))
-    glGetShaderInfoLog(obj, maxLength, &infologLength, infoLog);
+    glGetShaderInfoLog(obj, maxLength, &infologLength, info_log);
   else
-    glGetProgramInfoLog(obj, maxLength, &infologLength, infoLog);
+    glGetProgramInfoLog(obj, maxLength, &infologLength, info_log);
 
   if (infologLength > 0)
   {
-    log << endl << "\31" << infoLog << endl;
+    std::vector<std::string> log_lines = split_string(info_log, '\n');
+    for (uint32_t i = 0; i < log_lines.size(); i++)
+    {
+      if (log_lines[i].find("warning") != std::string::npos)
+      {
+        log << __CONSOLE_LOG_YELLOW__ << log_lines[i].c_str() << endl;
+      }
+      else if (log_lines[i].find("error") != std::string::npos)
+      {
+        log << __CONSOLE_LOG_RED__ << log_lines[i].c_str() << endl;
+      }
+      else
+      {
+        log << log_lines[i].c_str() << endl;
+      }
+    }
   }
 
-  delete infoLog;
+  delete info_log;
 }
 
 void Shader::create_program(std::ostream &log)
@@ -103,7 +135,7 @@ GLuint Shader::compile_shader_from_source(GLenum shader_type, const char *source
   	glGetShaderInfoLog(my_shader, maxLength, &maxLength, &errorLog[0]);
 
     SET_TEXT_COLOR(CONSOLE_COLOR_RED);
-    log << "\31" << errorLog << endl;
+    log << __CONSOLE_LOG_RED__ << errorLog << endl;
     SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
 
   	glDeleteShader(my_shader);
@@ -112,7 +144,7 @@ GLuint Shader::compile_shader_from_source(GLenum shader_type, const char *source
   else
   {
     SET_TEXT_COLOR(CONSOLE_COLOR_CYAN);
-    log << endl << "\32" << "OK" << endl;
+    log << __CONSOLE_LOG_GREEN__ << "OK" << endl;
     SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
   }
 
@@ -233,7 +265,7 @@ bool Shader::load_link_and_compile(std::vector<std::string> *path, std::ostream 
     }
     else
     {
-      log << "could not open vertex shader file! (no file handle)" << endl;
+      log << __CONSOLE_LOG_RED__ << "could not open vertex shader file! (no file handle)" << endl;
     }
 
     log << "loading fragment shader " << gl_fragment_shader_fname.c_str() << endl;
@@ -258,6 +290,10 @@ bool Shader::load_link_and_compile(std::vector<std::string> *path, std::ostream 
 
       free(gl_fragment_source);
       fclose(fp);
+    }
+    else
+    {
+      log << __CONSOLE_LOG_RED__ << "could not open fragment shader file! (no file handle)" << endl;
     }
 
     link_shader(log);
