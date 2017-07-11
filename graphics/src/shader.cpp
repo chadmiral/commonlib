@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <algorithm>
 
 #include "platform.h"
 #include "shader.h"
@@ -78,11 +79,13 @@ void print_log(GLuint obj, std::ostream &log)
     std::vector<std::string> log_lines = split_string(info_log, '\n');
     for (uint32_t i = 0; i < log_lines.size(); i++)
     {
-      if (log_lines[i].find("warning") != std::string::npos)
+      std::string lower_case_line = log_lines[i];
+      std::transform(lower_case_line.begin(), lower_case_line.end(), lower_case_line.begin(), ::tolower);
+      if (lower_case_line.find("warning") != std::string::npos)
       {
         log << __CONSOLE_LOG_YELLOW__ << log_lines[i].c_str() << endl;
       }
-      else if (log_lines[i].find("error") != std::string::npos)
+      else if (lower_case_line.find("error") != std::string::npos)
       {
         log << __CONSOLE_LOG_RED__ << log_lines[i].c_str() << endl;
       }
@@ -112,6 +115,7 @@ void Shader::compile_and_link_from_source(const char *vs, const char *fs, std::o
   gl_vertex_shader = compile_shader_from_source(GL_VERTEX_SHADER, vs, log);
   log << "compiling fragment shader..." << endl;
   gl_fragment_shader = compile_shader_from_source(GL_FRAGMENT_SHADER, fs, log);
+  log << "linking shader..." << endl;
   link_shader(log);
 }
 
@@ -134,9 +138,7 @@ GLuint Shader::compile_shader_from_source(GLenum shader_type, const char *source
   	GLchar *errorLog = new char[maxLength];
   	glGetShaderInfoLog(my_shader, maxLength, &maxLength, &errorLog[0]);
 
-    SET_TEXT_COLOR(CONSOLE_COLOR_RED);
-    log << __CONSOLE_LOG_RED__ << errorLog << endl;
-    SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
+    print_log(my_shader, log);
 
   	glDeleteShader(my_shader);
 	  delete [] errorLog;
