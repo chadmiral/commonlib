@@ -204,9 +204,9 @@ void MaterialBaker::load_xml(mxml_node_t *tree, TmpMaterial &tmp_mat, std::strin
         memset(uni._val, 0, sizeof(float) * 3);
         if (uniform_node->child)
         {
-          uni._val[0] = atof(uniform_node->child->value.text.string);
-          uni._val[1] = atof(uniform_node->child->next->value.text.string);
-          uni._val[2] = atof(uniform_node->child->next->next->value.text.string);
+          uni._val[0] = (float)atof(uniform_node->child->value.text.string);
+          uni._val[1] = (float)atof(uniform_node->child->next->value.text.string);
+          uni._val[2] = (float)atof(uniform_node->child->next->next->value.text.string);
         }
       }
       else if (stricmp(buffer, "float4") == 0)
@@ -216,10 +216,10 @@ void MaterialBaker::load_xml(mxml_node_t *tree, TmpMaterial &tmp_mat, std::strin
         memset(uni._val, 0, sizeof(float) * 4);
         if (uniform_node->child)
         {
-          uni._val[0] = atof(uniform_node->child->value.text.string);
-          uni._val[1] = atof(uniform_node->child->next->value.text.string);
-          uni._val[2] = atof(uniform_node->child->next->next->value.text.string);
-          uni._val[3] = atof(uniform_node->child->next->next->next->value.text.string);
+          uni._val[0] = (float)atof(uniform_node->child->value.text.string);
+          uni._val[1] = (float)atof(uniform_node->child->next->value.text.string);
+          uni._val[2] = (float)atof(uniform_node->child->next->next->value.text.string);
+          uni._val[3] = (float)atof(uniform_node->child->next->next->next->value.text.string);
         }
       }
       else if (stricmp(buffer, "mat4x4") == 0)

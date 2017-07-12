@@ -28,29 +28,29 @@ void TmpLensFlare::write_to_file(FILE *f)
   uint32_t element_file_size = calculate_element_file_size();
   fwrite(&element_file_size, sizeof(uint32_t), 1, f);
 
-  uint16_t str_len = _name.size() + 1;
+  uint16_t str_len = (uint16_t)_name.size() + 1;
   fwrite(&str_len, sizeof(uint16_t), 1, f);
   fwrite(_name.c_str(), sizeof(char), str_len, f);
 
   fwrite(_center._val, sizeof(float), 3, f);
 
   fwrite(&_occlusion_radius, sizeof(float), 1, f);
-  str_len = _occlusion_mesh.size() + 1;
+  str_len = (uint16_t)_occlusion_mesh.size() + 1;
   fwrite(&str_len, sizeof(uint16_t), 1, f);
   fwrite(_occlusion_mesh.c_str(), sizeof(char), str_len, f);
 
-  uint16_t num_elements = _elements.size();
+  uint16_t num_elements = (uint16_t)_elements.size();
   fwrite(&num_elements, sizeof(uint16_t), 1, f);
 
   for(uint32_t i = 0; i < _elements.size(); i++)
   {
     //element name
-    str_len = _elements[i]._name.size() + 1;
+    str_len = (uint16_t)_elements[i]._name.size() + 1;
     fwrite(&str_len, sizeof(uint16_t), 1, f);
     fwrite(_elements[i]._name.c_str(), sizeof(char), str_len, f);
 
     //material name
-    str_len = _elements[i]._material.size() + 1;
+    str_len = (uint16_t)_elements[i]._material.size() + 1;
     fwrite(&str_len, sizeof(uint16_t), 1, f);
     fwrite(_elements[i]._material.c_str(), sizeof(char), str_len, f);
   }
@@ -98,7 +98,7 @@ void LensFlareBaker::load_xml(mxml_node_t *tree, TmpLensFlare &tlf, std::string 
   if(occlusion_radius_node)
   {
     buffer = mxmlGetText(occlusion_radius_node, NULL);
-    tlf._occlusion_radius = atof(buffer);
+    tlf._occlusion_radius = (float)atof(buffer);
     log << tabs.c_str() << "occlusion radius: " << tlf._occlusion_radius << endl;
   }
 

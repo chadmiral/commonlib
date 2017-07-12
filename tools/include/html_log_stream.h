@@ -46,6 +46,11 @@ namespace Tool
           ret = ret + "<span class=\"warning\">";
           need_closure = true;
           break;
+        case '\34':
+          if (need_closure) { ret = ret + "</span>"; }
+          ret = ret + "<span class=\"blue\">";
+          need_closure = true;
+          break;
         //case '\n':
         // if (need_closure) { ret = ret + "</span>"; }
         //  ret = ret + "<br>";
@@ -112,6 +117,10 @@ namespace Tool
         "  font-size: 32px;\n"
         "  color: #ffffff;\n"
         "  text-align: right;\n"
+        "}\n"
+        "\n"
+        ".blue {\n"
+        "  color:#4488ff;\n"
         "}\n"
         "\n"
         ".success {\n"

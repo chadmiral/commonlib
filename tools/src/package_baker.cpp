@@ -16,16 +16,11 @@
 #include "animation_baker.h"
 #include "lens_flare_baker.h"
 
-
 using namespace Math;
 using namespace std;
 using namespace Tool;
 using namespace Graphics;
 using namespace Animation;
-
-void PackageBaker::init()
-{
-}
 
 void PackageBaker::parse_xml(mxml_node_t *tree, PackageTemplate &pt, std::ostream &log)
 {
@@ -188,9 +183,7 @@ void PackageBaker::bake(mxml_node_t *tree, std::string output_filename, PackageT
   }
   else
   {
-    SET_TEXT_COLOR(CONSOLE_COLOR_RED);
-    log << tabs << "Environment variable MUNDUS_ROOT not set!!!" << endl;
-    SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
+    log << tabs << __CONSOLE_LOG_RED__ << "Environment variable MUNDUS_ROOT not set!!!" << endl;
   }
 
   if (pt._root_dir.length() > 0)
@@ -198,16 +191,14 @@ void PackageBaker::bake(mxml_node_t *tree, std::string output_filename, PackageT
     //change to said directory
     if (CHDIR(pt._root_dir.c_str()) != 0)
     {
-      SET_TEXT_COLOR(CONSOLE_COLOR_RED);
-      log << tabs << "Could not change directories!" << endl;
-      SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
+      log << tabs << __CONSOLE_LOG_RED__ << "Could not change directories!" << endl;
     }
   }
 
   //make sure we succeeded
   char cwd[FILENAME_MAX];
   GETCWD(cwd, sizeof(cwd));
-  log << tabs.c_str() << "working dir: " << cwd << endl;
+  log << tabs << __CONSOLE_LOG_BLUE__ << "working dir: " << endl << cwd << endl;
 
   //set up the directory path
   if (pt._path.length() > 0)
@@ -219,7 +210,7 @@ void PackageBaker::bake(mxml_node_t *tree, std::string output_filename, PackageT
     char *token = strtok(tmp_path, delimiter);
     while (token != NULL)
     {
-      log << tabs.c_str() << token << endl;
+      log << tabs << token << endl;
       asset_path.push_back(std::string(token));
       token = strtok(NULL, delimiter);
     }
@@ -257,7 +248,6 @@ void PackageBaker::bake(mxml_node_t *tree, std::string output_filename, PackageT
   }
   for (uint32_t i = 0; i < pt._lens_flares.size(); i++)
   {
-    log << "num lens flares: " << pt._lens_flares.size() << endl;
     read_lens_flare_file(pt._lens_flares[i], log);
   }
 
@@ -267,13 +257,11 @@ void PackageBaker::bake(mxml_node_t *tree, std::string output_filename, PackageT
 std::string ShaderPackageAsset::include_shader(std::string inc_fname)
 {
   std::string source;
-  //cout << "including file " << inc_fname.c_str() << endl;
   assert(path);
 
   for (uint32_t i = 0; i < path->size(); i++)
   {
     std::string full_fname = (*path)[i] + inc_fname;
-    //cout << full_fname << endl;
 
     FILE *f = fopen(full_fname.c_str(), "r");
     if (f)
@@ -282,13 +270,13 @@ std::string ShaderPackageAsset::include_shader(std::string inc_fname)
       uint32_t fsize = ftell(f);
       rewind(f);
 
-      char *tmp = (char *)malloc(fsize + 1);//new char[(fsize + 1) / sizeof(char)];
+      char *tmp = (char *)malloc(fsize + 1);
       memset(tmp, 0, fsize + 1);
       fread(tmp, fsize, 1, f);
       fclose(f);
 
       source = tmp;
-      free(tmp);//delete tmp;
+      free(tmp);
       return source;
     }
   }
@@ -324,8 +312,6 @@ void ShaderPackageAsset::parse_source(std::string source, std::string *dest)
       uint32_t end_quote = line.find("\"", start_quote + 1);
       std::string inc_fname = line.substr(start_quote + 1, end_quote - start_quote - 1);
       std::string inc_src = include_shader(inc_fname);
-      //cout << "pasting in this source: " << endl;
-      //cout << inc_src.c_str() << endl;
       source.replace(last, next - last, inc_src);
       next = last = 0;
     }
@@ -365,11 +351,9 @@ void PackageBaker::read_shader_file(ShaderTemplate &st, std::string tabs, std::o
   ShaderPackageAsset *shader_asset = new ShaderPackageAsset(st);
   assets.push_back(shader_asset);
 
-  log << tabs << "Loading shader \"";
-
-  log << tabs << st._name << "\"" << endl;
-  SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
-
+  log << endl << tabs << __CONSOLE_LOG_BLUE__ << "Loading shader \"" << st._name << "\"" << endl;
+  tabs = tabs + "\t";
+  
   shader_asset->set_path(&asset_path);
 
   if (st._vs_fname.length() > 0)
@@ -450,12 +434,7 @@ void PackageBaker::read_material_file(MaterialTemplate &mt, std::ostream &log)
   MaterialPackageAsset *mat_asset = new MaterialPackageAsset(mt);
   assets.push_back(mat_asset);
 
-  SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
-  log << "Loading material \"";
-
-  log << mt._name << "\"" << endl;
-  SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
-
+  log << endl << __CONSOLE_LOG_BLUE__ << "Loading material \"" << mt._name << "\"" << endl;
   log << "\tsource file: " << mt._fname << " ... " << endl;
 
   std::string output_fname = mat_asset->fname + ".bin";
@@ -518,31 +497,22 @@ void PackageBaker::read_texture_file(TextureTemplate &tt, std::ostream &log)
   TexturePackageAsset *texture_asset = new TexturePackageAsset(tt);
   assets.push_back(texture_asset);
 
-  SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
-  log << "Loading texture \"";
-  log << tt._name.c_str() << "\"" << endl;
-  SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
+  log << endl << __CONSOLE_LOG_BLUE__ << "Loading texture \""  << tt._name << "\"" << endl;
+  log << "\ttexture format: " << tt._format << endl;
+  log << "\tsource file: " << tt._fname.c_str() << " ... ";
 
   texture_asset->name = tt._name;
-
-  log << "\ttexture format: " << tt._format << endl;
-  tt._format = tt._format;
-
   texture_asset->fname = tt._fname;
-  log << "\tsource file: " << tt._fname.c_str() << " ... ";
+  tt._format = tt._format;
 
   SDL_Surface *image = IMG_Load(texture_asset->fname.c_str());
   if (!image)
   {
-    SET_TEXT_COLOR(CONSOLE_COLOR_RED);
-    log << "PackageBaker::read_texture_file() - " << IMG_GetError() << endl;
-    SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
+    log << __CONSOLE_LOG_RED__ << "PackageBaker::read_texture_file() - " << IMG_GetError() << endl;
     return;
   }
 
-  SET_TEXT_COLOR(CONSOLE_COLOR_GREEN);
-  log << "OK" << endl;
-  SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
+  log << __CONSOLE_LOG_GREEN__ << "OK" << endl;
 
   log << "\twidth: "<< image->w <<endl;
   log << "\theight: " << image->h << endl;
@@ -580,17 +550,14 @@ void PackageBaker::read_mesh_file(MeshTemplate &mt, std::ostream &log)
   MeshPackageAsset *mesh_asset = new MeshPackageAsset(mt);
   assets.push_back(mesh_asset);
 
-  SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
-  log << "Loading mesh geometry \"";
-  log << mt._name << "\"" << endl;
-  SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
-
-  log << "\tsource file: " << mt._fname << " ... " << endl;
+  log << endl << __CONSOLE_LOG_BLUE__ << "Loading mesh geometry \"" << mt._name << "\"" << endl;
+  log << "\topening source file: " << mt._fname << " ... ";
 
   std::string output_fname = mesh_asset->fname + ".bin";
   FILE *fp = fopen(mesh_asset->fname.c_str(), "r");
   if (fp)
   {
+    log << __CONSOLE_LOG_GREEN__ << "OK" << endl;
     mxml_node_t *tree = mxmlLoadFile(NULL, fp, MXML_TEXT_CALLBACK);
     assert(tree);
 
@@ -599,6 +566,10 @@ void PackageBaker::read_mesh_file(MeshTemplate &mt, std::ostream &log)
 
     StaticMeshBaker smb;
     smb.bake(tree, output_fname, log);
+  }
+  else
+  {
+    log << __CONSOLE_LOG_RED__ << "Could not open file!" << endl;
   }
 
   //and now open the binary file, read it and add it to the asset
@@ -639,10 +610,8 @@ void PackageBaker::read_skeleton_file(SkeletonTemplate &st, std::ostream &log)
   SkeletonPackageAsset *skeleton_asset = new SkeletonPackageAsset(st);
   assets.push_back(skeleton_asset);
 
-  SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
-  log << "Loading Skeleton Rig \"";
+  log << endl << __CONSOLE_LOG_BLUE__ << "Loading Skeleton Rig \"";
   log << st._name.c_str() << "\"" << endl;
-  SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
 
   log << "\tsource file: " << st._fname << " ... " << endl;
 
@@ -692,12 +661,7 @@ void PackageBaker::read_animation_file(AnimationTemplate &at, std::ostream &log)
   AnimationPackageAsset *animation_asset = new AnimationPackageAsset(at);
   assets.push_back(animation_asset);
 
-  SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
-  log << "Loading Animation \"";
-
-  log << at._name << "\"" << endl;
-  SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
-
+  log << endl << __CONSOLE_LOG_BLUE__ << "Loading Animation \"" << at._name << "\"" << endl;
   log << "\tsource file: " << at._fname << " ... " << endl;
 
   std::string output_fname = at._fname + ".bin";
@@ -765,18 +729,13 @@ void PackageBaker::read_ui_layout_file(UILayoutTemplate &ut, std::ostream &log)
   UILayoutPackageAsset *layout_asset = new UILayoutPackageAsset(ut);
   layout_asset->set_type(PACKAGE_ASSET_UI_LAYOUT);
   assets.push_back(layout_asset);
-
-  SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
-  log << "Loading UI Layout \"";
-
-  log << ut._name << "\"" << endl;
-  SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
-
+  
   layout_asset->name = ut._name;
-
   layout_asset->fname = ut._fname;
-  log << "\tsource file: " << ut._fname << " ... ";
 
+  log << endl << __CONSOLE_LOG_BLUE__ << "Loading UI Layout \"" << ut._name << "\"" << endl;
+  log << "\tsource file: " << ut._fname << " ... ";
+  
   FILE *fp = NULL;
   FOPEN(fp, layout_asset->fname.c_str(), "rt");
   if (fp)
@@ -792,15 +751,11 @@ void PackageBaker::read_ui_layout_file(UILayoutTemplate &ut, std::ostream &log)
     free(xml_source);
     fclose(fp);
 
-    SET_TEXT_COLOR(CONSOLE_COLOR_GREEN);
-    log << "OK" << endl;
-    SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
+    log << __CONSOLE_LOG_GREEN__ << "OK" << endl;
   }
   else
   {
-    SET_TEXT_COLOR(CONSOLE_COLOR_RED);
-    log << "Could not open file!" << endl;
-    SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
+    log << __CONSOLE_LOG_RED__ << "Could not open file!" << endl;
   }
 }
 
@@ -809,11 +764,7 @@ void PackageBaker::read_lens_flare_file(BasicTemplate &bt, std::ostream &log)
   LensFlarePackageAsset *lens_flare_asset = new LensFlarePackageAsset(bt);
   assets.push_back(lens_flare_asset);
 
-  SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
-  log << "Loading Lens Flare \"";
-  log << bt._name.c_str() << "\"" << endl;
-  SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
-
+  log << endl << __CONSOLE_LOG_BLUE__ << "Loading Lens Flare \"" << bt._name.c_str() << "\"" << endl;
   log << "\tsource file: " << bt._fname << " ... " << endl;
 
   std::string output_fname = lens_flare_asset->fname + ".bin";
@@ -822,8 +773,6 @@ void PackageBaker::read_lens_flare_file(BasicTemplate &bt, std::ostream &log)
   {
     mxml_node_t *tree = mxmlLoadFile(NULL, fp, MXML_TEXT_CALLBACK);
     assert(tree);
-
-    //don't need the file anymore now that we have the xml tree
     fclose(fp);
 
     LensFlareBaker lfb;
@@ -854,14 +803,14 @@ void PackageBaker::write_package(std::string output_filename, std::ostream &log,
   if (fp)
   {
     //collect and count each asset type
-    std::vector<ShaderPackageAsset *>    shaders;
-    std::vector<TexturePackageAsset *>   textures;
-    std::vector<MaterialPackageAsset *>  materials;
-    std::vector<MeshPackageAsset *>      meshes;
-    std::vector<SkeletonPackageAsset *>  skeletons;
-    std::vector<AnimationPackageAsset *> animations;
-    std::vector<UILayoutPackageAsset *>  ui_layouts;
-    std::vector<LensFlarePackageAsset *> lens_flares;
+    std::vector<ShaderPackageAsset *>      shaders;
+    std::vector<TexturePackageAsset *>     textures;
+    std::vector<MaterialPackageAsset *>    materials;
+    std::vector<MeshPackageAsset *>        meshes;
+    std::vector<SkeletonPackageAsset *>    skeletons;
+    std::vector<AnimationPackageAsset *>   animations;
+    std::vector<UILayoutPackageAsset *>    ui_layouts;
+    std::vector<LensFlarePackageAsset *>   lens_flares;
 
     for (uint32_t i = 0; i < assets.size(); i++)
     {
@@ -893,23 +842,23 @@ void PackageBaker::write_package(std::string output_filename, std::ostream &log,
         break;
       }
     }
-    uint32_t shader_count = shaders.size();
-    uint32_t texture_count = textures.size();
-    uint32_t material_count = materials.size();
-    uint32_t mesh_count = meshes.size();
-    uint32_t skeleton_count = skeletons.size();
-    uint32_t animation_count = animations.size();
-    uint32_t ui_layout_count = ui_layouts.size();
-    uint32_t lens_flare_count = lens_flares.size();
+    uint32_t shader_count =       shaders.size();
+    uint32_t texture_count =      textures.size();
+    uint32_t material_count =     materials.size();
+    uint32_t mesh_count =         meshes.size();
+    uint32_t skeleton_count =     skeletons.size();
+    uint32_t animation_count =    animations.size();
+    uint32_t ui_layout_count =    ui_layouts.size();
+    uint32_t lens_flare_count =   lens_flares.size();
 
-    log << tabs.c_str() << "Packaging " << shader_count << " shaders..." << endl;
-    log << tabs.c_str() << "Packaging " << texture_count << " textures..." << endl;
-    log << tabs.c_str() << "Packaging " << material_count << " materials..." << endl;
-    log << tabs.c_str() << "Packaging " << mesh_count << " meshes..." << endl;
-    log << tabs.c_str() << "Packaging " << skeleton_count << " skeletons..." << endl;
-    log << tabs.c_str() << "Packaging " << animation_count << " animations..." << endl;
-    log << tabs.c_str() << "Packaging " << ui_layout_count << " ui layouts..." << endl;
-    log << tabs.c_str() << "Packaging " << lens_flare_count << " lens flares ..." << endl;
+    log << tabs << "Packaging " << shader_count <<       " shaders..." << endl;
+    log << tabs << "Packaging " << texture_count <<      " textures..." << endl;
+    log << tabs << "Packaging " << material_count <<     " materials..." << endl;
+    log << tabs << "Packaging " << mesh_count <<         " meshes..." << endl;
+    log << tabs << "Packaging " << skeleton_count <<     " skeletons..." << endl;
+    log << tabs << "Packaging " << animation_count <<    " animations..." << endl;
+    log << tabs << "Packaging " << ui_layout_count <<    " ui layouts..." << endl;
+    log << tabs << "Packaging " << lens_flare_count <<   " lens flares ..." << endl;
 
     //file header
     fwrite(&file_version, sizeof(uint32_t), 1, fp);
@@ -922,72 +871,56 @@ void PackageBaker::write_package(std::string output_filename, std::ostream &log,
     fwrite(&ui_layout_count, sizeof(uint32_t), 1, fp);
     fwrite(&lens_flare_count, sizeof(uint32_t), 1, fp);
 
-    SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
-    log << tabs.c_str() << "Writing shader packlets..." << endl;
-    SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
+    log << tabs << __CONSOLE_LOG_BLUE__ << "Writing shader packlets..." << endl;
     for (uint32_t i = 0; i < shaders.size(); i++)
     {
       ShaderPackageAsset *s = shaders[i];
       write_shader_packlet(fp, s, tabs, log);
     }
 
-    SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
-    log << tabs.c_str() << "Writing texture packlets..." << endl;
-    SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
+    log << tabs << __CONSOLE_LOG_BLUE__ << "Writing texture packlets..." << endl;
     for (uint32_t i = 0; i < textures.size(); i++)
     {
       TexturePackageAsset *t = textures[i];
       write_texture_packlet(fp, t, tabs, log);
     }
 
-    SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
-    log << tabs.c_str() << "Writing material packlets..." << endl;
-    SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
+    log << tabs << __CONSOLE_LOG_BLUE__ << "Writing material packlets..." << endl;
     for (uint32_t i = 0; i < materials.size(); i++)
     {
       MaterialPackageAsset *m = materials[i];
       write_material_packlet(fp, m, tabs, log);
     }
 
-    SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
-    log << tabs.c_str() << "Writing mesh packlets..." << endl;
-    SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
+    log << tabs << __CONSOLE_LOG_BLUE__ << "Writing mesh packlets..." << endl;
     for (uint32_t i = 0; i < meshes.size(); i++)
     {
       MeshPackageAsset *m = meshes[i];
       write_mesh_packlet(fp, m, tabs, log);
     }
 
-    SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
-    log << tabs.c_str() << "Writing skeleton packlets..." << endl;
-    SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
+    log << tabs << __CONSOLE_LOG_BLUE__ << "Writing skeleton packlets..." << endl;
     for (uint32_t i = 0; i < skeletons.size(); i++)
     {
       SkeletonPackageAsset *m = skeletons[i];
       write_skeleton_packlet(fp, m, tabs, log);
     }
 
-    SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
-    log << tabs.c_str() << "Writing animation packlets..." << endl;
-    SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
+    log << tabs << __CONSOLE_LOG_BLUE__ << "Writing animation packlets..." << endl;
     for (uint32_t i = 0; i < animations.size(); i++)
     {
       AnimationPackageAsset *m = animations[i];
       write_animation_packlet(fp, m, tabs, log);
     }
 
-    SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
-    log << tabs.c_str() << "Writing ui layout packlets..." << endl;
-    SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
+    log << tabs << __CONSOLE_LOG_BLUE__ << "Writing ui layout packlets..." << endl;
     for (uint32_t i = 0; i < ui_layouts.size(); i++)
     {
       UILayoutPackageAsset *u = ui_layouts[i];
       write_ui_layout_packlet(fp, u, tabs, log);
     }
 
-    SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
-    log << tabs.c_str() << "Writing lens flare packlets..." << endl;
-    SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
+    log << tabs << __CONSOLE_LOG_BLUE__ << "Writing lens flare packlets..." << endl;
     for (uint32_t i = 0; i < lens_flares.size(); i++)
     {
       LensFlarePackageAsset *lf = lens_flares[i];
@@ -998,16 +931,14 @@ void PackageBaker::write_package(std::string output_filename, std::ostream &log,
   }
   else
   {
-    SET_TEXT_COLOR(CONSOLE_COLOR_RED);
-    log << tabs.c_str() << "Could not open file for writing!!!" << endl;
-    SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
+    log << tabs << __CONSOLE_LOG_RED__ << "Could not open file for writing!!!" << endl;
   }
 }
 
 void PackageBaker::write_packlet_header(FILE *fp, PackageAsset *a, std::ostream &log)
 {
   uint32_t hash_id = Math::hash_value_from_string(a->get_name().c_str());
-  log << "\"" << a->get_name().c_str() << "\"" << " -> " << hash_id << endl;
+  log << "\"" << a->get_name() << "\"" << " -> 0x" << std::hex << hash_id << " (" << std::dec << hash_id << ")" << endl;
 
   uint32_t name_length = (a->name.size() + 1) * sizeof(char);
   uint32_t fname_length = (a->fname.size() + 1) * sizeof(char);
@@ -1021,7 +952,7 @@ void PackageBaker::write_shader_packlet(FILE *fp, ShaderPackageAsset *s, std::st
 {
   //convert name to hash id
   uint32_t hash_id = Math::hash_value_from_string(s->get_name().c_str());
-  log << tabs.c_str() << "\"" << s->get_name().c_str() << "\"" << " -> " << hash_id << endl;
+  log << "\"" << s->get_name() << "\"" << " -> 0x" << std::hex << hash_id << " (" << std::dec << hash_id << ")" << endl;
 
   uint32_t name_length = (s->name.size() + 1) * sizeof(char);
   uint32_t vs_fname_length = (s->vs_fname.size() + 1) * sizeof(char);
@@ -1114,8 +1045,9 @@ void PackageBaker::write_animation_packlet(FILE *fp, AnimationPackageAsset *a, s
   write_packlet_header(fp, a, log);
 
   uint32_t num_tracks = a->anim.get_num_tracks();
-  log << tabs.c_str() << "num tracks: " << num_tracks << endl;
   fwrite(&num_tracks, sizeof(uint32_t), 1, fp);
+
+  log << tabs.c_str() << "track count: " << num_tracks << endl;
 
   uint32_t name_length = (a->name.size() + 1) * sizeof(char);
   uint32_t fname_length = (a->fname.size() + 1) * sizeof(char);
@@ -1132,13 +1064,13 @@ void PackageBaker::write_animation_packlet(FILE *fp, AnimationPackageAsset *a, s
     uint32_t num_rot_frames = a->anim._tracks[i]._rot_frames.size();
     uint32_t num_scale_frames = a->anim._tracks[i]._scale_frames.size();
 
-    fwrite(&num_pos_frames, sizeof(uint32_t), 1, fp);
-    fwrite(&num_rot_frames, sizeof(uint32_t), 1, fp);
-    fwrite(&num_scale_frames, sizeof(uint32_t), 1, fp);
+    fwrite(&num_pos_frames,    sizeof(uint32_t), 1, fp);
+    fwrite(&num_rot_frames,    sizeof(uint32_t), 1, fp);
+    fwrite(&num_scale_frames,  sizeof(uint32_t), 1, fp);
 
-    fwrite(a->anim._tracks[i]._pos_frames.data(), sizeof(BoneTransformPos), num_pos_frames, fp);
-    fwrite(a->anim._tracks[i]._rot_frames.data(), sizeof(BoneTransformRot), num_rot_frames, fp);
-    fwrite(a->anim._tracks[i]._scale_frames.data(), sizeof(BoneTransformScale), num_scale_frames, fp);
+    fwrite(a->anim._tracks[i]._pos_frames.data(),    sizeof(BoneTransformPos),    num_pos_frames, fp);
+    fwrite(a->anim._tracks[i]._rot_frames.data(),    sizeof(BoneTransformRot),    num_rot_frames, fp);
+    fwrite(a->anim._tracks[i]._scale_frames.data(),  sizeof(BoneTransformScale),  num_scale_frames, fp);
   }
 }
 
@@ -1146,9 +1078,9 @@ void PackageBaker::write_ui_layout_packlet(FILE *fp, UILayoutPackageAsset *u, st
 {
   write_packlet_header(fp, u, log);
 
-  uint32_t name_length = (u->name.size() + 1) * sizeof(char);
-  uint32_t fname_length = (u->fname.size() + 1) * sizeof(char);
-  uint32_t xml_length = (u->xml_source.size() + 1) * sizeof(char);
+  uint32_t name_length =   (u->name.size() + 1) * sizeof(char);
+  uint32_t fname_length =  (u->fname.size() + 1) * sizeof(char);
+  uint32_t xml_length =    (u->xml_source.size() + 1) * sizeof(char);
 
   fwrite(&xml_length, sizeof(uint32_t), 1, fp);
 
