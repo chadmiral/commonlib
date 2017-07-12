@@ -16,7 +16,6 @@
 #include "animation_baker.h"
 #include "lens_flare_baker.h"
 
-
 using namespace Math;
 using namespace std;
 using namespace Tool;
@@ -365,17 +364,14 @@ void PackageBaker::read_shader_file(ShaderTemplate &st, std::string tabs, std::o
   ShaderPackageAsset *shader_asset = new ShaderPackageAsset(st);
   assets.push_back(shader_asset);
 
-  log << tabs << "Loading shader \"";
-
-  log << tabs << st._name << "\"" << endl;
-  SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
+  log << tabs << "Loading shader \"" << st._name << "\"" << endl;
+  tabs = tabs + "\t";
 
   shader_asset->set_path(&asset_path);
 
   if (st._vs_fname.length() > 0)
   {
-    log << tabs << "vs: " << st._vs_fname.c_str() << " ... " << endl;
-    log << tabs << "opening file... ";
+    log << tabs << "opening vertex shader file: " << st._vs_fname.c_str() << " ... ";
 
     FILE *fp = NULL;
     FOPEN(fp, st._vs_fname.c_str(), "r");
@@ -402,11 +398,10 @@ void PackageBaker::read_shader_file(ShaderTemplate &st, std::string tabs, std::o
 
   if(st._fs_fname.length() > 0)
   {
-    log << tabs << "fs: " << st._fs_fname.c_str() << " ... " << endl;
+    log << tabs << "opening fragment shader file: " << st._fs_fname.c_str() << " ... ";
 
     FILE *fp = NULL;
     FOPEN(fp, st._fs_fname.c_str(), "r");
-    log << tabs << "opening file... ";
     if (fp)
     {
       fseek(fp, 0, SEEK_END);

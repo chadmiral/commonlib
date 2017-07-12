@@ -57,7 +57,7 @@ vector<string> split_string(const char *str, char c = ' ')
   return result;
 }
 
-bool print_log(GLuint obj, std::ostream &log)
+bool print_log(GLuint obj, std::string tabs, std::ostream &log)
 {
   int infologLength = 0;
   int maxLength = 4096;//1024;
@@ -85,16 +85,16 @@ bool print_log(GLuint obj, std::ostream &log)
       std::transform(lower_case_line.begin(), lower_case_line.end(), lower_case_line.begin(), ::tolower);
       if (lower_case_line.find("warning") != std::string::npos)
       {
-        log << __CONSOLE_LOG_YELLOW__ << log_lines[i].c_str() << endl;
+        log << endl << tabs << __CONSOLE_LOG_YELLOW__ << log_lines[i].c_str() << endl;
       }
       else if (lower_case_line.find("error") != std::string::npos)
       {
-        log << endl <<__CONSOLE_LOG_RED__ << log_lines[i].c_str() << endl;
+        log << endl << tabs <<__CONSOLE_LOG_RED__ << log_lines[i].c_str() << endl;
         error_detected = true;
       }
       else
       {
-        log << log_lines[i].c_str() << endl;
+        log << endl << tabs << log_lines[i].c_str() << endl;
       }
     }
   }
@@ -117,14 +117,14 @@ void Shader::compile_and_link_from_source(const char *vs, const char *fs, std::s
   create_program(log);
 
   log << tabs.c_str() << "compiling vertex shader...";
-  gl_vertex_shader = compile_shader_from_source(GL_VERTEX_SHADER, vs, log);
+  gl_vertex_shader = compile_shader_from_source(GL_VERTEX_SHADER, vs, tabs + "\t", log);
   log << tabs.c_str() << "compiling fragment shader...";
-  gl_fragment_shader = compile_shader_from_source(GL_FRAGMENT_SHADER, fs, log);
+  gl_fragment_shader = compile_shader_from_source(GL_FRAGMENT_SHADER, fs, tabs + "\t", log);
   log << tabs.c_str() << "linking shader...";
-  link_shader(log);
+  link_shader(tabs + "\t", log);
 }
 
-GLuint Shader::compile_shader_from_source(GLenum shader_type, const char *source, std::ostream &log)
+GLuint Shader::compile_shader_from_source(GLenum shader_type, const char *source, std::string tabs, std::ostream &log)
 {
   GLuint my_shader = glCreateShader(shader_type);
   glShaderSource(my_shader, 1, &source, NULL);
@@ -143,7 +143,7 @@ GLuint Shader::compile_shader_from_source(GLenum shader_type, const char *source
   	GLchar *errorLog = new char[maxLength];
   	glGetShaderInfoLog(my_shader, maxLength, &maxLength, &errorLog[0]);
 
-    print_log(my_shader, log);
+    print_log(my_shader, tabs, log);
 
   	glDeleteShader(my_shader);
 	  delete [] errorLog;
@@ -167,10 +167,10 @@ GLuint Shader::compile_shader_from_source(GLenum shader_type, const char *source
   return my_shader;
 }
 
-void Shader::link_shader(std::ostream &log)
+void Shader::link_shader(std::string tabs, std::ostream &log)
 {
   glLinkProgram(gl_shader_program);
-  if (!print_log(gl_shader_program, log))
+  if (!print_log(gl_shader_program, tabs, log))
   {
     log << __CONSOLE_LOG_GREEN__ << "OK" << endl;
   }
@@ -242,7 +242,7 @@ void Shader::parse_source(std::string source, std::string &dest, std::vector<std
   dest = source;
 }
 
-bool Shader::load_link_and_compile(std::vector<std::string> *path, std::ostream &log)
+bool Shader::load_link_and_compile(std::vector<std::string> *path, std::string tabs, std::ostream &log)
 {
     log << "loading vertex shader " << gl_vertex_shader_fname.c_str() << endl;
 
@@ -265,8 +265,8 @@ bool Shader::load_link_and_compile(std::vector<std::string> *path, std::ostream 
       parse_source(gl_vertex_source, final_vs_source, path);
 
       gl_vertex_shader = compile_shader_from_source(GL_VERTEX_SHADER, final_vs_source.c_str());
-      print_log(gl_vertex_shader, log);
-      print_log(gl_shader_program, log);
+      print_log(gl_vertex_shader, tabs, log);
+      print_log(gl_shader_program, tabs, log);
 
       free(gl_vertex_source);
       fclose(fp);
@@ -293,8 +293,8 @@ bool Shader::load_link_and_compile(std::vector<std::string> *path, std::ostream 
       parse_source(gl_fragment_source, final_fs_source, path);
 
       gl_fragment_shader = compile_shader_from_source(GL_FRAGMENT_SHADER, final_fs_source.c_str());
-      print_log(gl_fragment_shader, log);
-      print_log(gl_shader_program, log);
+      print_log(gl_fragment_shader, tabs, log);
+      print_log(gl_shader_program, tabs, log);
 
       free(gl_fragment_source);
       fclose(fp);
@@ -304,7 +304,7 @@ bool Shader::load_link_and_compile(std::vector<std::string> *path, std::ostream 
       log << __CONSOLE_LOG_RED__ << "could not open fragment shader file! (no file handle)" << endl;
     }
 
-    link_shader(log);
+    link_shader("", log);
 
     return true;
 }

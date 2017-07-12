@@ -25,13 +25,13 @@ namespace Graphics
     void create_program(std::ostream &log = std::cout);
     void set_shader_filenames(std::string vs_fname, std::string fs_fname);
     void compile_and_link_from_source(const char *vs, const char *fs, std::string tabs = "", std::ostream &log = std::cout);
-    GLuint compile_shader_from_source(GLenum shader_type, const char *source, std::ostream &log = std::cout);
-    void link_shader(std::ostream &log = std::cout);
-    
+    GLuint compile_shader_from_source(GLenum shader_type, const char *source, std::string tabs = "", std::ostream &log = std::cout);
+    void link_shader(std::string tabs = "", std::ostream &log = std::cout);
+
     std::string include_glsl(std::string inc_fname, std::vector<std::string> *path);
 
     void parse_source(std::string source, std::string &dest, std::vector<std::string> *path); //load includes, etc... before compiling
-    bool load_link_and_compile(std::vector<std::string> *path = NULL, std::ostream &log = std::cout);
+    bool load_link_and_compile(std::vector<std::string> *path = NULL, std::string tabs = "", std::ostream &log = std::cout);
     void render();
 
     GLuint gl_fragment_shader;
@@ -185,7 +185,7 @@ namespace Graphics
   protected:
     std::string    _name;
     GLint          _loc;
-    
+
     uint32_t       _type;
     uint32_t       _count;
     uint32_t       _offset;
