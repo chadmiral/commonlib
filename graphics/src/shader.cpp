@@ -57,7 +57,7 @@ vector<string> split_string(const char *str, char c = ' ')
   return result;
 }
 
-void print_log(GLuint obj, std::ostream &log)
+bool print_log(GLuint obj, std::ostream &log)
 {
   int infologLength = 0;
   int maxLength = 4096;//1024;
@@ -74,6 +74,8 @@ void print_log(GLuint obj, std::ostream &log)
   else
     glGetProgramInfoLog(obj, maxLength, &infologLength, info_log);
 
+  bool error_detected = false;
+
   if (infologLength > 0)
   {
     std::vector<std::string> log_lines = split_string(info_log, '\n');
@@ -87,7 +89,8 @@ void print_log(GLuint obj, std::ostream &log)
       }
       else if (lower_case_line.find("error") != std::string::npos)
       {
-        log << __CONSOLE_LOG_RED__ << log_lines[i].c_str() << endl;
+        log << endl <<__CONSOLE_LOG_RED__ << log_lines[i].c_str() << endl;
+        error_detected = true;
       }
       else
       {
@@ -97,6 +100,8 @@ void print_log(GLuint obj, std::ostream &log)
   }
 
   delete info_log;
+
+  return error_detected;
 }
 
 void Shader::create_program(std::ostream &log)
@@ -107,15 +112,15 @@ void Shader::create_program(std::ostream &log)
   assert(gl_shader_program);
 }
 
-void Shader::compile_and_link_from_source(const char *vs, const char *fs, std::ostream &log)
+void Shader::compile_and_link_from_source(const char *vs, const char *fs, std::string tabs, std::ostream &log)
 {
   create_program(log);
 
-  log << "compiling vertex shader..." << endl;
+  log << tabs.c_str() << "compiling vertex shader...";
   gl_vertex_shader = compile_shader_from_source(GL_VERTEX_SHADER, vs, log);
-  log << "compiling fragment shader..." << endl;
+  log << tabs.c_str() << "compiling fragment shader...";
   gl_fragment_shader = compile_shader_from_source(GL_FRAGMENT_SHADER, fs, log);
-  log << "linking shader..." << endl;
+  log << tabs.c_str() << "linking shader...";
   link_shader(log);
 }
 
@@ -145,9 +150,7 @@ GLuint Shader::compile_shader_from_source(GLenum shader_type, const char *source
   }
   else
   {
-    SET_TEXT_COLOR(CONSOLE_COLOR_CYAN);
     log << __CONSOLE_LOG_GREEN__ << "OK" << endl;
-    SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
   }
 
   glAttachShader(gl_shader_program, my_shader);
@@ -167,7 +170,10 @@ GLuint Shader::compile_shader_from_source(GLenum shader_type, const char *source
 void Shader::link_shader(std::ostream &log)
 {
   glLinkProgram(gl_shader_program);
-  print_log(gl_shader_program, log);
+  if (!print_log(gl_shader_program, log))
+  {
+    log << __CONSOLE_LOG_GREEN__ << "OK" << endl;
+  }
 }
 
 std::string Shader::include_glsl(std::string inc_fname, std::vector<std::string> *path)

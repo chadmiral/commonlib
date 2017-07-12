@@ -120,7 +120,7 @@ namespace Tool
     void parse_ui_layout_xml(mxml_node_t *layout_node, UILayoutTemplate &ut);
 
     //TODO: shouldn't these be member functions of each package baker class?
-    void read_shader_file(ShaderTemplate &st, std::ostream &log = std::cout);
+    void read_shader_file(ShaderTemplate &st, std::string tabs = "", std::ostream &log = std::cout);
     void read_material_file(MaterialTemplate &mt, std::ostream &log = std::cout);
     void read_texture_file(TextureTemplate &tt, std::ostream &log = std::cout);
     void read_mesh_file(MeshTemplate &mt, std::ostream &log = std::cout);

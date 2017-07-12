@@ -21,34 +21,53 @@ namespace Tool
 
     }
 
+    std::string parse_string(std::string s)
+    {
+
+
+      std::string ret;
+      bool need_closure = false;
+      for (uint32_t i = 0; i < s.size(); i++)
+      {
+        switch (s[i])
+        {
+        case '\31':
+          if (need_closure) { ret = ret + "</span>"; }
+          ret = ret + "<span class=\"fatal_error\">";
+          need_closure = true;
+          break;
+        case '\32':
+          if (need_closure) { ret = ret + "</span>"; }
+          ret = ret + "<span class=\"success\">";
+          need_closure = true;
+          break;
+        case '\33':
+          if (need_closure) { ret = ret + "</span>"; }
+          ret = ret + "<span class=\"warning\">";
+          need_closure = true;
+          break;
+        //case '\n':
+        // if (need_closure) { ret = ret + "</span>"; }
+        //  ret = ret + "<br>";
+        //  need_closure = false;
+        //  break;
+        default:
+          ret = ret + s[i];
+          break;
+        }
+      }
+      if (need_closure)
+      {
+        ret = ret + "</span>";
+      }
+      return ret;
+    }
+
     //called when a std::endl is received
     virtual int sync()
     {
       std::string tmp = str();
       std::cout << str();
-
-      //count preceding tabs
-      bool fatal_error = false;
-      bool success = false;
-      bool warning = false;
-
-      switch (tmp[0])
-      {
-        case '\31':
-          fatal_error = true;
-          tmp.erase(tmp.begin());
-          break;
-        case '\32':
-          success = true;
-          tmp.erase(tmp.begin());
-          break;
-        case '\33':
-          warning = true;
-          tmp.erase(tmp.begin());
-          break;
-        default:
-           break;
-      }
 
       uint32_t num_tabs = 0;
       for (uint32_t i = 0; i < tmp.size(); i++)
@@ -58,25 +77,10 @@ namespace Tool
 
       //write to log file
       _file_stream << "<div ";
-      if (fatal_error)
-      {
-        _file_stream << "class=\"fatal_error\"";
-      }
-      else if (success)
-      {
-        _file_stream << "class=\"success\"";
-      }
-      else if (warning)
-      {
-        _file_stream << "class=\"warning\"";
-      }
-      _file_stream << " style = \"margin-left: " << 40 * num_tabs << "px\">";
+      _file_stream << "style = \"margin-left: " << 40 * num_tabs << "px\">";
 
-
-      //chop off the \n & replace w/ <br>
-      _file_stream << tmp.substr(0, tmp.size() -1);
-
-      //_file_stream << tmp;
+      tmp = parse_string(tmp.substr(0, tmp.size() - 1)); //substring removes the endl
+      _file_stream << tmp;
 
        _file_stream << "</div>";
       _file_stream << "<br>" << std::endl;

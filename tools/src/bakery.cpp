@@ -103,7 +103,7 @@ void Bakery::bake(std::string fname, std::string out_fname, std::ostream &log)
     }
     else
     {
-      log << "Bakery::bake() - Could not open file! " << endl << "\t" << fname.c_str() << endl;
+      log << __CONSOLE_LOG_RED__ << "Bakery::bake() - Could not open file! " << endl << "\t" << fname.c_str() << endl;
     }
   }
 }

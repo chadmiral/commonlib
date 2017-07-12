@@ -184,12 +184,12 @@ void PackageBaker::bake(mxml_node_t *tree, std::string output_filename, PackageT
   const char *mundus_root = std::getenv("MUNDUS_ROOT");
   if (mundus_root)
   {
-    log << tabs.c_str() << "Mundus root: " << mundus_root << endl;
+    log << tabs << "Mundus root: " << mundus_root << endl;
   }
   else
   {
     SET_TEXT_COLOR(CONSOLE_COLOR_RED);
-    log << tabs.c_str() << "Environment variable MUNDUS_ROOT not set!!!" << endl;
+    log << tabs << "Environment variable MUNDUS_ROOT not set!!!" << endl;
     SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
   }
 
@@ -199,7 +199,7 @@ void PackageBaker::bake(mxml_node_t *tree, std::string output_filename, PackageT
     if (CHDIR(pt._root_dir.c_str()) != 0)
     {
       SET_TEXT_COLOR(CONSOLE_COLOR_RED);
-      log << tabs.c_str() << "Could not change directories!" << endl;
+      log << tabs << "Could not change directories!" << endl;
       SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
     }
   }
@@ -241,7 +241,7 @@ void PackageBaker::bake(mxml_node_t *tree, std::string output_filename, PackageT
   }
   for (uint32_t i = 0; i < pt._shaders.size(); i++)
   {
-    read_shader_file(pt._shaders[i], log);
+    read_shader_file(pt._shaders[i], tabs, log);
   }
   for (uint32_t i = 0; i < pt._skeletons.size(); i++)
   {
@@ -360,22 +360,22 @@ void PackageBaker::parse_shader_xml(mxml_node_t *shader_node, ShaderTemplate &st
   }
 }
 
-void PackageBaker::read_shader_file(ShaderTemplate &st, std::ostream &log)
+void PackageBaker::read_shader_file(ShaderTemplate &st, std::string tabs, std::ostream &log)
 {
   ShaderPackageAsset *shader_asset = new ShaderPackageAsset(st);
   assets.push_back(shader_asset);
 
-  SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
-  log << "Loading shader \"";
+  log << tabs << "Loading shader \"";
 
-  log << st._name << "\"" << endl;
+  log << tabs << st._name << "\"" << endl;
   SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
 
   shader_asset->set_path(&asset_path);
 
   if (st._vs_fname.length() > 0)
   {
-    log << "\tvs: " << st._vs_fname.c_str() << " ... " << endl;
+    log << tabs << "vs: " << st._vs_fname.c_str() << " ... " << endl;
+    log << tabs << "opening file... ";
 
     FILE *fp = NULL;
     FOPEN(fp, st._vs_fname.c_str(), "r");
@@ -392,24 +392,21 @@ void PackageBaker::read_shader_file(ShaderTemplate &st, std::ostream &log)
       free(glsl_source);
       fclose(fp);
 
-      SET_TEXT_COLOR(CONSOLE_COLOR_GREEN);
-      cout << "\32OK" << endl;
-      SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
+      log << tabs << __CONSOLE_LOG_GREEN__ << "OK" << endl;
     }
     else
     {
-      SET_TEXT_COLOR(CONSOLE_COLOR_RED);
-      log << "Could not open file!" << endl;
-      SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
+      log << tabs << __CONSOLE_LOG_RED__ << "Could not open file!" << endl;
     }
   }
 
   if(st._fs_fname.length() > 0)
   {
-    log << "\tfs: " << st._fs_fname.c_str() << " ... " << endl;
+    log << tabs << "fs: " << st._fs_fname.c_str() << " ... " << endl;
 
     FILE *fp = NULL;
     FOPEN(fp, st._fs_fname.c_str(), "r");
+    log << tabs << "opening file... ";
     if (fp)
     {
       fseek(fp, 0, SEEK_END);
@@ -423,15 +420,11 @@ void PackageBaker::read_shader_file(ShaderTemplate &st, std::ostream &log)
       free(glsl_source);
       fclose(fp);
 
-      SET_TEXT_COLOR(CONSOLE_COLOR_GREEN);
-      log << "\32OK" << endl;
-      SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
+      log << tabs << __CONSOLE_LOG_GREEN__ << "OK" << endl;
     }
     else
     {
-      SET_TEXT_COLOR(CONSOLE_COLOR_RED);
-      log << "Could not open file!" << endl;
-      SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
+      log << tabs << __CONSOLE_LOG_RED__ << "ERROR: Could not open file!" << endl;
     }
   }
 
@@ -440,7 +433,7 @@ void PackageBaker::read_shader_file(ShaderTemplate &st, std::ostream &log)
 
   //TODO - test compile to make sure there are no errors
   Shader s;
-  s.compile_and_link_from_source(shader_asset->vs_source.c_str(), shader_asset->fs_source.c_str(), log);
+  s.compile_and_link_from_source(shader_asset->vs_source.c_str(), shader_asset->fs_source.c_str(), tabs, log);
 }
 
 void PackageBaker::parse_material_xml(mxml_node_t *mat_node, MaterialTemplate &mt)
