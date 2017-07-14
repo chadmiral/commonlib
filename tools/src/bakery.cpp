@@ -2,6 +2,7 @@
 #include <assert.h>
 
 #include "bakery.h"
+#include "html_log_stream.h"
 
 using namespace Tool;
 using namespace std;
@@ -19,8 +20,9 @@ void Bakery::init()
   lens_flare_baker.init();
 }
 
-void Bakery::bake(std::string fname, std::string out_fname, std::ostream &log)
+void Bakery::bake(std::string fname, std::string out_fname, HtmlLogStream &log_stream)
 {
+  std::ostream log(&log_stream);
   //extract the file extension
   //march backwards from the end of the string
   int dot_idx = fname.size() - 1;
@@ -37,7 +39,7 @@ void Bakery::bake(std::string fname, std::string out_fname, std::ostream &log)
     }
     else
     {
-      log << "Bakery::bake() - Could not open file! " << endl << "\t" << fname.c_str() << endl;
+      log << __CONSOLE_LOG_RED__ <<"Bakery::bake() - Could not open file! " << endl << "\t" << fname.c_str() << endl;
     }
   }
   else
@@ -46,9 +48,6 @@ void Bakery::bake(std::string fname, std::string out_fname, std::ostream &log)
     FILE *fp = fopen(fname.c_str(), "r");
     if(fp)
     {
-      //unsigned int hash_id = hash(fname.c_str());
-      //cout<<"\thash value:"<<hash_id<<endl;
-
       mxml_node_t *tree = mxmlLoadFile(NULL, fp, MXML_TEXT_CALLBACK);
       assert(tree);
 
@@ -61,6 +60,7 @@ void Bakery::bake(std::string fname, std::string out_fname, std::ostream &log)
       node = mxmlFindElement(tree, tree, "static_mesh", "version", NULL, MXML_DESCEND);
       if(node)
       {
+        log_stream.set_channel("Geometry");
         static_mesh_baker.bake(tree, output_fname, log);
       }
 
@@ -68,6 +68,7 @@ void Bakery::bake(std::string fname, std::string out_fname, std::ostream &log)
       node = mxmlFindElement(tree, tree, "shader_graph", "version", NULL, MXML_DESCEND);
       if(node)
       {
+        log_stream.set_channel("Shaders");
         shader_baker.bake(tree, output_fname, log);
       }
 
@@ -75,6 +76,7 @@ void Bakery::bake(std::string fname, std::string out_fname, std::ostream &log)
       node = mxmlFindElement(tree, tree, "skeleton", "version", NULL, MXML_DESCEND);
       if (node)
       {
+        log_stream.set_channel("Animation");
         skeleton_baker.bake(tree, output_fname, log);
       }
 
@@ -82,6 +84,7 @@ void Bakery::bake(std::string fname, std::string out_fname, std::ostream &log)
       node = mxmlFindElement(tree, tree, "animation", "version", NULL, MXML_DESCEND);
       if (node)
       {
+        log_stream.set_channel("Animation");
         animation_baker.bake(tree, output_fname, log);
       }
 
@@ -89,6 +92,7 @@ void Bakery::bake(std::string fname, std::string out_fname, std::ostream &log)
       node = mxmlFindElement(tree, tree, "lens_flare", "version", NULL, MXML_DESCEND);
       if(node)
       {
+        log_stream.set_channel("VFX");
         lens_flare_baker.bake(tree, output_fname, log);
       }
 
@@ -96,13 +100,16 @@ void Bakery::bake(std::string fname, std::string out_fname, std::ostream &log)
       node = mxmlFindElement(tree, tree, "package", "version", NULL, MXML_DESCEND);
       if (node)
       {
+        log_stream.set_channel("General");
         PackageTemplate pt;
         pt._version = atoi(mxmlElementGetAttr(node, "version"));
+        package_baker.set_html_logger(&log_stream);
         package_baker.bake(tree, output_fname, pt, log);
       }
     }
     else
     {
+      log_stream.set_channel("General");
       log << __CONSOLE_LOG_RED__ << "Bakery::bake() - Could not open file! " << endl << "\t" << fname.c_str() << endl;
     }
   }

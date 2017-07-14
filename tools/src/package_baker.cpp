@@ -176,6 +176,8 @@ void PackageBaker::bake(mxml_node_t *tree, std::string output_filename, PackageT
 {
   parse_xml(tree, pt, log);
 
+  _html_logger->set_channel("General");
+
   const char *mundus_root = std::getenv("MUNDUS_ROOT");
   if (mundus_root)
   {
@@ -220,34 +222,42 @@ void PackageBaker::bake(mxml_node_t *tree, std::string output_filename, PackageT
 
   for (uint32_t i = 0; i < pt._animations.size(); i++)
   {
+    _html_logger->set_channel("Animation");
     read_animation_file(pt._animations[i], log);
   }
   for (uint32_t i = 0; i < pt._materials.size(); i++)
   {
+    _html_logger->set_channel("Shaders");
     read_material_file(pt._materials[i], log);
   }
   for (uint32_t i = 0; i < pt._meshes.size(); i++)
   {
+    _html_logger->set_channel("Geometry");
     read_mesh_file(pt._meshes[i], log);
   }
   for (uint32_t i = 0; i < pt._shaders.size(); i++)
   {
+    _html_logger->set_channel("Shaders");
     read_shader_file(pt._shaders[i], tabs, log);
   }
   for (uint32_t i = 0; i < pt._skeletons.size(); i++)
   {
+    _html_logger->set_channel("Animation");
     read_skeleton_file(pt._skeletons[i], log);
   }
   for (uint32_t i = 0; i < pt._textures.size(); i++)
   {
+    _html_logger->set_channel("General");
     read_texture_file(pt._textures[i], log);
   }
   for (uint32_t i = 0; i < pt._ui_layouts.size(); i++)
   {
+    _html_logger->set_channel("General");
     read_ui_layout_file(pt._ui_layouts[i], log);
   }
   for (uint32_t i = 0; i < pt._lens_flares.size(); i++)
   {
+    _html_logger->set_channel("VFX");
     read_lens_flare_file(pt._lens_flares[i], log);
   }
 

@@ -10,6 +10,7 @@
 #include "bphys_baker.h"
 #include "package_baker.h"
 #include "lens_flare_baker.h"
+#include "html_log_stream.h"
 
 
 namespace Tool
@@ -22,7 +23,7 @@ namespace Tool
 
     void init();
 
-    void bake(std::string fname, std::string out_fname, std::ostream &log = std::cout);
+    void bake(std::string fname, std::string out_fname, HtmlLogStream &log_stream);
   private:
     BPhysBaker        bphys_baker;
     PackageBaker      package_baker;

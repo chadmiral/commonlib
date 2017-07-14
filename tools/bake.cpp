@@ -8,8 +8,13 @@ using namespace Tool;
 
 int main(int argc, char **argv)
 {
-  HtmlLogStream log_buffer("Import Log");
-  log_buffer.open("test_log.html");
+  HtmlLogStream log_buffer("General");
+  log_buffer.add_channel("Shaders");
+  log_buffer.add_channel("Geometry");
+  log_buffer.add_channel("Animation");
+  log_buffer.add_channel("VFX");
+  log_buffer.set_channel("General");
+  log_buffer.open();
   std::ostream log_stream(&log_buffer);
 
   Bakery bakery;
@@ -28,7 +33,7 @@ int main(int argc, char **argv)
       in_fname = argv[i];
       out_fname = make_nice_filename(std::string(""), std::string(""), i);
       log_stream << "Baking " << in_fname.c_str() << "..." << endl;
-      bakery.bake(in_fname, out_fname, log_stream);
+      bakery.bake(in_fname, out_fname, log_buffer);
     }
   }
 
