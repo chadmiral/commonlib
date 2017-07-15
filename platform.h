@@ -28,11 +28,13 @@ enum ConsoleColor
 #define __CONSOLE_LOG_RED__       '\31'
 #define __CONSOLE_LOG_GREEN__     '\32'
 #define __CONSOLE_LOG_YELLOW__    '\33'
+#define __CONSOLE_LOG_BLUE__      '\34'
 
 #if defined (_WIN32)
 #include <Windows.h>
 #include <commdlg.h>
 #include <direct.h>
+#include <stdio.h>
 #define GETCWD _getcwd
 #define CHDIR _chdir
 #define FOPEN(f, fname, mode) fopen_s(&f, fname, mode)

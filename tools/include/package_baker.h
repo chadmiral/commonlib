@@ -11,6 +11,7 @@
 #include "static_mesh_baker.h"
 #include "animation_baker.h"
 #include "lens_flare_baker.h"
+#include "html_log_stream.h"
 
 #if defined __LOKI__
 #define GL_CLAMP 0x2900 //TODO: do this more gracefully
@@ -109,7 +110,9 @@ namespace Tool
     uint32_t file_version;
     std::vector<PackageAsset *> assets;
     std::vector<std::string> asset_path;
+    HtmlLogStream *_html_logger;
 
+    //TODO: shouldn't these be member functions of each package baker class?
     void parse_basic_xml(mxml_node_t *baic_node, BasicTemplate &bt);
     void parse_shader_xml(mxml_node_t *shader_node, ShaderTemplate &st);
     void parse_material_xml(mxml_node_t *material_node, MaterialTemplate &mt);
@@ -133,6 +136,7 @@ namespace Tool
 
     void write_packlet_header(FILE *fp, PackageAsset *a, std::ostream &log = std::cout);
 
+    //TODO: shouldn't these be member functions of each package baker class?
     void write_shader_packlet(FILE *fp, ShaderPackageAsset *s, std::string tabs = "", std::ostream &log = std::cout);
     void write_texture_packlet(FILE *fp, TexturePackageAsset *t, std::string tabs = "", std::ostream &log = std::cout);
     void write_material_packlet(FILE *fp, MaterialPackageAsset *m, std::string tabs = "", std::ostream &log = std::cout);
@@ -145,8 +149,9 @@ namespace Tool
     PackageBaker() { file_version = PACKAGE_FILE_VERSION; }
     ~PackageBaker() {}
 
-    void init();
+    void init() {}
     void parse_xml(mxml_node_t *tree, PackageTemplate &pt, std::ostream &log = std::cout);
     void bake(mxml_node_t *tree, std::string output_filename, PackageTemplate &pt, std::ostream &log = std::cout, std::string tabs = "");
+    void set_html_logger(HtmlLogStream *logger) { _html_logger = logger; }
   };
 };
