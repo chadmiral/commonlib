@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <assert.h>
+#include "platform.h"
 
 #if defined (__APPLE__)
 #include <OpenGL/gl.h>
