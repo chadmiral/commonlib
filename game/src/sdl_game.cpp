@@ -35,7 +35,7 @@ SDLGame::SDLGame(const int w, const int h,
   _log(&_html_logger)
 {
 
-  _html_logger.open("game_log.html");
+  _html_logger.open();
 
   flags = _flags;
 
