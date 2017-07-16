@@ -9,6 +9,7 @@ CFLAGS+=$(shell pkg-config freetype2 --cflags)
 CFLAGS+=$(shell pkg-config glew --cflags)
 CFLAGS+=$(shell pkg-config sdl2 --cflags)
 CFLAGS+=$(shell pkg-config SDL2_image --cflags)
+CFLAGS+=$(shell pkg-config mxml --cflags)
 #CFLAGS+=-Ofast
 CFLAGS+= -g3 -O0 -D__DEBUG__
 
@@ -16,12 +17,15 @@ LDFLAGS=$(shell pkg-config freetype2 --libs)
 LDFLAGS+=$(shell pkg-config glew --libs)
 LDFLAGS+=$(shell pkg-config sdl2 --libs)
 LDFLAGS+=$(shell pkg-config SDL2_image --libs)
+LDFLAGS+=$(shell pkg-config mxml --libs)
 LDFLAGS+=-lmath -lgraphics -lfluids -lgame -lui
 SRCPATH=src/
 SRCS=src/font.cpp src/glutility.cpp src/material.cpp src/shader.cpp src/texture.cpp
 SRCS+=src/camera.cpp src/render_surface.cpp
 SRCS+=src/render_surface_combiner.cpp src/gpu_hair_sim.cpp src/static_mesh.cpp
 SRCS+=src/gpu_particle_system.cpp src/vfx/ribbon.cpp src/gl_error.cpp
+SRCS+=src/
+SRCS+=
 OBJS=$(SRCS:.cpp=.o)
 
 UNAME := $(shell uname)
