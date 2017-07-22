@@ -1,6 +1,7 @@
 #ifndef __GPU_VORONOI_H__
 #define __GPU_VORONOI_H__
 
+#include "render_surface.h"
 #include "platform_gl.h"
 
 #include <vector>
@@ -24,64 +25,65 @@ namespace Math
     float x, y, z;
   };
 
-  struct VoronoiVert
+  struct ConeInstanceData
+  {
+    float       x, y, z;
+    uint32_t    id;
+  };
+
+  struct QuadVert
   {
     float x, y, z;
-    float r, g, b;
+    float u, v;
   };
 
   class GPUVoronoi2D
   {
-    public:
-      GPUVoronoi2D(const GLuint num_seg = 24, const GLuint _max_num_sites = 1000, const GLuint flags = 0);
-      ~GPUVoronoi2D();
+  private:
+    std::vector<Math::Float2>     _sites;
 
-      void init();
-      void deinit();
-      void reset();
+    uint32_t                      _max_num_sites;
 
-      void set_num_segments(const GLuint num_seg) { num_cone_segments = num_seg; }
-      GLuint get_num_segments() const { return num_cone_segments; }
+    GLuint                        _num_cone_segments;
+    GLuint                        _num_cone_verts;
+    GLuint                        _cone_vbo;
+    GLuint                        _cone_ibo;
+    std::vector<ConeVert>         _cone_vertex_data;
+    std::vector<uint32_t>         _cone_index_data;
 
-      void set_flags(const GLuint flags) { behavior_flags = flags; }
-      GLuint get_flags() const { return behavior_flags; }
+    GLuint                        _fbo_res[2];
+    GLuint                        _tex_format;
 
-      void set_tex_res(const int w, const int h) { fbo_res[0] = w; fbo_res[1] = h; }
-      GLuint get_tex() const { return voronoi_diagram_tex; }
+    Graphics::Shader             *_render_surface_shader;
+    Graphics::RenderSurface       _render_surface;
 
-      void set_max_num_sites(const int n) { max_num_sites = n; }
-      void add_site(Math::Float2 pt);
-      void build_voronoi_diagram();
+    GLubyte                      *_cpu_tex_data;
 
-      unsigned int query_nearest_site(const Float2 p);
+  public:
+    GPUVoronoi2D(const GLuint num_seg = 24, const GLuint _max_num_sites = 1000);
+    ~GPUVoronoi2D();
 
-      void render_voronoi_texture();
-    private:
-      void render_fullscreen_quad();
-      void setup_textured_quad_state();
+    void init();
+    void deinit();
+    void reset();
 
-      GLuint                        behavior_flags;
-      std::vector<Math::Float2>     sites;
+    void set_num_segments(const GLuint num_seg) { _num_cone_segments = num_seg; }
+    GLuint get_num_segments() const { return _num_cone_segments; }
 
-      int                           max_num_sites;
+    //void set_tex_res(const int w, const int h) { _fbo_res[0] = w; _fbo_res[1] = h; }
+    GLuint get_tex() const { return _render_surface.get_tex()->get_tex_id(); }
 
-      int                           max_draw_indices;
-      int                           max_draw_verts;
-      
-      GLuint                        num_cone_segments;
-      GLuint                        num_cone_verts;
-      GLuint                        cone_vbo;
-      GLuint                        cone_ibo;
-      ConeVert                      *cone_vertex_data;
-      unsigned int                  *cone_index_data;
+    void set_max_num_sites(const int n) { _max_num_sites = n; }
+    void add_site(Math::Float2 pt);
+    void build_voronoi_diagram();
 
-      GLuint                        fbo_res[2];
-      GLuint                        depth_fbo;
-      GLuint                        tex_format;
-      GLuint                        voronoi_diagram_fbo;
-      GLuint                        voronoi_diagram_tex;
+    uint32_t query_nearest_site(const Float2 p);
 
-      GLubyte                       *cpu_tex_data;
+    void render_voronoi_texture();
+
+  private:
+    void render_fullscreen_quad();
+    void setup_textured_quad_state();
   };
 };
 

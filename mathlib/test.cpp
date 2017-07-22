@@ -60,9 +60,28 @@ private:
         render_gpu_voronoi();
         break;
       case TEST_MODE_GPU_VORONOI_TEX:
-        gpu_voronoi.render_voronoi_texture();
-        //render_gpu_voronoi_tex();
+      {
+        Uint32 ticks = SDL_GetTicks();
+        float game_time = (float)ticks;
+        
+
+        gpu_voronoi.reset();
+
+        for (int i = 0; i < Num_starting_points; i++)
+        {
+          float id = (float)i / (float)Num_starting_points;
+          float scaled_game_time = game_time * lerp(0.00025f, 0.0005f, id);
+          Float2 site_pos = _gpu_voronoi_sites[i] +
+            Float2(PerlinNoise::scaled_octave_noise_3d(2.0f, 1.0f, 0.2f, -0.5f, 0.5f, _gpu_voronoi_sites[i][0], _gpu_voronoi_sites[i][1], scaled_game_time + id),
+                   PerlinNoise::scaled_octave_noise_3d(2.0f, 1.0f, 0.2f, -0.5f, 0.5f, _gpu_voronoi_sites[i][0], _gpu_voronoi_sites[i][1], scaled_game_time + id + 13.654f));
+          gpu_voronoi.add_site(site_pos);
+        }
+
+        gpu_voronoi.build_voronoi_diagram();
+        render_gpu_voronoi_tex();
         break;
+      }
+        
       default:
         break;
     }
@@ -70,10 +89,7 @@ private:
 
   void render_gpu_voronoi()
   {
-    Uint32 ticks = SDL_GetTicks();
-    float game_time = (float)ticks;
 
-    gpu_voronoi.build_voronoi_diagram();
   }
 
   void render_fullscreen_quad()
@@ -95,9 +111,9 @@ private:
   {
     glUseProgramObjectARB(0);
     glDisable(GL_BLEND);
-    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glActiveTexture(GL_TEXTURE0);
-    //glClientActiveTexture(GL_TEXTURE0);
+    glClientActiveTexture(GL_TEXTURE0);
     glEnable(GL_TEXTURE_2D);
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
@@ -116,6 +132,7 @@ private:
     setup_textured_quad_state();
     glBindTexture(GL_TEXTURE_2D, gpu_voronoi.get_tex());
     render_fullscreen_quad();
+    //gpu_voronoi.render_voronoi_texture();
 
     glActiveTexture(GL_TEXTURE0);
     glDisable(GL_TEXTURE_2D);
@@ -237,8 +254,10 @@ private:
     csl.set_endpoints(cep[1], cep[2]);
 
     Curve c;
-    c.add_segment(&csc);
-    c.add_segment(&csl);
+    c.reset();
+    c.insert_end_point(INTERPOLATE_BEZIER, cep[0]);
+    c.insert_end_point(INTERPOLATE_BEZIER, cep[1]);
+    c.insert_end_point(INTERPOLATE_BEZIER, cep[2]);
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
@@ -315,12 +334,12 @@ private:
       p.normalize();
       point_cloud.add_point(p);
     }
-    point_cloud.triangulate();
 
-    for(int i = 0; i < Num_starting_points; i++)
+    for (int i = 0; i < Num_starting_points; i++)
     {
-      gpu_voronoi.add_site(Float2(random(0.0f, 1.0f), random(0.0f, 1.0f)));
+      _gpu_voronoi_sites.push_back(Float2(random(0.0f, 1.0f), random(0.0f, 1.0f)));
     }
+    
     gpu_voronoi.init();
   }
   void user_run() {}
@@ -359,8 +378,8 @@ private:
         {
           Float3 new_vertex;
           cout<<"click: ("<<event.button.x<<", "<<event.button.y<<")"<<endl;
-          new_vertex[0] = 2.0f * (((float)event.button.x / (float)resolution[0]) - 0.5f);
-          new_vertex[1] = -2.0f * (((float)event.button.y / (float)resolution[1]) - 0.5f);
+          new_vertex[0] = 2.0f * (((float)event.button.x / (float)game_context.window_resolution[0]) - 0.5f);
+          new_vertex[1] = -2.0f * (((float)event.button.y / (float)game_context.window_resolution[1]) - 0.5f);
           new_vertex[2] = random(-1.0f, 1.0f);
           new_vertex.normalize();
           point_cloud.add_point(new_vertex);
@@ -369,8 +388,8 @@ private:
         if(mode == TEST_MODE_GPU_VORONOI || mode == TEST_MODE_GPU_VORONOI_TEX)
         {
           Float2 new_vert;
-          new_vert[0] = (float)event.button.x / (float)resolution[0];
-          new_vert[1] = 1.0f - (float)event.button.y / (float)resolution[1];
+          new_vert[0] = (float)event.button.x / (float)game_context.window_resolution[0];
+          new_vert[1] = 1.0f - (float)event.button.y / (float)game_context.window_resolution[1];
           //gpu_voronoi.add_site(new_vert);
            unsigned int idx = gpu_voronoi.query_nearest_site(new_vert);
            cout<<"idx: "<<idx<<endl;
@@ -382,6 +401,7 @@ private:
   //variables
   VoronoiSphere point_cloud;
   GPUVoronoi2D gpu_voronoi;
+  std::vector<Math::Float2> _gpu_voronoi_sites;
   int Num_starting_points;
   float rot_angle;
   TestMode mode;
@@ -399,6 +419,10 @@ int main(int argc, char **argv)
   if(argc > 1)
   {
     app.set_num_verts(atoi(argv[1]));
+  }
+  else
+  {
+    app.set_num_verts(100);
   }
 
   float x = remap_range(0.3f, 0.0f, 1.0f, -10.0f, 10.0f);

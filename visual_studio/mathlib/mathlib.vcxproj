@@ -79,7 +79,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\..\..\glew-1.13.0\include;../../../SDL-2.0.4/include;../../mathlib/include/vfx;../../;../../mathlib/include;../../mathlib/include/physics;%(AdditionalIncludeDirectories);..\..\..\SDL2-2.0.4\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\glew-1.13.0\include;../../../SDL-2.0.4/include;../../mathlib/include/vfx;../../;../../graphics/include;../../mathlib/include;../../mathlib/include/physics;%(AdditionalIncludeDirectories);..\..\..\SDL2-2.0.4\include</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -97,7 +97,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\..\..\glew-1.13.0\include;../../../SDL-2.0.4/include;../../mathlib/include/vfx;../../;../../mathlib/include;..\..\mathlib\include\physics;%(AdditionalIncludeDirectories);..\..\..\SDL2-2.0.4\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\glew-1.13.0\include;../../../SDL-2.0.4/include;../../mathlib/include/vfx;../../;../../graphics/include;../../mathlib/include;..\..\mathlib\include\physics;%(AdditionalIncludeDirectories);..\..\..\SDL2-2.0.4\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
