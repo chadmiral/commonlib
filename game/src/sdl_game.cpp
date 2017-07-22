@@ -240,7 +240,7 @@ void SDLGame::run()
     else
     {
       render_gl();
- 
+
       glMatrixMode(GL_MODELVIEW);
       glLoadIdentity();
       glMatrixMode(GL_PROJECTION);
@@ -499,7 +499,7 @@ void SDLGame::generate_ui_from_layout(std::string name)
         tb->show();
         w->real_widget = tb;
         ww.add_widget(tb);
- 
+
         break;
       }
       case WIDGET_RADIO_GROUP:

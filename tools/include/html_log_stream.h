@@ -175,7 +175,7 @@ namespace Tool
         *(fs->second._ofs) << "</head>" << std::endl;
         *(fs->second._ofs) << "<body>" << std::endl;
         *(fs->second._ofs) << "<div class=\"title\">" << fs->second._channel_name << "</div><br>" << std::endl;
-        *(fs->second._ofs) << "<div class=\"date\">" << now->tm_mday << "/" << now->tm_mon + 1 << "/" << now->tm_year + 1900;
+        *(fs->second._ofs) << "<div class=\"date\">" << now->tm_mon + 1 << "/" << now->tm_mday << "/" << now->tm_year + 1900;
         *(fs->second._ofs) << " : " << now->tm_hour << ":" << now->tm_min << ":" << now->tm_sec << "</div>" << std::endl;
         *(fs->second._ofs) << "<hr>" << std::endl;
         *(fs->second._ofs) << std::endl;
@@ -196,7 +196,7 @@ namespace Tool
 
   private:
     std::ostream  &_mirror_stream; //to (potentially) replace cout
-    
+
     uint32_t      _curr_channel;
     FileMap       _file_streams;
   };

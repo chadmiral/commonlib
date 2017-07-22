@@ -3,9 +3,11 @@ LIB_PATH=
 CFLAGS=-I./include -I./include/cinematics -I/usr/local/include/
 CFLAGS+=-I./include/switchboard
 CFLAGS+=-I../graphics/include/ -I../ui/include
+CFLAGS+=-I../graphics/include/vfx -I../tools/include
 CFLAGS+=-I../mathlib/include/ -I../ -Iinclude/animation
 CFLAGS+=$(shell pkg-config --cflags sdl2)
 CFLAGS+=$(shell pkg-config --cflags freetype2)
+CFLAGS+=$(shell pkg-config mxml --cflags)
 CFLAGS+=-Ofast
 #CFLAGS += -g3 -O0
 CFLAGS+=-std=c++11
@@ -14,10 +16,12 @@ LDFLAGS=$(shell pkg-config --libs sdl2)
 LDFLAGS+=$(shell pkg-config SDL2_image --libs)
 LDFLAGS+=$(shell pkg-config --libs freetype2)
 LDFLAGS+=$(shell pkg-config --libs glew)
+LDFLAGS+=$(shell pkg-config mxml --libs)
 LDFLAGS+=-lmath -lui
 SRCPATH=src/
 SRCS=src/sdl_game.cpp src/console.cpp src/cinematics/fade_screen.cpp
-SRCS+=src/object_3d.cpp src/game_controller.cpp
+SRCS+=src/object_3d.cpp src/game_controller.cpp src/asset_library.cpp
+SRCS+=src/switchboard/switchboard.cpp
 OBJS=$(SRCS:.cpp=.o)
 
 UNAME := $(shell uname)
@@ -68,6 +72,12 @@ $(BINPATH)fade_screen.o: $(SRCPATH)cinematics/fade_screen.cpp
 
 $(BINPATH)game_controller.o: $(SRCPATH)game_controller.cpp
 	$(CC) $(CFLAGS) -c src/game_controller.cpp -o $(BINPATH)game_controller.o
+
+$(BINPATH)switchboard.o: $(SRCPATH)switchboard/switchboard.cpp
+	$(CC) $(CFLAGS) -c src/switchboard/switchboard.cpp -o $(BINPATH)switchboard.o
+
+$(BINPATH)asset_library.o: $(SRCPATH)asset_library.cpp
+	$(CC) $(CFLAGS) -c src/asset_library.cpp -o $(BINPATH)asset_library.o
 
 $(BINPATH)libgame.a: $(OBJS_BIN)
 	ar -cvq $(BINPATH)libgame.a $(OBJS_BIN)

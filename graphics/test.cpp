@@ -6,6 +6,7 @@
 #include "gpu_particle_system.h"
 #include "static_mesh.h"
 #include "ribbon.h"
+#include "gpu_voronoi.h"
 
 using namespace Graphics;
 using namespace PerlinNoise;
@@ -37,6 +38,9 @@ enum RenderMode
   RENDER_STATIC_MESH,
 
   RENDER_TEXTURE_3D,
+
+  RENDER_VORONOI_SPHERE,
+  RENDER_VORONOI_SPHERE_TEXTURE,
 
   NUM_RENDER_MODES
 };
@@ -179,6 +183,16 @@ private:
     glEnd();
   }
 
+  void render_voronoi_sphere()
+  {
+    gpu_voronoi.render_voronoi_texture();
+  }
+
+  void render_voronoi_sphere_texture()
+  {
+
+  }
+
   void setup_textured_quad_state(bool is_3d = false)
   {
     glDisable(GL_LIGHTING);
@@ -294,6 +308,12 @@ private:
         break;
       case RENDER_TEXTURE_3D:
         render_texture_3d();
+        break;
+      case RENDER_VORONOI_SPHERE:
+        render_voronoi_sphere();
+        break;
+      case RENDER_VORONOI_SPHERE_TEXTURE:
+        render_voronoi_sphere_texture();
         break;
       default:
         render_hair();
@@ -507,6 +527,18 @@ private:
     ribbon.init();
   }
 
+  void voronoi_init()
+  {
+    uint32_t num_voronoi_cells = 1000;
+    gpu_voronoi.init();
+
+    for(uint32_t i = 0; i < num_voronoi_cells; i++)
+    {
+      gpu_voronoi.add_site(Float2(random(0.0f, 1.0f), random(0.0f, 1.0f)));
+    }
+    gpu_voronoi.build_voronoi_diagram();
+  }
+
   void user_init()
   {
     cam.set_window_dimensions(Float2((float)game_context.window_resolution[0], (float)game_context.window_resolution[1]));
@@ -514,6 +546,7 @@ private:
     hair_init();
     static_mesh_init();
     ribbon_init();
+    voronoi_init();
   }
 
   void user_run() {}
@@ -560,13 +593,20 @@ private:
           case '0':
             render_mode = RENDER_TEXTURE_3D;
             break;
+          case 'q':
+            render_mode = RENDER_VORONOI_SPHERE;
+            break;
+          case 'r':
+            render_mode = RENDER_VORONOI_SPHERE_TEXTURE;
+            break;
         }
         break;
     }
   }
 
-  GPUHairSim gpu_hair;
-  GPUParticleSim gpu_particle_sim;
+  GPUHairSim           gpu_hair;
+  GPUParticleSim       gpu_particle_sim;
+  Math::GPUVoronoi2D   gpu_voronoi;
 
   Ribbon ribbon;
 

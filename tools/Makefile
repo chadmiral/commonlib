@@ -2,6 +2,7 @@ CC=g++
 
 CFLAGS=-I./include -I../mathlib/include -I../graphics/include
 CFLAGS+=-I/usr/local/include -I../game/include -I../game/include/animation
+CFLAGS+=-I../structures/include
 CFLAGS+=-I./include/minilzo -I../
 CFLAGS+=$(shell pkg-config mxml --cflags)
 CFLAGS+=$(shell pkg-config sdl2 --cflags)

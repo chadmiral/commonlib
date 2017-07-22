@@ -363,13 +363,12 @@ void PackageBaker::read_shader_file(ShaderTemplate &st, std::string tabs, std::o
 
   log << endl << tabs << __CONSOLE_LOG_BLUE__ << "Loading shader \"" << st._name << "\"" << endl;
   tabs = tabs + "\t";
-  
+
   shader_asset->set_path(&asset_path);
 
   if (st._vs_fname.length() > 0)
   {
-    log << tabs << "vs: " << st._vs_fname.c_str() << " ... " << endl;
-    log << tabs << "opening file... ";
+    log << tabs << "opening vertex shader file: " << st._vs_fname.c_str() << " ... ";
 
     FILE *fp = NULL;
     FOPEN(fp, st._vs_fname.c_str(), "r");
@@ -396,11 +395,10 @@ void PackageBaker::read_shader_file(ShaderTemplate &st, std::string tabs, std::o
 
   if(st._fs_fname.length() > 0)
   {
-    log << tabs << "fs: " << st._fs_fname.c_str() << " ... " << endl;
+    log << tabs << "opening fragment shader file: " << st._fs_fname.c_str() << " ... ";
 
     FILE *fp = NULL;
     FOPEN(fp, st._fs_fname.c_str(), "r");
-    log << tabs << "opening file... ";
     if (fp)
     {
       fseek(fp, 0, SEEK_END);
@@ -739,13 +737,13 @@ void PackageBaker::read_ui_layout_file(UILayoutTemplate &ut, std::ostream &log)
   UILayoutPackageAsset *layout_asset = new UILayoutPackageAsset(ut);
   layout_asset->set_type(PACKAGE_ASSET_UI_LAYOUT);
   assets.push_back(layout_asset);
-  
+
   layout_asset->name = ut._name;
   layout_asset->fname = ut._fname;
 
   log << endl << __CONSOLE_LOG_BLUE__ << "Loading UI Layout \"" << ut._name << "\"" << endl;
   log << "\tsource file: " << ut._fname << " ... ";
-  
+
   FILE *fp = NULL;
   FOPEN(fp, layout_asset->fname.c_str(), "rt");
   if (fp)
