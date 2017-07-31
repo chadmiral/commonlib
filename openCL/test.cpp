@@ -18,11 +18,10 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
-
   std::string kernel_fname("data/test.cl");
   std::string kernel_name("test");
 
-  uint32_t data_count = 512;
+  uint32_t data_count = 317;
   if(argc > 1)
   {
     data_count = atoi(argv[1]);
@@ -36,7 +35,7 @@ int main(int argc, char** argv)
     data[i] = (float)i;
   }
 
-  GPUComputeContext gpu_cc;
+  GPUComputeContext gpu_cc(data_count);
   gpu_cc.set_num_elements(data_count);
   gpu_cc.set_max_elements(data_count);
   gpu_cc.init();

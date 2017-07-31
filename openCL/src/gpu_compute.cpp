@@ -38,10 +38,10 @@ cl_int GPUCompute::cl_check_error(cl_int err)
   return err;
 }
 
-GPUComputeContext::GPUComputeContext() :
+GPUComputeContext::GPUComputeContext(uint32_t max_elements) :
   _initialized(false),
   _num_elements(0),
-  _max_elements(1024)
+  _max_elements(max_elements)
 {}
 
 GPUComputeContext::~GPUComputeContext()
@@ -117,6 +117,7 @@ void GPUComputeContext::load_and_build_kernel(std::string &fname, std::string &k
 
     _kernel = clCreateKernel(_program, kernel_name.c_str(), &err);
     err = cl_check_error(err);
+
     assert(err == CL_SUCCESS);
     assert(_kernel);
 
@@ -179,10 +180,15 @@ void GPUComputeContext::execute()
   {
    cerr << "Error: Failed to retrieve kernel work group info!" << endl;
   }
+  global = local * (_num_elements / local);
+  if(global < local) { global += local; }
+  
+  cout << "local size: " << local << endl;
+  cout << "global size: " << global << endl;
 
   // Execute the kernel over the entire range of our 1d input data set
   // using the maximum number of work group items for this device
-  global = _num_elements;
+
   err = clEnqueueNDRangeKernel(_commands, _kernel, 1, NULL, &global, &local, 0, NULL, NULL);
   if (err)
   {
