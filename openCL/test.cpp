@@ -9,10 +9,12 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <OpenCL/opencl.h>
+#include <iostream>
 
 #include "gpu_compute.h"
 
 using namespace GPUCompute;
+using namespace std;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -223,6 +225,7 @@ int main(int argc, char** argv)
 
   uint32_t data_count = 512;
   float *data = new float[data_count];
+  float *results = new float[data_count];
 
   for(uint32_t i = 0; i < data_count; i++)
   {
@@ -231,11 +234,24 @@ int main(int argc, char** argv)
 
   GPUComputeContext gpu_cc;
   gpu_cc.init();
-  gpu_cc.load_and_build_kernel(kernel_fname, kernel_name);
+  gpu_cc.load_and_build_kernel(kernel_fname, kernel_name, cout);
   gpu_cc.set_num_elements(data_count);
   gpu_cc.set_max_elements(data_count);
   gpu_cc.upload_input_array(data);
   gpu_cc.execute();
+  gpu_cc.download_results_array(results);
+
+  int num_correct = 0;
+  for(uint32_t i = 0; i < data_count; i++)
+  {
+    if(data[i] * data[i] == results[i])
+    {
+      num_correct++;
+    }
+  }
+
+  cout << "Checking results..." << endl;
+  cout << "\t" << num_correct << "/" << data_count << " correct results." << endl;
 
   return 0;
 }

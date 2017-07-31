@@ -11,39 +11,40 @@ namespace GPUCompute
 {
   class GPUComputeContext
   {
-    public:
-      GPUComputeContext();
-      ~GPUComputeContext();
+  private:
+    bool                      _initialized;
 
-      void init();
-      void deinit();
+    uint32_t                  _num_elements;
+    uint32_t                  _max_elements;
+    cl_context                _context;
+    cl_device_id              _device_id;
 
-      void load_and_build_kernel(const char *fname, const char *kernel_name);
+    cl_mem                    _input_buffer;
+    cl_mem                    _output_buffer;
 
-      void upload_input_array(void *data);
+    cl_program                _program;
+    cl_kernel                 _kernel;
+    cl_command_queue          _commands;
 
-      void set_num_elements(const unsigned int e) { num_elements = e; }
-      uint32_t get_num_elements() const { return num_elements; }
+  public:
+    GPUComputeContext();
+    ~GPUComputeContext();
 
-      void set_max_elements(const unsigned int e) { max_elements = e; }
-      uint32_t get_max_elements() const { return max_elements; }
+    void init();
+    void deinit();
 
-      void execute();
+    void load_and_build_kernel(const char *fname, const char *kernel_name, std::ostream &log);
 
-    private:
-      bool                      initialized;
+    void upload_input_array(void *data);
+    void download_results_array(void *results);
 
-      uint32_t                  num_elements;
-      uint32_t                  max_elements;
-      cl_context                context;
-      cl_device_id              device_id;
+    void set_num_elements(const unsigned int e) { _num_elements = e; }
+    uint32_t get_num_elements() const { return _num_elements; }
 
-      cl_mem                    input_buffer;
-      cl_mem                    output_buffer;
+    void set_max_elements(const uint32_t e) { _max_elements = e; }
+    uint32_t get_max_elements() const { return _max_elements; }
 
-      cl_program                program;
-      cl_kernel                 kernel;
-      cl_command_queue          commands;
+    void execute();
   };
 };
 
