@@ -9,7 +9,6 @@
 
 namespace GPUCompute
 {
-
   cl_int cl_check_error(cl_int err);
 
   class GPUComputeContext

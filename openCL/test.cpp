@@ -28,7 +28,6 @@ int main(int argc, char** argv)
     data_count = atoi(argv[1]);
   }
 
-
   float *data = new float[data_count];
   float *results = new float[data_count];
 
@@ -38,11 +37,10 @@ int main(int argc, char** argv)
   }
 
   GPUComputeContext gpu_cc;
-  gpu_cc.init();
-  gpu_cc.load_and_build_kernel(kernel_fname, kernel_name, cout);
-  gpu_cc.set_max_elements(data_count);
   gpu_cc.set_num_elements(data_count);
   gpu_cc.set_max_elements(data_count);
+  gpu_cc.init();
+  gpu_cc.load_and_build_kernel(kernel_fname, kernel_name, cout);
   gpu_cc.upload_input_array(data);
   gpu_cc.execute();
   gpu_cc.download_results_array(results);

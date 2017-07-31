@@ -29,6 +29,11 @@ cl_int GPUCompute::cl_check_error(cl_int err)
     case CL_OUT_OF_HOST_MEMORY:
       cerr << "CL_OUT_OF_HOST_MEMORY: There is a failure to allocate resources required by the OpenCL implementation on the host." << endl;
       break;
+
+    case CL_INVALID_WORK_GROUP_SIZE:
+      cerr << "CL_INVALID_WORK_GROUP_SIZE: if local_work_size is specified and number of work-items specified by global_work_size is not evenly divisable by size of work-group given by local_work_size or does not match the work-group size specified for kernel using the __attribute__ ((reqd_work_group_size(X, Y, Z))) qualifier in program source." << endl;
+      cerr << "if local_work_size is specified and the total number of work-items in the work-group computed as local_work_size[0] *… local_work_size[work_dim – 1] is greater than the value specified by CL_DEVICE_MAX_WORK_GROUP_SIZE in the table of OpenCL Device Queries for clGetDeviceInfo.if local_work_size is NULL and the __attribute__ ((reqd_work_group_size(X, Y, Z))) qualifier is used to declare the work-group size for kernel in the program source." << endl;
+      break;
   }
   return err;
 }
@@ -96,7 +101,7 @@ void GPUComputeContext::load_and_build_kernel(std::string &fname, std::string &k
     fread(kernel_src, sizeof(char), string_size, f);
 
     //create and build the kernel program executable and check for errors
-    _program = clCreateProgramWithSource(_context, 1, (const char **) & kernel_src, NULL, &err);
+    _program = clCreateProgramWithSource(_context, 1, (const char **) &kernel_src, NULL, &err);
     assert(_program);
 
     err = clBuildProgram(_program, 0, NULL, NULL, NULL, NULL);
@@ -138,7 +143,7 @@ void GPUComputeContext::upload_input_array(void *data)
 
 void GPUComputeContext::download_results_array(void *results)
 {
-  // Wait for the command commands to get serviced before reading back results
+  // Wait for the commands to get serviced before reading back results
   clFinish(_commands);
 
   // Read back the results from the device to verify the output
@@ -165,7 +170,7 @@ void GPUComputeContext::execute()
   err |= clSetKernelArg(_kernel, 2, sizeof(uint32_t), &_num_elements);
   if (err != CL_SUCCESS)
   {
-    cerr<<"Error: Failed to set kernel arguments!"<<endl;
+    cerr << "Error: Failed to set kernel arguments!" << endl;
   }
 
   // Get the maximum work group size for executing the kernel on the device
@@ -181,11 +186,12 @@ void GPUComputeContext::execute()
   err = clEnqueueNDRangeKernel(_commands, _kernel, 1, NULL, &global, &local, 0, NULL, NULL);
   if (err)
   {
-    cerr<<"local size: "<<local<<endl;
-    cerr<<"global size: "<<global<<endl;
-    cerr<<"Error: Failed to execute kernel! err: "<<err<<endl;
+    cerr << "local size: " << local << endl;
+    cerr << "global size: " << global << endl;
+    cerr << "Error: Failed to execute kernel!" << endl;
+    cl_check_error(err);
   }
 
   // Wait for the command commands to get serviced before reading back results
-  clFinish(_commands);
+  //clFinish(_commands);
 }
