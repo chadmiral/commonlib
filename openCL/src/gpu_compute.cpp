@@ -41,7 +41,7 @@ cl_int GPUCompute::cl_check_error(cl_int err)
 GPUComputeContext::GPUComputeContext() :
   _initialized(false),
   _num_elements(0),
-  _max_elements(512)
+  _max_elements(1024)
 {}
 
 GPUComputeContext::~GPUComputeContext()
@@ -120,8 +120,8 @@ void GPUComputeContext::load_and_build_kernel(std::string &fname, std::string &k
     assert(err == CL_SUCCESS);
     assert(_kernel);
 
-    _input_buffer =  clCreateBuffer(_context, CL_MEM_READ_ONLY,  sizeof(float) * _max_elements, NULL, NULL);
-    _output_buffer = clCreateBuffer(_context, CL_MEM_WRITE_ONLY, sizeof(float) * _max_elements, NULL, NULL);
+    _input_buffer =  clCreateBuffer(_context, CL_MEM_READ_ONLY,  sizeof(float) * _num_elements, NULL, NULL);
+    _output_buffer = clCreateBuffer(_context, CL_MEM_WRITE_ONLY, sizeof(float) * _num_elements, NULL, NULL);
 
     assert(_input_buffer && _output_buffer);
   }
