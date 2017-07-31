@@ -9,6 +9,9 @@
 
 namespace GPUCompute
 {
+
+  cl_int cl_check_error(cl_int err);
+
   class GPUComputeContext
   {
   private:
@@ -33,7 +36,7 @@ namespace GPUCompute
     void init();
     void deinit();
 
-    void load_and_build_kernel(const char *fname, const char *kernel_name, std::ostream &log);
+    void load_and_build_kernel(std::string &fname, std::string &kernel_name, std::ostream &log);
 
     void upload_input_array(void *data);
     void download_results_array(void *results);

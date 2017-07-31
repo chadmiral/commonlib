@@ -7,10 +7,36 @@
 using namespace GPUCompute;
 using namespace std;
 
+cl_int GPUCompute::cl_check_error(cl_int err)
+{
+  switch(err)
+  {
+    case CL_INVALID_PROGRAM:
+      cerr << "CL_INVALID_PROGRAM: Program is not a valid program object." << endl;
+      break;
+    case CL_INVALID_PROGRAM_EXECUTABLE:
+      cerr << "CL_INVALID_PROGRAM_EXECUTABLE: There is no successfully built executable for program." << endl;
+      break;
+    case CL_INVALID_KERNEL_NAME:
+      cerr << "CL_INVALID_KERNEL_NAME: kernel_name is not found in program" << endl;
+      break;
+    case CL_INVALID_KERNEL_DEFINITION:
+      cerr << "CL_INVALID_KERNEL_DEFINITION: The function definition for __kernel function given by kernel_name such as the number of arguments, the argument types are not the same for all devices for which the program executable has been built." << endl;
+      break;
+    case CL_INVALID_VALUE:
+      cerr << "CL_INVALID_VALUE: kernel_name is NULL." << endl;
+      break;
+    case CL_OUT_OF_HOST_MEMORY:
+      cerr << "CL_OUT_OF_HOST_MEMORY: There is a failure to allocate resources required by the OpenCL implementation on the host." << endl;
+      break;
+  }
+  return err;
+}
+
 GPUComputeContext::GPUComputeContext() :
   _initialized(false),
   _num_elements(0),
-  _max_elements(1000)
+  _max_elements(512)
 {}
 
 GPUComputeContext::~GPUComputeContext()
@@ -47,9 +73,9 @@ void GPUComputeContext::deinit()
   _initialized = false;
 }
 
-void GPUComputeContext::load_and_build_kernel(const char *fname, const char *kernel_name, std::ostream &log)
+void GPUComputeContext::load_and_build_kernel(std::string &fname, std::string &kernel_name, std::ostream &log)
 {
-  int err;
+  cl_int err;
 
   //create command queue
   _commands = clCreateCommandQueue(_context, _device_id, 0, &err);
@@ -58,7 +84,7 @@ void GPUComputeContext::load_and_build_kernel(const char *fname, const char *ker
   log << "Loading OpenCL kernel " << kernel_name << "..." << endl;
 
   //load the file from disk
-  FILE *f = fopen(fname, "r");
+  FILE *f = fopen(fname.c_str(), "r");
   if(f)
   {
     fseek(f, 0, SEEK_END);
@@ -74,17 +100,20 @@ void GPUComputeContext::load_and_build_kernel(const char *fname, const char *ker
     assert(_program);
 
     err = clBuildProgram(_program, 0, NULL, NULL, NULL, NULL);
+    cl_check_error(err);
     if(err != CL_SUCCESS)
     {
       size_t len;
       char buffer[2048];
-      log<<"GPUCompute: Failed to build kernel program executable!"<<endl;
+      log << "GPUCompute: Failed to build kernel program executable!" << endl;
       clGetProgramBuildInfo(_program, _device_id, CL_PROGRAM_BUILD_LOG, sizeof(buffer), buffer, &len);
-      log<<buffer<<endl;
+      log << buffer << endl;
     }
 
-    _kernel = clCreateKernel(_program, kernel_name, &err);
-    assert(err == CL_SUCCESS && _kernel);
+    _kernel = clCreateKernel(_program, kernel_name.c_str(), &err);
+    err = cl_check_error(err);
+    assert(err == CL_SUCCESS);
+    assert(_kernel);
 
     _input_buffer =  clCreateBuffer(_context, CL_MEM_READ_ONLY,  sizeof(float) * _max_elements, NULL, NULL);
     _output_buffer = clCreateBuffer(_context, CL_MEM_WRITE_ONLY, sizeof(float) * _max_elements, NULL, NULL);
@@ -143,7 +172,7 @@ void GPUComputeContext::execute()
   err = clGetKernelWorkGroupInfo(_kernel, _device_id, CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, NULL);
   if (err != CL_SUCCESS)
   {
-   cerr<<"Error: Failed to retrieve kernel work group info!"<<endl;
+   cerr << "Error: Failed to retrieve kernel work group info!" << endl;
   }
 
   // Execute the kernel over the entire range of our 1d input data set
