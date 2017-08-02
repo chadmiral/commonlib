@@ -145,7 +145,11 @@ void RenderSurface::bind_textures_to_fbo()
 void RenderSurface::delete_frame_buffer_object()
 {
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
-  glDeleteFramebuffers(1, &_target_fbo);
+  if (_target_fbo != 0)
+  {
+    glDeleteFramebuffers(1, &_target_fbo);
+  }
+  _target_fbo = 0;
 }
 
 void RenderSurface::init()

@@ -36,6 +36,32 @@ static char *passthrough_fs =
 "}\n"
 "\n";
 
+static char *cone_vs =
+"#version 120\n"
+"\n"
+"attribute vec3 in_xyz;\n"
+"\n"
+"varying vec2 uv0;\n"
+"\n"
+"void main(void)\n"
+"{\n"
+"  uv0 = in_uv0;\n"
+"  gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * vec4(in_xyz, 1.0);\n"
+"}\n"
+"\n";
+
+static char *cone_fs =
+"#version 120\n"
+"uniform sampler2D surface_tex;\n"
+"\n"
+"varying vec2 uv0;\n"
+"\n"
+"void main()\n"
+"{\n"
+"  gl_FragColor = texture2D(surface_tex, uv0.st);\n"
+"}\n"
+"\n";
+
 GPUVoronoi2D::GPUVoronoi2D(const GLuint num_seg, const GLuint max_num_sites)
 {
   _num_cone_segments = num_seg;
@@ -64,6 +90,14 @@ GPUVoronoi2D::~GPUVoronoi2D()
   deinit();
 }
 
+void GPUVoronoi2D::set_tex_res(const int w, const int h)
+{
+  _render_surface.deinit();
+  _render_surface.set_fbo_res(w, h);
+  _fbo_res[0] = w;
+  _fbo_res[1] = h;
+}
+
 void GPUVoronoi2D::init()
 {
   float r = 1.0f;
@@ -89,6 +123,21 @@ void GPUVoronoi2D::init()
   glGenBuffers(1, &_cone_ibo);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _cone_ibo);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32_t) * _num_cone_verts, _cone_index_data.data(), GL_STATIC_DRAW);
+
+  //instance buffer data
+  for (uint32_t i = 0; i < _max_num_sites; i++)
+  {
+    ConeInstanceData cid;
+    cid.x = cid.y = 0.0f;
+    cid.r = 255;
+    cid.g = 0;
+    cid.b = 255;
+    _cone_instance_data.push_back(cid);
+  }
+
+  glGenBuffers(1, &_cone_instance_bo);
+  glBindBuffer(GL_ARRAY_BUFFER, _cone_instance_bo);
+  glBufferData(GL_ARRAY_BUFFER, _max_num_sites * sizeof(ConeInstanceData), _cone_instance_data.data(), GL_DYNAMIC_DRAW); //dynamic draw so wec an update
 
   _render_surface_shader = new Shader;
   _render_surface_shader->compile_and_link_from_source(passthrough_vs, passthrough_fs);
@@ -122,6 +171,8 @@ void GPUVoronoi2D::add_site(Float2 pt)
 
 void GPUVoronoi2D::build_voronoi_diagram()
 {
+  update_instance_data();
+
   _render_surface.capture();
 
   glUseProgram(0);
@@ -180,7 +231,7 @@ void GPUVoronoi2D::build_voronoi_diagram()
   _render_surface.release();
 
   //now, copy the texture data from GPU -> CPU for fast queries
-  //TODO: optimize by using a stack of PBOs
+  //TODO: optimize by using a stack of PBOs (or otherwise avoid a GPU stall by querying the texture)
   memset(_cpu_tex_data, 0, _fbo_res[0] * _fbo_res[1] * 4);
   glBindTexture(GL_TEXTURE_2D, _render_surface.get_tex()->get_tex_id());
   glGetTexImage(GL_TEXTURE_2D, 0, _tex_format, GL_UNSIGNED_BYTE, _cpu_tex_data);
@@ -207,36 +258,22 @@ void GPUVoronoi2D::render_voronoi_texture()
   _render_surface.render(0);
 }
 
-
-void GPUVoronoi2D::render_fullscreen_quad()
+void GPUVoronoi2D::update_instance_data()
 {
-  glBegin(GL_QUADS);
-    glColor3f(1.0f, 1.0f, 1.0f);
-    glTexCoord2f(0.0f, 0.0f);
-    glVertex3f(-1.0f, -1.0f, 0.0f);
-    glTexCoord2f(1.0f, 0.0f);
-    glVertex3f(1.0f, -1.0f, 0.0f);
-    glTexCoord2f(1.0f, 1.0f);
-    glVertex3f(1.0f, 1.0f, 0.0f);
-    glTexCoord2f(0.0f, 1.0f);
-    glVertex3f(-1.0f, 1.0f, 0.0f);
-  glEnd();
-}
+  for (uint32_t i = 0; i < _sites.size(); i++)
+  {
+    _cone_instance_data[i].x = _sites[i][0];
+    _cone_instance_data[i].y = _sites[i][1];
 
-void GPUVoronoi2D::setup_textured_quad_state()
-{
-  glUseProgram(0);
-  glDisable(GL_BLEND);
-  //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glActiveTexture(GL_TEXTURE0);
-  //glClientActiveTexture(GL_TEXTURE0);
-  glEnable(GL_TEXTURE_2D);
-  glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+    GLubyte b = i / 65536;
+    GLubyte g = (i - b) / 256;
+    GLubyte r = (i - b) - g;
+    _cone_instance_data[i].r = r;
+    _cone_instance_data[i].g = g;
+    _cone_instance_data[i].b = b;
+  }
 
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-  glOrtho(-1.0f, 1.0f, -1.0f, 1.0f, 0.0f, 10.0f);
-
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
+  //update buffer
+  glBindBuffer(GL_ARRAY_BUFFER, _cone_instance_bo);
+  glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(ConeInstanceData) * _sites.size(), _cone_instance_data.data());
 }

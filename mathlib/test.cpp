@@ -33,7 +33,7 @@ public:
     Num_starting_points = 1;
     rot_angle = 0.0f;
     function_theta = 0.0f;
-    mode = TEST_MODE_GPU_VORONOI;
+    mode = TEST_MODE_GPU_VORONOI_TEX;
   }
 
   ~TestApp() {}

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <assert.h>
 #include <cstring>
+#include <string>
 
 #include "gpu_compute.h"
 
@@ -29,6 +30,12 @@ cl_int GPUCompute::cl_check_error(cl_int err)
     case CL_OUT_OF_HOST_MEMORY:
       cerr << "CL_OUT_OF_HOST_MEMORY: There is a failure to allocate resources required by the OpenCL implementation on the host." << endl;
       break;
+    case CL_INVALID_PLATFORM: //-32
+      cerr << "an invalid platform was given" << endl;
+      break;
+    case 	CL_INVALID_DEVICE: //-33
+      cerr << "devices contains an invalid device or are not associated with the specified platform." << endl;
+      break;
 
     case CL_INVALID_WORK_GROUP_SIZE:
       cerr << "CL_INVALID_WORK_GROUP_SIZE: if local_work_size is specified and number of work-items specified by global_work_size is not evenly divisable by size of work-group given by local_work_size or does not match the work-group size specified for kernel using the __attribute__ ((reqd_work_group_size(X, Y, Z))) qualifier in program source." << endl;
@@ -53,15 +60,40 @@ void GPUComputeContext::init()
 {
   bool use_gpu = true;
 
+  //create a compute context
+  int err;
+
+  //query the number of platforms available
+  cl_uint num_platforms;
+  err = clGetPlatformIDs(0, NULL, &num_platforms);
+  cl_check_error(err);
+
+  //query the platform ids
+  cl_platform_id *platforms = new cl_platform_id[num_platforms];
+  err = clGetPlatformIDs(num_platforms, platforms, NULL);
+  cl_check_error(err);
+
+  cl_context_properties properties[] = { CL_CONTEXT_PLATFORM, (int)platforms[0], 0 };
+  _context = clCreateContextFromType(properties, CL_DEVICE_TYPE_GPU, NULL, NULL, &err);
+  cl_check_error(err);
+
+  /*
+  _context = clCreateContext(0, 1, &_device_id, NULL, NULL, &err);
+  err = cl_check_error(err);
+  assert(_context);
+  */
+
+  //size_t size
+  //err = clGetContextInfo(clGPUContext, CL_CONTEXT_DEVICES, 0, NULL, &dataBytes);
+
   //connect to compute device
-  int err = clGetDeviceIDs(NULL, use_gpu ? CL_DEVICE_TYPE_GPU : CL_DEVICE_TYPE_CPU, 1, &_device_id, NULL);
+  err = clGetDeviceIDs(platforms[0], use_gpu ? CL_DEVICE_TYPE_GPU : CL_DEVICE_TYPE_CPU, 1, &_device_id, NULL);
+  cl_check_error(err);
   assert(err == CL_SUCCESS);
 
-  //create a compute context
-  _context = clCreateContext(0, 1, &_device_id, NULL, NULL, &err);
-  assert(_context);
-
   _initialized = true;
+
+  delete platforms;
 }
 
 void GPUComputeContext::deinit()

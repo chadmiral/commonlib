@@ -3,6 +3,7 @@
 
 #include "render_surface.h"
 #include "platform_gl.h"
+#include "material.h"
 
 #include <vector>
 #include "math_utility.h"
@@ -27,8 +28,8 @@ namespace Math
 
   struct ConeInstanceData
   {
-    float       x, y, z;
-    uint32_t    id;
+    float       x, y;
+    GLubyte     r, g, b;
   };
 
   struct QuadVert
@@ -44,12 +45,18 @@ namespace Math
 
     uint32_t                      _max_num_sites;
 
+    Graphics::Material            *_cone_mat;
+    Graphics::Shader              *_cone_shader;
     GLuint                        _num_cone_segments;
     GLuint                        _num_cone_verts;
     GLuint                        _cone_vbo;
     GLuint                        _cone_ibo;
     std::vector<ConeVert>         _cone_vertex_data;
     std::vector<uint32_t>         _cone_index_data;
+
+    //instancing
+    GLuint                        _cone_instance_bo;
+    std::vector<ConeInstanceData> _cone_instance_data;
 
     GLuint                        _fbo_res[2];
     GLuint                        _tex_format;
@@ -70,7 +77,7 @@ namespace Math
     void set_num_segments(const GLuint num_seg) { _num_cone_segments = num_seg; }
     GLuint get_num_segments() const { return _num_cone_segments; }
 
-    //void set_tex_res(const int w, const int h) { _fbo_res[0] = w; _fbo_res[1] = h; }
+    void set_tex_res(const int w, const int h);
     GLuint get_tex() const { return _render_surface.get_tex()->get_tex_id(); }
 
     void set_max_num_sites(const int n) { _max_num_sites = n; }
@@ -82,8 +89,9 @@ namespace Math
     void render_voronoi_texture();
 
   private:
-    void render_fullscreen_quad();
-    void setup_textured_quad_state();
+    //void render_fullscreen_quad();
+    //void setup_textured_quad_state();
+    void update_instance_data();
   };
 };
 
