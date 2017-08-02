@@ -29,7 +29,7 @@ namespace GPUCompute
     cl_command_queue          _commands;
 
   public:
-    GPUComputeContext();
+    GPUComputeContext(uint32_t max_elements = 1024);
     ~GPUComputeContext();
 
     void init();
