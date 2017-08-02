@@ -180,9 +180,9 @@ void GPUComputeContext::execute()
   {
    cerr << "Error: Failed to retrieve kernel work group info!" << endl;
   }
-  global = local * (_num_elements / local);
+  global = local * (_num_elements / local + 1);
   if(global < local) { global += local; }
-  
+
   cout << "local size: " << local << endl;
   cout << "global size: " << global << endl;
 
