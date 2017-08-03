@@ -73,7 +73,7 @@ void GPUComputeContext::init()
   err = clGetPlatformIDs(num_platforms, platforms, NULL);
   cl_check_error(err);
 
-  cl_context_properties properties[] = { CL_CONTEXT_PLATFORM, (int)platforms[0], 0 };
+  cl_context_properties properties[] = { CL_CONTEXT_PLATFORM, (long)platforms[0], 0 };
   _context = clCreateContextFromType(properties, CL_DEVICE_TYPE_GPU, NULL, NULL, &err);
   cl_check_error(err);
 
@@ -93,7 +93,7 @@ void GPUComputeContext::init()
 
   _initialized = true;
 
-  delete platforms;
+  delete [] platforms;
 }
 
 void GPUComputeContext::deinit()
