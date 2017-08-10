@@ -16,10 +16,16 @@ Shader::Shader()
 {
   gl_fragment_shader =  0;
   gl_vertex_shader =    0;
+  gl_compute_shader =   0;
   gl_shader_program =   0;
 
-  gl_fragment_shader_fname[0] = '\0';
-  gl_vertex_shader_fname[0] = '\0';
+  _local_size_x = 16;
+  _local_size_y = 16;
+  _local_size_z = 1;
+
+  _num_work_groups_x = 512 / 16;
+  _num_work_groups_y = 512 / 16;
+  _num_work_groups_z = 1;
 }
 
 Shader::~Shader()
@@ -30,8 +36,10 @@ Shader::~Shader()
 void Shader::deinit()
 {
   glDeleteProgram(gl_shader_program);
+
   glDeleteProgram(gl_vertex_shader);
   glDeleteProgram(gl_fragment_shader);
+  glDeleteProgram(gl_compute_shader);
 }
 
 void Shader::set_shader_filenames(std::string vs_fname, std::string fs_fname)
@@ -107,6 +115,7 @@ bool print_log(GLuint obj, std::string tabs, std::ostream &log)
 void Shader::create_program(std::ostream &log)
 {
   //create the shader program
+  gl_check_error(log);
   gl_shader_program = glCreateProgram();
   gl_check_error(log);
   assert(gl_shader_program);
@@ -121,6 +130,15 @@ void Shader::compile_and_link_from_source(const char *vs, const char *fs, std::s
   log << tabs.c_str() << "compiling fragment shader...";
   gl_fragment_shader = compile_shader_from_source(GL_FRAGMENT_SHADER, fs, tabs + "\t", log);
   log << tabs.c_str() << "linking shader...";
+  link_shader(tabs + "\t", log);
+}
+
+void Shader::compile_and_link_compute_shader(const char *cs_src, std::string tabs, std::ostream &log)
+{
+  create_program(log);
+  log << tabs.c_str() << "compiling compute shader...";
+  gl_compute_shader = compile_shader_from_source(GL_COMPUTE_SHADER, cs_src, tabs + "\t", log);
+  log << tabs.c_str() << "linking...";
   link_shader(tabs + "\t", log);
 }
 
@@ -154,13 +172,20 @@ GLuint Shader::compile_shader_from_source(GLenum shader_type, const char *source
   }
 
   glAttachShader(gl_shader_program, my_shader);
-  if (shader_type == GL_VERTEX_SHADER)
+  switch (shader_type)
   {
+  case GL_VERTEX_SHADER:
     gl_vertex_shader = my_shader;
-  }
-  else if (shader_type == GL_FRAGMENT_SHADER)
-  {
+    break;
+  case GL_FRAGMENT_SHADER:
     gl_fragment_shader = my_shader;
+    break;
+  case GL_COMPUTE_SHADER:
+    gl_compute_shader = my_shader;
+    break;
+  default:
+    log << "Unknown shader type!: " << shader_type << endl;
+    break;
   }
 
   gl_check_error(log);
@@ -313,4 +338,12 @@ bool Shader::load_link_and_compile(std::vector<std::string> *path, std::string t
 void Shader::render()
 {
   glUseProgram(gl_shader_program);
+}
+
+//execute a compute shader
+void Shader::execute()
+{
+  glUseProgram(gl_shader_program);
+  glDispatchCompute(_num_work_groups_x, _num_work_groups_y, _num_work_groups_z); // 512^2 threads in blocks of 16^2
+  gl_check_error();
 }

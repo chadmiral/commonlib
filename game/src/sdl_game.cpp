@@ -147,6 +147,7 @@ void SDLGame::init()
 #endif //_VR
 
   init_sdl();
+
   font = new Font(font_face.c_str(), font_size);
   font->init();
   title_screen.set_font(font);
@@ -179,6 +180,8 @@ void SDLGame::init()
     float y = game_context.window_resolution[1] / 2.0f - dim[1] / 2.0f;
     pause_menu->translate(Float2(x, y));
   }
+
+  gl_check_error();
 
   user_init();
   game_context.console.init();
