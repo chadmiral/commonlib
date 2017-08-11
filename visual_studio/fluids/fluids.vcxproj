@@ -90,7 +90,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\..\..\boost_1_55_0\;..\..\ui\include\cinematics\;..\..\ui\include;..\..\mathlib\include;..\..\graphics\include;..\..\fluids\include;..\..\game\include;..\..\..\SDL2-2.0.4\include;..\..\..\glew-1.13.0\include;..\..\..\freetype-2.3.5-1-lib\include;..\..\..\freetype-2.3.5-1-lib\include\freetype2\;..\..\..\freetype-2.3.5-1-lib\include\freetype2\freetype;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../structures/include;../../fluids/include/;../../mathlib/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -121,6 +121,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>../../structures/include;../../fluids/include/;../../mathlib/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

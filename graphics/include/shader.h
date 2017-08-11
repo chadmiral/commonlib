@@ -25,6 +25,7 @@ namespace Graphics
     void create_program(std::ostream &log = std::cout);
     void set_shader_filenames(std::string vs_fname, std::string fs_fname);
     void compile_and_link_from_source(const char *vs, const char *fs, std::string tabs = "", std::ostream &log = std::cout);
+    void compile_and_link_compute_shader(const char *cs_src, std::string tabs = "", std::ostream &log = std::cout);
     GLuint compile_shader_from_source(GLenum shader_type, const char *source, std::string tabs = "", std::ostream &log = std::cout);
     void link_shader(std::string tabs = "", std::ostream &log = std::cout);
 
@@ -33,13 +34,25 @@ namespace Graphics
     void parse_source(std::string source, std::string &dest, std::vector<std::string> *path); //load includes, etc... before compiling
     bool load_link_and_compile(std::vector<std::string> *path = NULL, std::string tabs = "", std::ostream &log = std::cout);
     void render();
+    void execute();
 
     GLuint gl_fragment_shader;
     GLuint gl_vertex_shader;
+    GLuint gl_compute_shader;
+
     GLuint gl_shader_program;
 
     std::string gl_fragment_shader_fname;
     std::string gl_vertex_shader_fname;
+    std::string gl_compute_shader_fname;
+
+    GLuint _local_size_x;
+    GLuint _local_size_y;
+    GLuint _local_size_z;
+
+    GLuint _num_work_groups_x;
+    GLuint _num_work_groups_y;
+    GLuint _num_work_groups_z;
   };
 
   class ShaderUniformVariable
