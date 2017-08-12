@@ -200,6 +200,12 @@ void Texture2D::render_gl(GLuint tex_stage) const
   glBindTexture(GL_TEXTURE_2D, gl_texture);
 }
 
+void Texture2D::bind_compute_target()
+{
+  glBindImageTexture(0, gl_texture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R32F);
+  gl_check_error();
+}
+
 bool Texture2D::update_pixels_from_mem(void *pixels)
 {
   int mip_level = 0;
@@ -216,7 +222,6 @@ bool Texture2D::update_pixels_from_mem(void *pixels)
                   pixels);          //pointer to pixel data
   return true;
 }
-
 
 Texture3D::Texture3D(const unsigned int w, const unsigned int h, const unsigned int d, const GLuint m)
 {

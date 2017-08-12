@@ -14,6 +14,15 @@
 
 namespace Graphics
 {
+
+  enum ShaderType
+  {
+    SHADER_TYPE_RENDER,
+    SHADER_TYPE_COMPUTE,
+
+    NUM_SHADER_TYPES
+  };
+
   class Shader
   {
   public:

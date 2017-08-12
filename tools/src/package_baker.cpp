@@ -22,6 +22,27 @@ using namespace Tool;
 using namespace Graphics;
 using namespace Animation;
 
+/*
+TODO: WIP - hoping to use this function to reduce a bunch of code in parse_xml
+template<typename T>
+void parse_assets(std::string name)
+{
+  //parse all the material assets
+  start_node = tree;
+  do
+  {
+    asset_node = mxmlFindElement(start_node, tree, name.c_str(), NULL, NULL, MXML_DESCEND);
+    if (asset_node)
+    {
+      T tt;
+      //parse_material_xml(asset_node, tt); //callback?
+      //pt._materials.push_back(tt);
+    }
+    start_node = asset_node;
+  } while (asset_node);
+}
+*/
+
 void PackageBaker::parse_xml(mxml_node_t *tree, PackageTemplate &pt, std::ostream &log)
 {
   log << "Parsing package xml..." << endl;
@@ -341,6 +362,18 @@ void PackageBaker::parse_shader_xml(mxml_node_t *shader_node, ShaderTemplate &st
   buffer = mxmlElementGetAttr(shader_node, "name");
   st._name = buffer;
 
+  uint32_t shader_type = 0;
+  buffer = mxmlElementGetAttr(shader_node, "type");
+  st._type = SHADER_TYPE_RENDER;
+  if (buffer && !stricmp(buffer, "compute")) { st._type = SHADER_TYPE_COMPUTE; }
+
+  mxml_node_t *cs_node = mxmlFindElement(shader_node, shader_node, "compute_shader", NULL, NULL, MXML_DESCEND);
+  if (cs_node)
+  {
+    buffer = mxmlGetText(cs_node, NULL);
+    st._cs_fname = buffer;
+  }
+
   mxml_node_t *vs_node = mxmlFindElement(shader_node, shader_node, "vertex_shader", NULL, NULL, MXML_DESCEND);
   if (vs_node)
   {
@@ -365,6 +398,35 @@ void PackageBaker::read_shader_file(ShaderTemplate &st, std::string tabs, std::o
   tabs = tabs + "\t";
 
   shader_asset->set_path(&asset_path);
+
+  shader_asset->_type = st._type;
+
+  if (st._cs_fname.length() > 0)
+  {
+    log << tabs << "opening compute shader file: " << st._cs_fname.c_str() << " ... ";
+
+    FILE *fp = NULL;
+    FOPEN(fp, st._cs_fname.c_str(), "r");
+    if (fp)
+    {
+      fseek(fp, 0, SEEK_END);
+      int string_size = ftell(fp);
+      rewind(fp);
+
+      char *glsl_source = (char *)malloc(sizeof(char) * (string_size + 1));
+      memset(glsl_source, 0, string_size + 1);
+      fread(glsl_source, sizeof(char), string_size, fp);
+      shader_asset->cs_source = glsl_source;
+      free(glsl_source);
+      fclose(fp);
+
+      log << tabs << __CONSOLE_LOG_GREEN__ << "OK" << endl;
+    }
+    else
+    {
+      log << tabs << __CONSOLE_LOG_RED__ << "Could not open file!" << endl;
+    }
+  }
 
   if (st._vs_fname.length() > 0)
   {
@@ -420,12 +482,21 @@ void PackageBaker::read_shader_file(ShaderTemplate &st, std::string tabs, std::o
     }
   }
 
+  shader_asset->parse_source(shader_asset->cs_source, &shader_asset->cs_source);
   shader_asset->parse_source(shader_asset->vs_source, &shader_asset->vs_source);
   shader_asset->parse_source(shader_asset->fs_source, &shader_asset->fs_source);
 
-  //TODO - test compile to make sure there are no errors
+  //test compile to make sure there are no errors
   Shader s;
-  s.compile_and_link_from_source(shader_asset->vs_source.c_str(), shader_asset->fs_source.c_str(), tabs, log);
+  switch (shader_asset->_type)
+  {
+  case SHADER_TYPE_RENDER:
+    s.compile_and_link_from_source(shader_asset->vs_source.c_str(), shader_asset->fs_source.c_str(), tabs, log);
+    break;
+  case SHADER_TYPE_COMPUTE:
+    s.compile_and_link_compute_shader(shader_asset->cs_source.c_str(), tabs, log);
+    break;
+  }
 }
 
 void PackageBaker::parse_material_xml(mxml_node_t *mat_node, MaterialTemplate &mt)
@@ -963,26 +1034,42 @@ void PackageBaker::write_shader_packlet(FILE *fp, ShaderPackageAsset *s, std::st
   log << "\"" << s->get_name() << "\"" << " -> 0x" << std::hex << hash_id << " (" << std::dec << hash_id << ")" << endl;
 
   uint32_t name_length = (s->name.size() + 1) * sizeof(char);
+
+  uint32_t cs_fname_length = (s->cs_fname.size() + 1) * sizeof(char);
   uint32_t vs_fname_length = (s->vs_fname.size() + 1) * sizeof(char);
   uint32_t fs_fname_length = (s->fs_fname.size() + 1) * sizeof(char);
 
+  uint32_t cs_length = (s->cs_source.size() + 1) * sizeof(char);
   uint32_t vs_length = (s->vs_source.size() + 1) * sizeof(char);
   uint32_t fs_length = (s->fs_source.size() + 1) * sizeof(char);
 
+  uint32_t shader_type = (uint32_t)s->_type;
+
   fwrite(&hash_id, sizeof(uint32_t), 1, fp);
   fwrite(&name_length, sizeof(uint32_t), 1, fp);
+  fwrite(&shader_type, sizeof(uint32_t), 1, fp);
+
+  fwrite(&cs_fname_length, sizeof(uint32_t), 1, fp);
   fwrite(&vs_fname_length, sizeof(uint32_t), 1, fp);
   fwrite(&fs_fname_length, sizeof(uint32_t), 1, fp);
+  
+  fwrite(&cs_length, sizeof(uint32_t), 1, fp);
   fwrite(&vs_length, sizeof(uint32_t), 1, fp);
   fwrite(&fs_length, sizeof(uint32_t), 1, fp);
 
   fwrite(s->name.c_str(), sizeof(char), name_length, fp);
-  fwrite(s->vs_fname.c_str(), sizeof(char), vs_fname_length, fp);
-  fwrite(s->fs_fname.c_str(), sizeof(char), fs_fname_length, fp);
-
-  //write the actual source code
-  fwrite(s->vs_source.c_str(), sizeof(char), vs_length, fp);
-  fwrite(s->fs_source.c_str(), sizeof(char), fs_length, fp);
+  if (shader_type == Graphics::SHADER_TYPE_COMPUTE)
+  {
+    fwrite(s->cs_fname.c_str(), sizeof(char), cs_fname_length, fp);
+    fwrite(s->cs_source.c_str(), sizeof(char), cs_length, fp);
+  }
+  if (shader_type == Graphics::SHADER_TYPE_RENDER)
+  {
+    fwrite(s->vs_fname.c_str(), sizeof(char), vs_fname_length, fp);
+    fwrite(s->fs_fname.c_str(), sizeof(char), fs_fname_length, fp);
+    fwrite(s->vs_source.c_str(), sizeof(char), vs_length, fp);
+    fwrite(s->fs_source.c_str(), sizeof(char), fs_length, fp);
+  }
 }
 
 void PackageBaker::write_texture_packlet(FILE *fp, TexturePackageAsset *t, std::string tabs, std::ostream &log)
