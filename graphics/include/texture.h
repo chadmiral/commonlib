@@ -52,6 +52,7 @@ namespace Graphics
     bool load();
     //bool load_from_file_data(TextureFileData &tfd);
     void render_gl(GLuint tex_stage = GL_TEXTURE0) const;
+    void bind_compute_target();
 
     bool update_pixels_from_mem(void *pixels);
 

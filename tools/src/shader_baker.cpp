@@ -26,5 +26,5 @@ void ShaderBaker::init()
 
 void ShaderBaker::bake(mxml_node_t *tree, std::string output_fname, std::ostream &log, std::string tabs)
 {
-  log << "I didn't implement this shit yet!!!" << endl;
+  log << "ShaderBaker::bake() - I didn't implement this shit yet!!!" << endl;
 }
