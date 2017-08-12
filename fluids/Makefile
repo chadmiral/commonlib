@@ -1,8 +1,11 @@
 CC=g++
 LIB_PATH=
-CFLAGS=-I./include -I../mathlib/include -I../graphics/include -I/usr/local/include
+CFLAGS=-std=c++11
+CFLAGS+=-I./include -I../mathlib/include -I../graphics/include -I/usr/local/include
 CFLAGS+=-I../game/include/switchboard -I../game/include/objects
 CFLAGS+=-I../game/include -I../game/include/cinematics -I../ui/include
+CFLAGS+=-I../structures/include -I../ -I../game/include/animation -I../graphics/include/vfx
+CFLAGS+=-I../tools/include
 CFLAGS+= -Ofast
 CFLAGS+=$(shell pkg-config sdl2 --cflags)
 CFLAGS+=$(shell pkg-config SDL2_image --cflags)
@@ -25,6 +28,7 @@ ifneq (,$(findstring Darwin,$(UNAME)))
 	LIB_PATH+=-L../graphics/bin/osx
 	LIB_PATH+=-L../game/bin/osx
 	LIB_PATH+=-L../ui/bin/osx
+	LIB_PATH+=-L../tools/bin/osx
 
 	#LDFLAGS+=-framework SDL2
 	#LDFLAGS+=-framework SDL2_image
@@ -89,11 +93,8 @@ $(BINPATH)fluid2d_angle_snapper.o: $(SRCPATH)fluid2d_angle_snapper.cpp
 $(BINPATH)libfluids.a: $(OBJS_BIN)
 	ar -cvq $(BINPATH)libfluids.a $(OBJS_BIN)
 
-$(BINPATH)mxml.o: $(MXML_SRCS)
-	$(CC) $(CFLAGS) $(MXML_SRCS) -o $(BINPATH)mxml.o
-
-test: test.cpp $(BINPATH)libfluids.a $(BINPATH)mxml.o
-	$(CC) $(CFLAGS) test.cpp -o test $(LIB_PATH) -lfluids -lgraphics -lgame $(LDFLAGS)
+test: test.cpp $(BINPATH)libfluids.a $(MXML_SRCS)
+	$(CC) $(CFLAGS) test.cpp -o test $(LIB_PATH) -lfluids -lgraphics -lgame -ltool $(LDFLAGS)
 
 clean:
 	rm -f $(BINPATH)*.o

@@ -1,15 +1,3 @@
-#if defined(__APPLE__)
-#include <OpenGL/gl.h>
-#endif
-
-#if defined(_WIN32)
-#include <Windows.h>
-#include <GL/glew.h>
-#include <SDL.h>
-#else
-#include <SDL2/SDL.h>
-#endif
-
 #include <iostream>
 #include <assert.h>
 
@@ -174,7 +162,7 @@ private:
       }
       int w, h;
       fluid_tex->get_dim(w, h);
-      Float2 click_pt((float)mouse_x / resolution[0], (float)mouse_y / resolution[1]);
+      Float2 click_pt((float)mouse_x / game_context.window_resolution[0], (float)mouse_y / game_context.window_resolution[1]);
       fluid->add_density_at_point(click_pt, Float3(fluid_amt, fluid_amt, fluid_amt), 0.025f);
     }
 
@@ -191,7 +179,7 @@ private:
             if(event.motion.state & SDL_BUTTON(SDL_BUTTON_RIGHT))
             {
               //cout<<"button 1 pressed and mouse moving"<<endl;
-              Float2 pt((float)event.motion.x / resolution[0], (float)event.motion.y / resolution[1]);
+              Float2 pt((float)event.motion.x / game_context.window_resolution[0], (float)event.motion.y / game_context.window_resolution[1]);
               Float2 vel(velocity_scale * (float)event.motion.xrel, velocity_scale * (float)event.motion.yrel);
               fluid->add_velocity_at_point(pt, vel, 0.03f);
             }

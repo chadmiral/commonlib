@@ -1,8 +1,9 @@
 CC=g++
 LIB_PATH=
-CFLAGS=-I./include -I../game/include  -I../game/include/cinematics -I/usr/local/include
+CFLAGS=-std=c++11
+CFLAGS+=-I./include -I../game/include  -I../game/include/cinematics -I/usr/local/include
 CFLAGS+=-I../graphics/include -I../ui/include -I../game/include/switchboard -I../
-CFLAGS+=-I../game/include/animation/
+CFLAGS+=-I../game/include/animation
 CFLAGS+=$(shell pkg-config --cflags freetype2)
 CFLAGS+=-D__USE_BOOST__
 CFLAGS+=-D__USE_CGAL3D__
