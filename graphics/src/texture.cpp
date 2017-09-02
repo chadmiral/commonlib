@@ -200,9 +200,9 @@ void Texture2D::render_gl(GLuint tex_stage) const
   glBindTexture(GL_TEXTURE_2D, gl_texture);
 }
 
-void Texture2D::bind_compute_target()
+void Texture2D::bind_compute_target(GLuint tex_unit)
 {
-  glBindImageTexture(0, gl_texture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R32F);
+  glBindImageTexture(tex_unit, gl_texture, 0, GL_FALSE, 0, GL_WRITE_ONLY, internal_format);
   gl_check_error();
 }
 
@@ -221,6 +221,50 @@ bool Texture2D::update_pixels_from_mem(void *pixels)
                   data_format,      //GL_UNSIGNED_BYTE, etc.
                   pixels);          //pointer to pixel data
   return true;
+}
+
+void write_tga_from_pixels(std::string fname, int tex_width, int tex_height, void *pixels)
+{
+  int num_channels = 3;
+  long img_size = tex_width * tex_height * num_channels;
+
+  //assemble the tga header
+  int xa = tex_width % 256;
+  int xb = (tex_width - xa) / 256;
+  int ya = tex_height % 256;
+  int yb = (tex_height - ya) / 256;
+  unsigned char header[18] = { 0,0,2,0,0,0,0,0,0,0,0,0,(unsigned char)xa,(unsigned char)xb,(unsigned char)ya,(unsigned char)yb,24,0 };
+
+  //write header and data to file
+  FILE *f = fopen(fname.c_str(), "wb");
+  if (f)
+  {
+    fwrite(header, sizeof(unsigned char), 18, f);
+    fwrite(pixels, sizeof(unsigned char), img_size, f);
+    fclose(f);
+  }
+}
+
+void Texture2D::write_to_tga(std::string fname)
+{
+  glBindTexture(GL_TEXTURE_2D, gl_texture);
+
+  switch (data_format)
+  {
+    case GL_FLOAT:
+    {
+      uint32_t num_channels = 1;
+      uint32_t buffer_size = sizeof(GLfloat) * dim[0] * dim[1] * num_channels;
+      GLfloat *pixels = new GLfloat[buffer_size];
+      glGetTexImage(GL_TEXTURE_2D, 0, GL_RED, GL_FLOAT, &pixels);
+      gl_check_error();
+
+      write_tga_from_pixels(fname, dim[0], dim[1], pixels);
+
+      delete [] pixels;
+      break;
+    }
+  }
 }
 
 Texture3D::Texture3D(const unsigned int w, const unsigned int h, const unsigned int d, const GLuint m)
@@ -373,3 +417,4 @@ bool Texture3D::render_gl(GLuint tex_stage) const
 
   return true;
 }
+

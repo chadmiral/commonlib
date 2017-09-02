@@ -67,6 +67,7 @@ namespace Graphics
     void attach_depth_buffer(Texture2D *depth_tex);
 
     Texture2D *get_tex() const { return _target_tex; }
+    void set_tex(Texture2D *t) { _target_tex = t; } //probably only want to use this if 
     Texture2D *get_depth_tex() const { return _depth_tex; }
     Material *get_mat(const uint16_t method = 0) { return _materials[method]; }
     uint16_t get_num_methods() const { return (uint16_t)_method_names.size(); }

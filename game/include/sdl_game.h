@@ -13,7 +13,7 @@
 #include "menu.h"
 #include "game_controller.h"
 #include "asset_library.h"
-#include "switchboard.h"
+#include "switchboard/switchboard.h"
 #include "object_3d.h"
 #include "render_context.h"
 #include "html_log_stream.h"

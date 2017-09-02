@@ -46,13 +46,15 @@ namespace Graphics
 
     void set_filename(const char *fn) { fname = fn; }
 
+    void write_to_tga(std::string fname);
+
     void init();
     void deinit();
 
     bool load();
     //bool load_from_file_data(TextureFileData &tfd);
     void render_gl(GLuint tex_stage = GL_TEXTURE0) const;
-    void bind_compute_target();
+    void bind_compute_target(GLuint tex_unit = 0);
 
     bool update_pixels_from_mem(void *pixels);
 

@@ -31,7 +31,7 @@ void Fluid2D::init_helper()
   density_allowable_range = Float2(-1.0f, 1.0f);
   viscosity = 0.0075f;
   diffusion_rate = 0.001f;
-  project_steps = 15;
+  project_steps = 4;
 
   //Ellis' values:
   //viscosity = 0.0001f;
@@ -49,9 +49,9 @@ void Fluid2D::init_helper()
   {
     for(int j = 0; j < N; j++)
     {
-      float r = (float)i / N;
-      float g = (float)j / N;
-      float b = 0.5f;
+      float r = 0.0f;// (float)i / N;
+      float g = 0.0f;// (float)j / N;
+      float b = 0.0f;// 0.5f;
 
       curr_channels[idx(i, j)].data[FLUID_CHANNEL_DENS_R] = r;
       curr_channels[idx(i, j)].data[FLUID_CHANNEL_DENS_G] = g;
@@ -152,14 +152,16 @@ void Fluid2D::add_interactor(Fluid2DInteractor *fi)
 
 void Fluid2D::simulate(const float dt)
 {
-  for(int i = 0; i < interactors.size(); i++)
+
+
+  velocity_step(dt);
+  density_step(dt);
+
+  for (int i = 0; i < interactors.size(); i++)
   {
     Fluid2DInteractor *fi = interactors[i];
     fi->simulate(dt);
   }
-
-  velocity_step(dt);
-  density_step(dt);
 }
 
 void Fluid2D::add_source(FluidChannels *_x, FluidChannels *_s, int a, int b, float dt)

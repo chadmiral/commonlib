@@ -57,7 +57,7 @@ void Graphics::gl_check_error(std::ostream &log)
       log << "An attempt has been made to perform an operation that would cause an internal stack to overflow." << std::endl;
       break;
     }
-    assert(false);
+    //assert(false);
   }
 }
 

@@ -20,7 +20,7 @@ class FluidGame : public SDLGame
 public:
   FluidGame() : SDLGame(512, 512, "Fluid Test")
   {
-    fluid_dim = 256;
+    fluid_dim = 128;
     previous_game_time = 0.0f;
     time_scale = 0.1f;
     velocity_scale = 50.0f;
@@ -54,27 +54,56 @@ public:
     }
   }
 private:
+
+  void render_fullscreen_quad()
+  {
+    glBegin(GL_QUADS);
+    glColor3f(1.0f, 1.0f, 1.0f);
+    glTexCoord2f(0.0f, 0.0f);
+    glVertex3f(-1.0f, -1.0f, 0.0f);
+    glTexCoord2f(1.0f, 0.0f);
+    glVertex3f(1.0f, -1.0f, 0.0f);
+    glTexCoord2f(1.0f, 1.0f);
+    glVertex3f(1.0f, 1.0f, 0.0f);
+    glTexCoord2f(0.0f, 1.0f);
+    glVertex3f(-1.0f, 1.0f, 0.0f);
+    glEnd();
+  }
+
+  void setup_textured_quad_state()
+  {
+    glUseProgramObjectARB(0);
+    glDisable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glActiveTexture(GL_TEXTURE0);
+    glClientActiveTexture(GL_TEXTURE0);
+    glEnable(GL_TEXTURE_2D);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(-1.0f, 1.0f, -1.0f, 1.0f, 0.0f, 10.0f);
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+  }
+
+  void render_gpu_voronoi_tex()
+  {
+
+  }
+
+
   void render_gl()
   {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    setup_textured_quad_state();
+    glBindTexture(GL_TEXTURE_2D, fluid_tex->get_tex_id());
+    render_fullscreen_quad();
 
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    //render fluid texture
-    fluid_tex->render_gl();
-    glBegin(GL_QUADS);
-      glColor3f(1.0f, 1.0f, 1.0f);
-      glTexCoord2f(1.0f, 0.0f);
-      glVertex3f(-1.0f, -1.0f, 0.0f);
-      glTexCoord2f(1.0f, 1.0f);
-      glVertex3f(1.0f, -1.0f, 0.0f);
-      glTexCoord2f(0.0f, 1.0f);
-      glVertex3f(1.0f, 1.0f, 0.0f);
-      glTexCoord2f(0.0f, 0.0f);
-      glVertex3f(-1.0f, 1.0f, 0.0f);
-    glEnd();
+    glActiveTexture(GL_TEXTURE0);
+    glDisable(GL_TEXTURE_2D);
   }
 
   void game_loop(const double game_time, const double frame_time)
@@ -87,7 +116,8 @@ private:
 
   void user_init()
   {
-    fluid_tex = new Texture2D(fluid_dim, fluid_dim, GL_RGB);
+    fluid_tex = new Texture2D(fluid_dim, fluid_dim);
+    fluid_tex->set_dim(fluid_dim, fluid_dim);
     fluid_tex->init();
 
     fluid = new Fluid2D(fluid_dim, fluid_dim);
@@ -121,27 +151,27 @@ private:
       turb_in[i]->set_scale(3.0f);
       turb_in[i]->set_octaves(3);
       turb_in[i]->set_speed(-2.0f);
-      turb_in[i]->set_strength(0.05f);
+      turb_in[i]->set_strength(0.5f);
       turb_in[i]->set_phase(in_phase);
       turb_in[i]->set_channel((FluidChannelType)(FLUID_CHANNEL_DENS_R + i));
-      //fluid->add_interactor(turb_in[i]);
+      fluid->add_interactor(turb_in[i]);
 
       turb_out[i] = new Fluid2DTurbulenceInflow;
       turb_out[i]->set_scale(3.0f);
       turb_out[i]->set_octaves(3);
       turb_out[i]->set_speed(0.5f);
-      turb_out[i]->set_strength(-0.05f);
+      turb_out[i]->set_strength(-5.5f);
       turb_out[i]->set_phase(out_phase);
       turb_out[i]->set_channel((FluidChannelType)(FLUID_CHANNEL_DENS_R + i));
-      //fluid->add_interactor(turb_out[i]);
+      fluid->add_interactor(turb_out[i]);
     }
 
-    angle_snapper = new Fluid2DAngleSnapper(5);
+    angle_snapper = new Fluid2DAngleSnapper(3);
     angle_snapper->set_strength(1.0f);
 
-    //console.register_variable(fluid->get_viscosity_ptr(), "viscosity");
-    //console.register_variable(fluid->get_diffusion_rate_ptr(), "diffusion_rate");
-    //console.register_variable(&time_scale, "time_scale");
+    game_context.console.register_variable(fluid->get_viscosity_ptr(), "viscosity");
+    game_context.console.register_variable(fluid->get_diffusion_rate_ptr(), "diffusion_rate");
+    game_context.console.register_variable(&time_scale, "time_scale");
   }
 
   void user_run()
@@ -212,7 +242,7 @@ private:
         float g = 255.0f * (0.125f * clamp(fc[fluid_idx].data[FLUID_CHANNEL_VEL_Y], -4.0f, 4.0f) + 0.5f);
         //float r = 255.0f * clamp(fc[fluid_idx].data[FLUID_CHANNEL_DENS_R], 0.0f, 1.0f);
         //float g = 255.0f * clamp(fc[fluid_idx].data[FLUID_CHANNEL_DENS_G], 0.0f, 1.0f);
-        float b = 128.0f;//255.0f * clamp(fc[fluid_idx].data[FLUID_CHANNEL_DENS_B], 0.0f, 1.0f);
+        float b = 255.0f * clamp(fc[fluid_idx].data[FLUID_CHANNEL_DENS_R], 0.0f, 1.0f);
         Float3 final_color(r, g, b);
 
         for(int oct = 0; oct < 3; oct++)
@@ -348,6 +378,7 @@ void process_events()
       }
     }
 }*/
+
 
 
 int main(int argc, char **argv)
