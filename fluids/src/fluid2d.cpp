@@ -152,8 +152,6 @@ void Fluid2D::add_interactor(Fluid2DInteractor *fi)
 
 void Fluid2D::simulate(const float dt)
 {
-
-
   velocity_step(dt);
   density_step(dt);
 

@@ -1,5 +1,4 @@
-#ifndef _FLUID2_D_H_
-#define _FLUID2_D_H_
+#pragma once
 
 #define FLUID_DIM_DEFAULT   64
 
@@ -7,8 +6,6 @@
 #include "fluid2d_interactor.h"
 #include "math_utility.h"
 #include "fluid_channels.h"
-
-using namespace Math;
 
 //#define SWAP(x0, x) { FluidChannels *tmp = x0; x0 = x; x = tmp;}
 
@@ -47,8 +44,8 @@ public:
 
 	void simulate(const float t);
 
-	void add_density_at_point(const Float2 pt, const Float3 density, const float radius);
-	void add_velocity_at_point(const Float2 pt, const Float2 vel, const float radius);
+	void add_density_at_point(const Math::Float2 pt, const Math::Float3 density, const float radius);
+	void add_velocity_at_point(const Math::Float2 pt, const Math::Float2 vel, const float radius);
 	void add_interactor(Fluid2DInteractor *fi);
 
 protected:
@@ -83,13 +80,11 @@ private:
 	FluidChannels *curr_channels;
 	FluidChannels *prev_channels;
 
-	int project_steps;							//number of steps to use in the project (and diffuse) functions
-	Float2 density_allowable_range;	//min/max density allowed in the simulation
-	float diffusion_rate;						//rate of diffusion
-	float viscosity;								//viscosity of the fluid
+	int project_steps;							      //number of steps to use in the project (and diffuse) functions
+  Math::Float2 density_allowable_range;	//min/max density allowed in the simulation
+	float diffusion_rate;						      //rate of diffusion
+	float viscosity;								      //viscosity of the fluid
 
 	//list of objects that can interact w/ the fluid sim
 	std::vector<Fluid2DInteractor *> interactors;
 };
-
-#endif // _FLUID2_D_H_

@@ -17,8 +17,26 @@ using namespace Math;
 
 class FluidGame : public SDLGame
 {
+private:
+  uint32_t                  _render_mode;
+  int                       fluid_dim;
+  float                     previous_game_time;
+  float                     time_scale;
+  float                     velocity_scale;
+  float                     fluid_add_amount;
+
+  int                       fluid_channel_display;
+
+  Texture2D                 *fluid_tex;
+  Fluid2D                   *fluid;
+  Fluid2DInflow             *inflow;
+  Fluid2DTurbulenceField    *turb, *turb2;
+  Fluid2DTurbulenceInflow   *turb_in[3];
+  Fluid2DTurbulenceInflow   *turb_out[3];
+  Fluid2DAngleSnapper       *angle_snapper;
 public:
-  FluidGame() : SDLGame(512, 512, "Fluid Test")
+  FluidGame() : SDLGame(512, 512, "Fluid Test"),
+    _render_mode(0)
   {
     fluid_dim = 128;
     previous_game_time = 0.0f;
@@ -151,13 +169,13 @@ private:
       turb_in[i]->set_scale(3.0f);
       turb_in[i]->set_octaves(3);
       turb_in[i]->set_speed(-2.0f);
-      turb_in[i]->set_strength(0.5f);
+      turb_in[i]->set_strength(5.5f);
       turb_in[i]->set_phase(in_phase);
       turb_in[i]->set_channel((FluidChannelType)(FLUID_CHANNEL_DENS_R + i));
       fluid->add_interactor(turb_in[i]);
 
       turb_out[i] = new Fluid2DTurbulenceInflow;
-      turb_out[i]->set_scale(3.0f);
+      turb_out[i]->set_scale(6.0f);
       turb_out[i]->set_octaves(3);
       turb_out[i]->set_speed(0.5f);
       turb_out[i]->set_strength(-5.5f);
@@ -215,6 +233,9 @@ private:
             }
             break;
           }
+          case 'x':
+            _render_mode = (_render_mode + 1) % 2;
+            break;
         }
     }
   }
@@ -235,14 +256,22 @@ private:
     GLubyte *pixels = new GLubyte[w * h * num_bytes];
     for(int i = 0; i < w; i++)
     {
-      for(int j = 0; j < h; j++)
+      for (int j = 0; j < h; j++)
       {
         int fluid_idx = i + (w + 2) * j;
-        float r = 255.0f * (0.125f * clamp(fc[fluid_idx].data[FLUID_CHANNEL_VEL_X], -4.0f, 4.0f) + 0.5f);
-        float g = 255.0f * (0.125f * clamp(fc[fluid_idx].data[FLUID_CHANNEL_VEL_Y], -4.0f, 4.0f) + 0.5f);
+        float r(0.0f), g(0.0f), b(0.0f);
+        if (_render_mode == 0)
+        {
+          r = g = b = 255.0f * 0.005f * clamp(fc[fluid_idx].data[FLUID_CHANNEL_DENS_R], 0.0f, 100.0f);
+        }
+        else
+        {
+          r = 255.0f * (0.125f * clamp(fc[fluid_idx].data[FLUID_CHANNEL_VEL_X], -4.0f, 4.0f) + 0.5f);
+          g = 255.0f * (0.125f * clamp(fc[fluid_idx].data[FLUID_CHANNEL_VEL_Y], -4.0f, 4.0f) + 0.5f);
+        }
         //float r = 255.0f * clamp(fc[fluid_idx].data[FLUID_CHANNEL_DENS_R], 0.0f, 1.0f);
         //float g = 255.0f * clamp(fc[fluid_idx].data[FLUID_CHANNEL_DENS_G], 0.0f, 1.0f);
-        float b = 255.0f * clamp(fc[fluid_idx].data[FLUID_CHANNEL_DENS_R], 0.0f, 1.0f);
+        
         Float3 final_color(r, g, b);
 
         for(int oct = 0; oct < 3; oct++)
@@ -260,21 +289,7 @@ private:
     delete pixels;
   }
 
-  int                       fluid_dim;
-  float                     previous_game_time;
-  float                     time_scale;
-  float                     velocity_scale;
-  float                     fluid_add_amount;
 
-  int                       fluid_channel_display;
-
-  Texture2D                 *fluid_tex;
-  Fluid2D                   *fluid;
-  Fluid2DInflow             *inflow;
-  Fluid2DTurbulenceField    *turb, *turb2;
-  Fluid2DTurbulenceInflow   *turb_in[3];
-  Fluid2DTurbulenceInflow   *turb_out[3];
-  Fluid2DAngleSnapper       *angle_snapper;
 };
 
 

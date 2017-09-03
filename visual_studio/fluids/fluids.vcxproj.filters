@@ -39,6 +39,9 @@
     <ClInclude Include="..\..\fluids\include\fluid2d_turbulence_inflow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\fluids\include\fluid_gpu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\fluids\src\fluid_geosphere.cpp">

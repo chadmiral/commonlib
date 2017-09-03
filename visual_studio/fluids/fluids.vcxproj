@@ -90,7 +90,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>../../structures/include;../../fluids/include/;../../mathlib/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../structures/include;../../fluids/include/;../../mathlib/include;../../graphics/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -121,7 +121,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>../../structures/include;../../fluids/include/;../../mathlib/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../structures/include;../../fluids/include/;../../mathlib/include;../../graphics/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -157,6 +157,7 @@
     <ClInclude Include="..\..\fluids\include\fluid2d_turbulence_inflow.h" />
     <ClInclude Include="..\..\fluids\include\fluid_channels.h" />
     <ClInclude Include="..\..\fluids\include\fluid_geosphere.h" />
+    <ClInclude Include="..\..\fluids\include\fluid_gpu.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\fluids\src\fluid2d.cpp" />
