@@ -90,7 +90,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>../../structures/include;../../fluids/include/;../../mathlib/include;../../graphics/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../structures/include;../../fluids/include/;../../mathlib/include;../../graphics/include;../../;../../../glew-1.13.0/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -121,7 +121,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>../../structures/include;../../fluids/include/;../../mathlib/include;../../graphics/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../structures/include;../../fluids/include/;../../mathlib/include;../../graphics/include;../../;../../../glew-1.13.0/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -167,6 +167,7 @@
     <ClCompile Include="..\..\fluids\src\fluid2d_turbulence.cpp" />
     <ClCompile Include="..\..\fluids\src\fluid2d_turbulence_inflow.cpp" />
     <ClCompile Include="..\..\fluids\src\fluid_geosphere.cpp" />
+    <ClCompile Include="..\..\fluids\src\fluid_gpu.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

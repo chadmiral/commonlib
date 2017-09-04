@@ -193,7 +193,7 @@ void Texture2D::render_gl(GLuint tex_stage) const
 {
   glActiveTexture(tex_stage);
   //glClientActiveTexture(GL_TEXTURE0);
-  glEnable(GL_BLEND);
+  //glEnable(GL_BLEND);
   glEnable(GL_TEXTURE_2D);
   glDisable(GL_TEXTURE_3D);
 

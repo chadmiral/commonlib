@@ -65,5 +65,8 @@
     <ClCompile Include="..\..\fluids\src\fluid2d_turbulence_inflow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\fluids\src\fluid_gpu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

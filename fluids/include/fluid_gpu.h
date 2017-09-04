@@ -10,26 +10,36 @@
 class GPUFluid2D
 {
 private:
-  uint32_t                             _dimensions[2];
   std::vector<Graphics::Texture2D *>   _prev_channels;
   std::vector<Graphics::Texture2D *>   _curr_channels;
-  std::vector<Fluid2DInteractor *>     _interactors;
 
-  Graphics::Material                   *_m_density_step;    // density step shader
-  Graphics::Material                   *_m_velocity_step;   // velocity step shader
-  Graphics::Material                   *_m_project;         // projection shader
-  Graphics::Material                   *_m_advect;          // advection shader
-  Graphics::Material                   *_m_diffuse;         // diffusion shader
-  Graphics::Material                   *_m_boundaries;      // set boundary conditions shader
-  Graphics::Material                   *_m_add_source;      // add_source shader
+  enum FluidComputeStage
+  {
+    FLUID_COMPUTE_PROJECT,
+    FLUID_COMPUTE_ADVECT,
+    FLUID_COMPUTE_DIFFUSE,
+    FLUID_COMPUTE_BOUNDARIES,
+    FLUID_COMPUTE_ADD_SOURCE,
 
-  uint32_t                             _num_projection_steps;     //number of projection steps to run each step
-  Math::Float2                         _density_allowable_range;	//min/max density allowed in the simulation
-  float                                _diffusion_rate;						//rate of diffusion
-  float                                _viscosity;								//viscosity of the fluid
+    NUM_FLUID_COMPUTE_STAGES
+  };
+
+  std::string                          _cs_fluid_stage_source[NUM_FLUID_COMPUTE_STAGES];
+  Graphics::Material                  *_m_compute_stage_materials[NUM_FLUID_COMPUTE_STAGES];
+  Graphics::Shader                    *_s_compute_stage_shaders[NUM_FLUID_COMPUTE_STAGES];
+  Graphics::ShaderUniformInt           _sui_dest_tex[NUM_FLUID_COMPUTE_STAGES];
+
+  uint32_t                             _dimensions[2];
+  uint32_t                             _num_projection_steps;     // number of projection steps to run each step
+  Math::Float2                         _density_allowable_range;	// min/max density allowed in the simulation
+  float                                _diffusion_rate;						// rate of diffusion
+  float                                _viscosity;								// viscosity of the fluid
+
+  //std::vector<Fluid2DInteractor *>     _interactors;              // all the interactors / modifiers associated w/ this fluid
 
 public:
   GPUFluid2D();
+  GPUFluid2D(uint32_t w, uint32_t h);
   ~GPUFluid2D();
 
   void init();
@@ -39,4 +49,9 @@ public:
 private:
   void velocity_step(const float dt);
   void density_step(const float dt);
+
+  void add_source(const float dt);
+  void diffuse(const float dt);
+  void project(const float dt);
+  void advect(const float dt);
 };

@@ -10,6 +10,7 @@
 #include "fluid2d_turbulence.h"
 #include "fluid2d_turbulence_inflow.h"
 #include "fluid2d_angle_snapper.h"
+#include "fluid_gpu.h"
 
 using namespace std;
 using namespace Graphics;
@@ -29,6 +30,7 @@ private:
 
   Texture2D                 *fluid_tex;
   Fluid2D                   *fluid;
+  GPUFluid2D                *fluid_gpu;
   Fluid2DInflow             *inflow;
   Fluid2DTurbulenceField    *turb, *turb2;
   Fluid2DTurbulenceInflow   *turb_in[3];
@@ -47,6 +49,7 @@ public:
 
     fluid_tex = NULL;
     fluid = NULL;
+    fluid_gpu = NULL;
     inflow = NULL;
     turb =  NULL;
     angle_snapper = NULL;
@@ -61,6 +64,7 @@ public:
   ~FluidGame()
   {
     delete fluid;
+    delete fluid_gpu;
     delete fluid_tex;
     delete inflow;
     delete turb;
@@ -129,7 +133,14 @@ private:
     float sim_time = frame_time * time_scale;
     //sim_time = 0.005f;
     fluid->simulate(sim_time);
+    fluid_gpu->simulate(sim_time);
     fill_fluid_texture();
+  }
+
+  void init_gpu_fluid()
+  {
+    fluid_gpu = new GPUFluid2D(fluid_dim, fluid_dim);
+    fluid_gpu->init();
   }
 
   void user_init()
@@ -141,6 +152,8 @@ private:
     fluid = new Fluid2D(fluid_dim, fluid_dim);
     fluid->set_diffusion_rate(0.0f);//0.002f);
     fluid->set_viscosity(0.0f);
+
+    init_gpu_fluid();
 
     inflow = new Fluid2DInflow;
     inflow->set_rate(100.0f);
