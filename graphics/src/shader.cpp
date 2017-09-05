@@ -23,8 +23,8 @@ Shader::Shader()
   _local_size_y = 16;
   _local_size_z = 1;
 
-  _num_work_groups_x = 512 / 16;
-  _num_work_groups_y = 512 / 16;
+  _num_work_groups_x = 1;//512 / 16;
+  _num_work_groups_y = 1;//512 / 16;
   _num_work_groups_z = 1;
 }
 

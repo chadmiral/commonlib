@@ -5,7 +5,7 @@
 #include "material.h"
 #include "fluid2d_interactor.h"
 
-#define FLUID_GPU_DEFAULT_DIM 128
+#define FLUID_GPU_DEFAULT_DIM 512
 
 class GPUFluid2D
 {
@@ -22,6 +22,15 @@ private:
     FLUID_COMPUTE_ADD_SOURCE,
 
     NUM_FLUID_COMPUTE_STAGES
+  };
+
+  const char *FluidComputeStageNames[NUM_FLUID_COMPUTE_STAGES] =
+  {
+    "Project",
+    "Advect",
+    "Diffuse",
+    "Set Boundaries",
+    "Add Source"
   };
 
   std::string                          _cs_fluid_stage_source[NUM_FLUID_COMPUTE_STAGES];
@@ -46,6 +55,9 @@ public:
   void deinit();
 
   void simulate(const float dt);
+
+  Graphics::Texture2D *get_curr_channel_tex(uint32_t i) { return _curr_channels[i]; }
+  Graphics::Texture2D *get_prev_channel_tex(uint32_t i) { return _prev_channels[i]; }
 private:
   void velocity_step(const float dt);
   void density_step(const float dt);

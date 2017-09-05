@@ -19,6 +19,7 @@ using namespace Math;
 class FluidGame : public SDLGame
 {
 private:
+  bool                      _use_gpu;
   uint32_t                  _render_mode;
   int                       fluid_dim;
   float                     previous_game_time;
@@ -38,7 +39,8 @@ private:
   Fluid2DAngleSnapper       *angle_snapper;
 public:
   FluidGame() : SDLGame(512, 512, "Fluid Test"),
-    _render_mode(0)
+    _render_mode(0),
+    _use_gpu(true)
   {
     fluid_dim = 128;
     previous_game_time = 0.0f;
@@ -110,18 +112,22 @@ private:
     glLoadIdentity();
   }
 
-  void render_gpu_voronoi_tex()
-  {
-
-  }
-
-
   void render_gl()
   {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     setup_textured_quad_state();
-    glBindTexture(GL_TEXTURE_2D, fluid_tex->get_tex_id());
+
+    if (_use_gpu)
+    {
+      Texture2D *gpu_tex = fluid_gpu->get_prev_channel_tex(0);
+      glBindTexture(GL_TEXTURE_2D, gpu_tex->get_tex_id());
+    }
+    else
+    {
+      glBindTexture(GL_TEXTURE_2D, fluid_tex->get_tex_id());
+    }
+
     render_fullscreen_quad();
 
     glActiveTexture(GL_TEXTURE0);
@@ -132,9 +138,16 @@ private:
   {
     float sim_time = frame_time * time_scale;
     //sim_time = 0.005f;
-    fluid->simulate(sim_time);
-    fluid_gpu->simulate(sim_time);
-    fill_fluid_texture();
+
+    if(_use_gpu)
+    {
+      fluid_gpu->simulate(sim_time);
+    }
+    else
+    {
+      fluid->simulate(sim_time);
+      fill_fluid_texture();
+    }
   }
 
   void init_gpu_fluid()
@@ -249,6 +262,9 @@ private:
           case 'x':
             _render_mode = (_render_mode + 1) % 2;
             break;
+          case 'g':
+            _use_gpu = !_use_gpu;
+            break;
         }
     }
   }
@@ -301,8 +317,6 @@ private:
     fluid_tex->update_pixels_from_mem(pixels);
     delete pixels;
   }
-
-
 };
 
 

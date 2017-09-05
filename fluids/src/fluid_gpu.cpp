@@ -1,5 +1,6 @@
 #include "fluid_gpu.h"
 
+using namespace std;
 using namespace Graphics;
 
 GPUFluid2D::GPUFluid2D() :
@@ -58,6 +59,8 @@ void GPUFluid2D::init()
 
   for (uint32_t i = 0; i < NUM_FLUID_COMPUTE_STAGES; i++)
   {
+    cout << "Loading compute shader \"" << FluidComputeStageNames[i] << "\"" << endl;
+    cout << _cs_fluid_stage_source[i].c_str() << endl;
     Shader *cs = _s_compute_stage_shaders[i] = new Shader;
     cs->compile_and_link_compute_shader(_cs_fluid_stage_source[i].c_str());
 
@@ -89,22 +92,23 @@ void GPUFluid2D::add_source(const float dt)
 
 void GPUFluid2D::diffuse(const float dt)
 {
-  _s_compute_stage_shaders[FLUID_COMPUTE_DIFFUSE]->execute();
+  //_s_compute_stage_shaders[FLUID_COMPUTE_DIFFUSE]->execute();
 }
 
 void GPUFluid2D::project(const float dt)
 {
-  _s_compute_stage_shaders[FLUID_COMPUTE_PROJECT]->execute();
+  //_s_compute_stage_shaders[FLUID_COMPUTE_PROJECT]->execute();
 }
 
 void GPUFluid2D::advect(const float dt)
 {
-  _s_compute_stage_shaders[FLUID_COMPUTE_ADVECT]->execute();
+  //_s_compute_stage_shaders[FLUID_COMPUTE_ADVECT]->execute();
 }
 
 void GPUFluid2D::velocity_step(const float dt)
 {
   add_source(dt);
+  
   //SWAP
   diffuse(dt);
   project(dt);
@@ -129,11 +133,11 @@ void GPUFluid2D::velocity_step(const float dt)
 
 void GPUFluid2D::density_step(const float dt)
 {
-  _s_compute_stage_shaders[FLUID_COMPUTE_ADD_SOURCE]->execute();
+  //_s_compute_stage_shaders[FLUID_COMPUTE_ADD_SOURCE]->execute();
   //SWAP
-  _s_compute_stage_shaders[FLUID_COMPUTE_DIFFUSE]->execute();
+  //_s_compute_stage_shaders[FLUID_COMPUTE_DIFFUSE]->execute();
   //SWAP
-  _s_compute_stage_shaders[FLUID_COMPUTE_ADVECT]->execute();
+  //_s_compute_stage_shaders[FLUID_COMPUTE_ADVECT]->execute();
 
 
   /*
