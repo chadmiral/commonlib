@@ -83,7 +83,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>../../;..\..\..\SDL2_image-2.0.1\include;..\..\..\SDL2-2.0.4\include;..\..\..\glew-1.13.0\include;..\..\mathlib\include\;..\..\graphics\include\vfx;..\..\graphics\include;..\..\..\freetype-2.3.5-1-lib\include;..\..\..\freetype-2.3.5-1-lib\include\freetype2;..\..\..\glm-0.9.8.4\glm;..\..\..\freetype-2.3.5-1-lib\include\freetype2\freetype\;..\..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_GL_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

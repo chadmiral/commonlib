@@ -62,6 +62,7 @@ void GPUFluid2D::init()
     cout << "Loading compute shader \"" << FluidComputeStageNames[i] << "\"" << endl;
     cout << _cs_fluid_stage_source[i].c_str() << endl;
     Shader *cs = _s_compute_stage_shaders[i] = new Shader;
+    cs->set_local_size(16, 16, 1);
     cs->compile_and_link_compute_shader(_cs_fluid_stage_source[i].c_str());
 
     _sui_dest_tex[i].set_name("dest_tex");
@@ -85,9 +86,13 @@ void GPUFluid2D::deinit()
 void GPUFluid2D::add_source(const float dt)
 {
   //set shader uniforms, etc...
-  _prev_channels[0]->render_gl();
+  glUseProgram(_s_compute_stage_shaders[FLUID_COMPUTE_ADD_SOURCE]->gl_shader_program);
   _sui_dest_tex[FLUID_COMPUTE_ADD_SOURCE].render();
-  _s_compute_stage_shaders[FLUID_COMPUTE_ADD_SOURCE]->execute();
+  glActiveTexture(GL_TEXTURE0 + 0);
+  glEnable(GL_TEXTURE_2D);
+  glBindTexture(GL_TEXTURE_2D, _prev_channels[0]->get_tex_id());
+  //_prev_channels[0]->render_gl();
+  _s_compute_stage_shaders[FLUID_COMPUTE_ADD_SOURCE]->execute(_dimensions[0], _dimensions[1], 1);
 }
 
 void GPUFluid2D::diffuse(const float dt)

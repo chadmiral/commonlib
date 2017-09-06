@@ -42,7 +42,7 @@ public:
     _render_mode(0),
     _use_gpu(true)
   {
-    fluid_dim = 128;
+    fluid_dim = 512;
     previous_game_time = 0.0f;
     time_scale = 0.1f;
     velocity_scale = 50.0f;
@@ -114,9 +114,13 @@ private:
 
   void render_gl()
   {
+    gl_check_error();
+
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     setup_textured_quad_state();
+
+    gl_check_error();
 
     if (_use_gpu)
     {
@@ -136,6 +140,8 @@ private:
 
   void game_loop(const double game_time, const double frame_time)
   {
+    gl_check_error();
+
     float sim_time = frame_time * time_scale;
     //sim_time = 0.005f;
 

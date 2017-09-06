@@ -22,10 +22,6 @@ Shader::Shader()
   _local_size_x = 16;
   _local_size_y = 16;
   _local_size_z = 1;
-
-  _num_work_groups_x = 1;//512 / 16;
-  _num_work_groups_y = 1;//512 / 16;
-  _num_work_groups_z = 1;
 }
 
 Shader::~Shader()
@@ -126,9 +122,9 @@ void Shader::compile_and_link_from_source(const char *vs, const char *fs, std::s
   create_program(log);
 
   log << tabs.c_str() << "compiling vertex shader...";
-  gl_vertex_shader = compile_shader_from_source(GL_VERTEX_SHADER, vs, tabs + "\t", log);
+  compile_shader_from_source(GL_VERTEX_SHADER, vs, tabs + "\t", log);
   log << tabs.c_str() << "compiling fragment shader...";
-  gl_fragment_shader = compile_shader_from_source(GL_FRAGMENT_SHADER, fs, tabs + "\t", log);
+  compile_shader_from_source(GL_FRAGMENT_SHADER, fs, tabs + "\t", log);
   log << tabs.c_str() << "linking shader...";
   link_shader(tabs + "\t", log);
 }
@@ -137,7 +133,7 @@ void Shader::compile_and_link_compute_shader(const char *cs_src, std::string tab
 {
   create_program(log);
   log << tabs.c_str() << "compiling compute shader...";
-  gl_compute_shader = compile_shader_from_source(GL_COMPUTE_SHADER, cs_src, tabs + "\t", log);
+  compile_shader_from_source(GL_COMPUTE_SHADER, cs_src, tabs + "\t", log);
   log << tabs.c_str() << "linking...";
   link_shader(tabs + "\t", log);
 }
@@ -195,6 +191,25 @@ GLuint Shader::compile_shader_from_source(GLenum shader_type, const char *source
 void Shader::link_shader(std::string tabs, std::ostream &log)
 {
   glLinkProgram(gl_shader_program);
+
+  /*
+  int rvalue;
+  glGetProgramiv(gl_shader_program, GL_LINK_STATUS, &rvalue);
+  if (!rvalue)
+  {
+    fprintf(stderr, "Error in linking compute shader program\n");
+    GLchar log[10240];
+    GLsizei length;
+    glGetProgramInfoLog(gl_shader_program, 10239, &length, log);
+    fprintf(stderr, "Linker log:\n%s\n", log);
+    exit(41);
+  }
+
+  GLsizei shader_count;
+  GLuint shaders[2];
+  glGetAttachedShaders(gl_shader_program, 2, &shader_count, shaders);
+  */
+
   if (!print_log(gl_shader_program, tabs, log))
   {
     log << __CONSOLE_LOG_GREEN__ << "OK" << endl;
@@ -341,9 +356,14 @@ void Shader::render()
 }
 
 //execute a compute shader
-void Shader::execute()
-{
+void Shader::execute(uint32_t work_dim_x, uint32_t work_dim_y, uint32_t work_dim_z)
+{ 
+  uint32_t work_group_size_x = work_dim_x / _local_size_x;
+  uint32_t work_group_size_y = work_dim_y / _local_size_y;
+  uint32_t work_group_size_z = work_dim_z / _local_size_z;
+
   glUseProgram(gl_shader_program);
-  glDispatchCompute(_num_work_groups_x, _num_work_groups_y, _num_work_groups_z); // 512^2 threads in blocks of 16^2
+  glDispatchCompute(work_group_size_x, work_group_size_y, work_group_size_z);
+
   gl_check_error();
 }

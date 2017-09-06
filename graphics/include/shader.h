@@ -43,7 +43,9 @@ namespace Graphics
     void parse_source(std::string source, std::string &dest, std::vector<std::string> *path); //load includes, etc... before compiling
     bool load_link_and_compile(std::vector<std::string> *path = NULL, std::string tabs = "", std::ostream &log = std::cout);
     void render();
-    void execute();
+    void execute(uint32_t work_dim_x = 256, uint32_t work_dim_y = 256, uint32_t work_dim_z = 256);
+
+    void set_local_size(uint32_t x = 16, uint32_t y = 16, uint32_t z = 16) { _local_size_x = x; _local_size_y = y; _local_size_z = z; }
 
     GLuint gl_fragment_shader;
     GLuint gl_vertex_shader;
@@ -58,10 +60,6 @@ namespace Graphics
     GLuint _local_size_x;
     GLuint _local_size_y;
     GLuint _local_size_z;
-
-    GLuint _num_work_groups_x;
-    GLuint _num_work_groups_y;
-    GLuint _num_work_groups_z;
   };
 
   class ShaderUniformVariable
