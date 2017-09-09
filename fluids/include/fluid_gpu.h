@@ -3,15 +3,23 @@
 #include <vector>
 #include "texture.h"
 #include "material.h"
+#include "render_surface.h"
 #include "fluid2d_interactor.h"
 
 #define FLUID_GPU_DEFAULT_DIM 512
 
+//#define FLUID_GPU_USE_COMPUTE_SHADER
+
 class GPUFluid2D
 {
 private:
+#ifdef FLUID_GPU_USE_COMPUTE_SHADER
   std::vector<Graphics::Texture2D *>   _prev_channels;
   std::vector<Graphics::Texture2D *>   _curr_channels;
+#else
+  std::vector<Graphics::RenderSurface> _rs_prev_channels;
+  std::vector<Graphics::RenderSurface> _rs_curr_channels;
+#endif //FLUID_GPU_USE_COMPUTE_SHADER
 
   enum FluidComputeStage
   {
@@ -32,6 +40,11 @@ private:
     "Set Boundaries",
     "Add Source"
   };
+
+#ifndef FLUID_GPU_USE_COMPUTE_SHADER
+  std::string                          _vs_fluid_passthrough_source;
+  std::string                          _fs_fluid_stage_source[NUM_FLUID_COMPUTE_STAGES];
+#endif //FLUID_GPU_USE_COMPUTE_SHADER
 
   std::string                          _cs_fluid_stage_source[NUM_FLUID_COMPUTE_STAGES];
   Graphics::Material                  *_m_compute_stage_materials[NUM_FLUID_COMPUTE_STAGES];
@@ -56,8 +69,10 @@ public:
 
   void simulate(const float dt);
 
+#if 0
   Graphics::Texture2D *get_curr_channel_tex(uint32_t i) { return _curr_channels[i]; }
   Graphics::Texture2D *get_prev_channel_tex(uint32_t i) { return _prev_channels[i]; }
+#endif
 private:
   void velocity_step(const float dt);
   void density_step(const float dt);

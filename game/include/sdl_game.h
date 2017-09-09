@@ -109,7 +109,7 @@ public:
           const int h = SDL_GAME_DEFAULT_HEIGHT,
           const std::string title = "Game",
           const unsigned int _flags = SDL_GAME_GENERATE_PAUSE_MENU | SDL_GAME_LOCK_SIM_DT,
-          const int _gl_context_profile = SDL_GL_CONTEXT_PROFILE_COMPATIBILITY,
+          const int _gl_context_profile = SDL_GL_CONTEXT_PROFILE_CORE,//SDL_GL_CONTEXT_PROFILE_COMPATIBILITY,
           const int gl_major_version = -1,
           const int gl_minor_version = -1);
 

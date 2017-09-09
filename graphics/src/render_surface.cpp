@@ -162,7 +162,7 @@ void RenderSurface::init()
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ibo);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * 4, _index_data, GL_STATIC_DRAW);
 
-  create_target_texture();
+  if (!_target_tex) { create_target_texture(); }
   if (_use_depth) { create_depth_texture(); }
 
   //this needs to happen *after* the target texture has been created

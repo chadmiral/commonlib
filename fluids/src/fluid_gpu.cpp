@@ -32,6 +32,29 @@ GPUFluid2D::GPUFluid2D() :
 #include "../shaders/add_source.glsl"
     ;
 
+#ifndef FLUID_GPU_USE_COMPUTE_SHADER
+  _vs_fluid_passthrough_source =
+#include "../shaders/vs_pass_through.glsl"
+    ;
+
+  _fs_fluid_stage_source[FLUID_COMPUTE_PROJECT] =
+#include "../shaders/fs_project.glsl"
+    ;
+  _fs_fluid_stage_source[FLUID_COMPUTE_ADVECT] =
+#include "../shaders/fs_advect.glsl"
+    ;
+  _fs_fluid_stage_source[FLUID_COMPUTE_DIFFUSE] =
+#include "../shaders/fs_diffuse.glsl"
+    ;
+  _fs_fluid_stage_source[FLUID_COMPUTE_BOUNDARIES] =
+#include "../shaders/fs_boundaries.glsl"
+    ;
+  _fs_fluid_stage_source[FLUID_COMPUTE_ADD_SOURCE] =
+#include "../shaders/fs_add_source.glsl"
+    ;
+
+#endif //FLUID_GPU_USE_COMPUTE_SHADER
+
   _dimensions[0] = _dimensions[1] = FLUID_GPU_DEFAULT_DIM;
 }
 
@@ -48,27 +71,56 @@ GPUFluid2D::~GPUFluid2D()
 
 void GPUFluid2D::init()
 {
-  Texture2D *t_prev = new Graphics::Texture2D(_dimensions[0], _dimensions[1], GL_FLOAT, GL_RGBA, GL_RGBA);
+  //Texture2D *t_prev = new Graphics::Texture2D(_dimensions[0], _dimensions[1], GL_FLOAT, GL_RGBA, GL_RGBA);
+  Texture2D *t_prev = new Graphics::Texture2D(_dimensions[0], _dimensions[1], GL_FLOAT, GL_R32F, GL_RED);
   t_prev->init();
 
   Texture2D *t_curr = new Graphics::Texture2D(_dimensions[0], _dimensions[1], GL_FLOAT, GL_RGBA, GL_RGBA);
   t_curr->init();
 
+#if defined(FLUID_GPU_USE_COMPUTE_SHADER)
   _prev_channels.push_back(t_prev);
   _curr_channels.push_back(t_curr);
+#else
+  _rs_prev_channels.push_back(RenderSurface(_dimensions[0], _dimensions[1]));
+  _rs_prev_channels[0].set_tex(t_prev);
+  _rs_prev_channels[0].use_depth(false);
 
+  _rs_curr_channels.push_back(RenderSurface(_dimensions[0], _dimensions[1]));
+  _rs_curr_channels[0].set_tex(t_prev);
+  _rs_curr_channels[0].use_depth(false);
+#endif //FLUID_GPU_USE_COMPUTE_SHADER
+
+#if defined(FLUID_GPU_USE_COMPUTE_SHADER)
   for (uint32_t i = 0; i < NUM_FLUID_COMPUTE_STAGES; i++)
   {
     cout << "Loading compute shader \"" << FluidComputeStageNames[i] << "\"" << endl;
     cout << _cs_fluid_stage_source[i].c_str() << endl;
     Shader *cs = _s_compute_stage_shaders[i] = new Shader;
-    cs->set_local_size(16, 16, 1);
+    cs->set_local_size(1, 1, 1);
     cs->compile_and_link_compute_shader(_cs_fluid_stage_source[i].c_str());
 
     _sui_dest_tex[i].set_name("dest_tex");
     _sui_dest_tex[i].set_loc(cs);
     _sui_dest_tex[i].set_var(0);
+
+    //_rs_prev_channels[0].add_shader(cs, FluidComputeStageNames[i], false);
+    //_rs_curr_channels[0].add_shader(cs, FluidComputeStageNames[i], false);
   }
+#else
+
+  for (uint32_t i = 0; i < NUM_FLUID_COMPUTE_STAGES; i++)
+  {
+    Shader *s = _s_compute_stage_shaders[i] = new Shader;
+    s->compile_and_link_from_source(_vs_fluid_passthrough_source.c_str(), _fs_fluid_stage_source[i].c_str());
+
+    _rs_prev_channels[0].add_shader(s, FluidComputeStageNames[i], false);
+    _rs_curr_channels[0].add_shader(s, FluidComputeStageNames[i], false);
+  }
+
+  _rs_prev_channels[0].init();
+  _rs_curr_channels[0].init();
+#endif //FLUID_GPU_USE_COMPUTE_SHADER
 }
 
 void GPUFluid2D::deinit()
@@ -85,14 +137,25 @@ void GPUFluid2D::deinit()
 
 void GPUFluid2D::add_source(const float dt)
 {
+#if defined (FLUID_GPU_USE_COMPUTE_SHADER)
   //set shader uniforms, etc...
   glUseProgram(_s_compute_stage_shaders[FLUID_COMPUTE_ADD_SOURCE]->gl_shader_program);
+
   _sui_dest_tex[FLUID_COMPUTE_ADD_SOURCE].render();
+
   glActiveTexture(GL_TEXTURE0 + 0);
-  glEnable(GL_TEXTURE_2D);
+  //glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, _prev_channels[0]->get_tex_id());
-  //_prev_channels[0]->render_gl();
+  glBindImageTexture(0, _prev_channels[0]->get_tex_id(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R32F);
+
+  gl_check_error();
+
   _s_compute_stage_shaders[FLUID_COMPUTE_ADD_SOURCE]->execute(_dimensions[0], _dimensions[1], 1);
+#else
+  _rs_curr_channels[0].capture();
+  _rs_prev_channels[0].render(FLUID_COMPUTE_ADD_SOURCE);
+  _rs_curr_channels[0].release();
+#endif
 }
 
 void GPUFluid2D::diffuse(const float dt)

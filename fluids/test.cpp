@@ -38,7 +38,7 @@ private:
   Fluid2DTurbulenceInflow   *turb_out[3];
   Fluid2DAngleSnapper       *angle_snapper;
 public:
-  FluidGame() : SDLGame(512, 512, "Fluid Test"),
+  FluidGame() : SDLGame(1024, 1024, "Fluid Test"),
     _render_mode(0),
     _use_gpu(true)
   {
@@ -124,8 +124,8 @@ private:
 
     if (_use_gpu)
     {
-      Texture2D *gpu_tex = fluid_gpu->get_prev_channel_tex(0);
-      glBindTexture(GL_TEXTURE_2D, gpu_tex->get_tex_id());
+      //Texture2D *gpu_tex = fluid_gpu->get_prev_channel_tex(0);
+      //glBindTexture(GL_TEXTURE_2D, gpu_tex->get_tex_id());
     }
     else
     {
@@ -154,6 +154,168 @@ private:
       fluid->simulate(sim_time);
       fill_fluid_texture();
     }
+  }
+
+  GLuint genRenderProg(GLuint texHandle) {
+    GLuint progHandle = glCreateProgram();
+    GLuint vp = glCreateShader(GL_VERTEX_SHADER);
+    GLuint fp = glCreateShader(GL_FRAGMENT_SHADER);
+
+    const char *vpSrc[] = {
+      "#version 430\n",
+      "in vec2 pos;\
+		 out vec2 texCoord;\
+		 void main() {\
+			 texCoord = pos*0.5f + 0.5f;\
+			 gl_Position = vec4(pos.x, pos.y, 0.0, 1.0);\
+		 }"
+    };
+
+    const char *fpSrc[] = {
+      "#version 430\n",
+      "uniform sampler2D srcTex;\
+		 in vec2 texCoord;\
+		 out vec4 color;\
+		 void main() {\
+			 float c = texture(srcTex, texCoord).x;\
+			 color = vec4(c, 1.0, 1.0, 1.0);\
+		 }"
+    };
+
+    glShaderSource(vp, 2, vpSrc, NULL);
+    glShaderSource(fp, 2, fpSrc, NULL);
+
+    glCompileShader(vp);
+    int rvalue;
+    glGetShaderiv(vp, GL_COMPILE_STATUS, &rvalue);
+    if (!rvalue) {
+      fprintf(stderr, "Error in compiling vp\n");
+      exit(30);
+    }
+    glAttachShader(progHandle, vp);
+
+    glCompileShader(fp);
+    glGetShaderiv(fp, GL_COMPILE_STATUS, &rvalue);
+    if (!rvalue) {
+      fprintf(stderr, "Error in compiling fp\n");
+      exit(31);
+    }
+    glAttachShader(progHandle, fp);
+
+    glBindFragDataLocation(progHandle, 0, "color");
+    glLinkProgram(progHandle);
+
+    glGetProgramiv(progHandle, GL_LINK_STATUS, &rvalue);
+    if (!rvalue) {
+      fprintf(stderr, "Error in linking sp\n");
+      exit(32);
+    }
+
+    glUseProgram(progHandle);
+    glUniform1i(glGetUniformLocation(progHandle, "srcTex"), 0);
+
+    GLuint vertArray;
+    glGenVertexArrays(1, &vertArray);
+    glBindVertexArray(vertArray);
+
+    GLuint posBuf;
+    glGenBuffers(1, &posBuf);
+    glBindBuffer(GL_ARRAY_BUFFER, posBuf);
+    float data[] = {
+      -1.0f, -1.0f,
+      -1.0f, 1.0f,
+      1.0f, -1.0f,
+      1.0f, 1.0f
+    };
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 8, data, GL_STREAM_DRAW);
+    GLint posPtr = glGetAttribLocation(progHandle, "pos");
+    glVertexAttribPointer(posPtr, 2, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(posPtr);
+
+    checkErrors("Render shaders");
+    return progHandle;
+  }
+
+  GLuint genTexture() {
+    // We create a single float channel 512^2 texture
+    GLuint texHandle;
+    glGenTextures(1, &texHandle);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texHandle);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, 512, 512, 0, GL_RED, GL_FLOAT, NULL);
+
+    // Because we're also using this tex as an image (in order to write to it),
+    // we bind it to an image unit as well
+    glBindImageTexture(0, texHandle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R32F);
+    checkErrors("Gen texture");
+    return texHandle;
+  }
+
+  void checkErrors(std::string desc) {
+    GLenum e = glGetError();
+    if (e != GL_NO_ERROR) {
+      fprintf(stderr, "OpenGL error in \"%s\": %s (%d)\n", desc.c_str(), gluErrorString(e), e);
+      exit(20);
+    }
+  }
+
+
+  GLuint genComputeProg(GLuint texHandle) {
+    // Creating the compute shader, and the program object containing the shader
+    GLuint progHandle = glCreateProgram();
+    GLuint cs = glCreateShader(GL_COMPUTE_SHADER);
+
+    // In order to write to a texture, we have to introduce it as image2D.
+    // local_size_x/y/z layout variables define the work group size.
+    // gl_GlobalInvocationID is a uvec3 variable giving the global ID of the thread,
+    // gl_LocalInvocationID is the local index within the work group, and
+    // gl_WorkGroupID is the work group's index
+    const char *csSrc[] = {
+      "#version 430\n",
+      "uniform float roll;\
+		 uniform image2D destTex;\
+		 layout (local_size_x = 16, local_size_y = 16) in;\
+		 void main() {\
+			 ivec2 storePos = ivec2(gl_GlobalInvocationID.xy);\
+			 float localCoef = length(vec2(ivec2(gl_LocalInvocationID.xy)-8)/8.0);\
+			 float globalCoef = sin(float(gl_WorkGroupID.x+gl_WorkGroupID.y)*0.1 + roll)*0.5;\
+			 imageStore(destTex, storePos, vec4(1.0-globalCoef*localCoef, 0.0, 0.0, 0.0));\
+		 }"
+    };
+
+    glShaderSource(cs, 2, csSrc, NULL);
+    glCompileShader(cs);
+    int rvalue;
+    glGetShaderiv(cs, GL_COMPILE_STATUS, &rvalue);
+    if (!rvalue) {
+      fprintf(stderr, "Error in compiling the compute shader\n");
+      GLchar log[10240];
+      GLsizei length;
+      glGetShaderInfoLog(cs, 10239, &length, log);
+      fprintf(stderr, "Compiler log:\n%s\n", log);
+      exit(40);
+    }
+    glAttachShader(progHandle, cs);
+
+    glLinkProgram(progHandle);
+    glGetProgramiv(progHandle, GL_LINK_STATUS, &rvalue);
+    if (!rvalue) {
+      fprintf(stderr, "Error in linking compute shader program\n");
+      GLchar log[10240];
+      GLsizei length;
+      glGetProgramInfoLog(progHandle, 10239, &length, log);
+      fprintf(stderr, "Linker log:\n%s\n", log);
+      exit(41);
+    }
+    glUseProgram(progHandle);
+
+    glUniform1i(glGetUniformLocation(progHandle, "destTex"), 0);
+
+    checkErrors("Compute shader");
+    return progHandle;
   }
 
   void init_gpu_fluid()
