@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 // http://gameprogrammingpatterns.com/bytecode.html
 
 namespace Game
@@ -37,9 +39,8 @@ namespace Game
     VirtualMachine() {}
     ~VirtualMachine() {}
 
-    VMExpressionTree *parse_expression(std::string)
+    VMExpressionTree *parse_expression(std::string exp)
     {
-      char *c = exp;
       while(*c != '\0')
       {
 

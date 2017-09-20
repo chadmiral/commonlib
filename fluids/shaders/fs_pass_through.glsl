@@ -3,10 +3,11 @@ R""(
 
 layout(location = 0) in vec2 uv0;
 
+uniform in sampler2D tex;
 out vec4 frag_color;
 
 void main()
 {
-  frag_color = vec4(uv0.s, uv0.t, 0.0, 1.0);
+  frag_color = texture2D(prev_tex, uv0);
 }
 )""

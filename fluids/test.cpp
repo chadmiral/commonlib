@@ -38,7 +38,7 @@ private:
   Fluid2DTurbulenceInflow   *turb_out[3];
   Fluid2DAngleSnapper       *angle_snapper;
 public:
-  FluidGame() : SDLGame(1024, 1024, "Fluid Test"),
+  FluidGame() : SDLGame(512, 512, "Fluid Test"),
     _render_mode(0),
     _use_gpu(true)
   {
@@ -124,8 +124,8 @@ private:
 
     if (_use_gpu)
     {
-      //Texture2D *gpu_tex = fluid_gpu->get_prev_channel_tex(0);
-      //glBindTexture(GL_TEXTURE_2D, gpu_tex->get_tex_id());
+      Texture2D *gpu_tex = fluid_gpu->get_prev_channel_tex(0);
+      glBindTexture(GL_TEXTURE_2D, gpu_tex->get_tex_id());
     }
     else
     {

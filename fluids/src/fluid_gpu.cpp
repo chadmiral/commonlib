@@ -1,4 +1,5 @@
 #include "fluid_gpu.h"
+#include "perlin.h"
 
 using namespace std;
 using namespace Graphics;
@@ -37,6 +38,9 @@ GPUFluid2D::GPUFluid2D() :
 #include "../shaders/vs_pass_through.glsl"
     ;
 
+  _fs_fluid_stage_source[FLUID_COMPUTE_PASSTHROUGH] =
+#include "../shaders/fs_pass_through.glsl"
+    ;
   _fs_fluid_stage_source[FLUID_COMPUTE_PROJECT] =
 #include "../shaders/fs_project.glsl"
     ;
@@ -71,12 +75,38 @@ GPUFluid2D::~GPUFluid2D()
 
 void GPUFluid2D::init()
 {
-  //Texture2D *t_prev = new Graphics::Texture2D(_dimensions[0], _dimensions[1], GL_FLOAT, GL_RGBA, GL_RGBA);
-  Texture2D *t_prev = new Graphics::Texture2D(_dimensions[0], _dimensions[1], GL_FLOAT, GL_R32F, GL_RED);
+#if defined (FLUID_GPU_USE_COMPUTE_SHADER)
+  Texture2D *t_prev = new Graphics::Texture2D(_dimensions[0], _dimensions[1], GL_FLOAT, GL_RGBA, GL_RGBA);
+  Texture2D *t_curr = new Graphics::Texture2D(_dimensions[0], _dimensions[1], GL_FLOAT, GL_RGBA, GL_RGBA);
+#else
+  Texture2D *t_prev = new Graphics::Texture2D(_dimensions[0], _dimensions[1], GL_FLOAT, GL_RGBA, GL_RGBA);
   t_prev->init();
 
   Texture2D *t_curr = new Graphics::Texture2D(_dimensions[0], _dimensions[1], GL_FLOAT, GL_RGBA, GL_RGBA);
   t_curr->init();
+#endif
+
+  float *pixels = new float[_dimensions[0] * _dimensions[1] * 4];
+
+  //fill textures with perlin noise
+  for (uint32_t i = 0; i < _dimensions[0]; i++)
+  {
+    float x = (float)i / (float)_dimensions[0];
+    for (uint32_t j = 0; j < _dimensions[1]; j++)
+    {
+      int idx = 4 * (i + _dimensions[0] * j);
+      float y = (float)j / (float)_dimensions[1];
+      float n = PerlinNoise::octave_noise_2d(2.0f, 1.0f, 1.0f, x, y);
+
+      pixels[idx] = 1.0f * n;
+      pixels[idx + 1] = 1.0f * n;
+      pixels[idx + 2] = 1.0f * n;
+      pixels[idx + 3] = 1.0f * n;
+    }
+  }
+
+  t_prev->update_pixels_from_mem(pixels);
+  delete[] pixels;
 
 #if defined(FLUID_GPU_USE_COMPUTE_SHADER)
   _prev_channels.push_back(t_prev);
@@ -217,8 +247,18 @@ void GPUFluid2D::density_step(const float dt)
   */
 }
 
+#ifndef FLUID_GPU_USE_COMPUTE_SHADER
+void GPUFluid2D::copy_last_frames_textures()
+{
+  
+}
+#endif //FLUID_GPU_USE_COMPUTE_SHADER
+
 void GPUFluid2D::simulate(const float dt)
 {
+#ifndef FLUID_GPU_USE_COMPUTE_SHADER
+  copy_last_frames_textures();
+#endif
   velocity_step(dt);
   density_step(dt);
 

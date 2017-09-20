@@ -132,6 +132,7 @@
     <ClInclude Include="..\..\game\include\html_logger.h" />
     <ClInclude Include="..\..\game\include\object_3d.h" />
     <ClInclude Include="..\..\game\include\sdl_game.h" />
+    <ClInclude Include="..\..\game\include\vm.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\game\src\animation\skeleton.cpp" />

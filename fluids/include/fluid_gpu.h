@@ -8,21 +8,14 @@
 
 #define FLUID_GPU_DEFAULT_DIM 512
 
-//#define FLUID_GPU_USE_COMPUTE_SHADER
+#define FLUID_GPU_USE_COMPUTE_SHADER
 
 class GPUFluid2D
 {
 private:
-#ifdef FLUID_GPU_USE_COMPUTE_SHADER
-  std::vector<Graphics::Texture2D *>   _prev_channels;
-  std::vector<Graphics::Texture2D *>   _curr_channels;
-#else
-  std::vector<Graphics::RenderSurface> _rs_prev_channels;
-  std::vector<Graphics::RenderSurface> _rs_curr_channels;
-#endif //FLUID_GPU_USE_COMPUTE_SHADER
-
   enum FluidComputeStage
   {
+    FLUID_COMPUTE_PASSTHROUGH,
     FLUID_COMPUTE_PROJECT,
     FLUID_COMPUTE_ADVECT,
     FLUID_COMPUTE_DIFFUSE,
@@ -34,6 +27,7 @@ private:
 
   const char *FluidComputeStageNames[NUM_FLUID_COMPUTE_STAGES] =
   {
+    "Pass Through",
     "Project",
     "Advect",
     "Diffuse",
@@ -41,10 +35,22 @@ private:
     "Add Source"
   };
 
-#ifndef FLUID_GPU_USE_COMPUTE_SHADER
-  std::string                          _vs_fluid_passthrough_source;
+
   std::string                          _fs_fluid_stage_source[NUM_FLUID_COMPUTE_STAGES];
+
+#ifdef FLUID_GPU_USE_COMPUTE_SHADER
+  std::vector<Graphics::Texture2D *>   _prev_channels;
+  std::vector<Graphics::Texture2D *>   _curr_channels;
+#else
+  std::string                          _vs_fluid_passthrough_source;
+
+  std::vector<Graphics::RenderSurface> _rs_prev_in_channels;
+  std::vector<Graphics::RenderSurface> _rs_curr_in_channels;
+
+  std::vector<Graphics::RenderSurface> _rs_prev_channels;
+  std::vector<Graphics::RenderSurface> _rs_curr_channels;
 #endif //FLUID_GPU_USE_COMPUTE_SHADER
+
 
   std::string                          _cs_fluid_stage_source[NUM_FLUID_COMPUTE_STAGES];
   Graphics::Material                  *_m_compute_stage_materials[NUM_FLUID_COMPUTE_STAGES];
@@ -69,10 +75,23 @@ public:
 
   void simulate(const float dt);
 
-#if 0
-  Graphics::Texture2D *get_curr_channel_tex(uint32_t i) { return _curr_channels[i]; }
-  Graphics::Texture2D *get_prev_channel_tex(uint32_t i) { return _prev_channels[i]; }
+  Graphics::Texture2D *get_curr_channel_tex(uint32_t i)
+  {
+#if defined(FLUID_GPU_USE_COMPUTE_SHADER)
+    return _curr_channels[i];
+#else
+    return _rs_curr_channels[i].get_tex();
 #endif
+  }
+  Graphics::Texture2D *get_prev_channel_tex(uint32_t i)
+  {
+#if defined(FLUID_GPU_USE_COMPUTE_SHADER)
+    return _prev_channels[i];
+#else
+    return _rs_prev_channels[i].get_tex();
+#endif
+  }
+
 private:
   void velocity_step(const float dt);
   void density_step(const float dt);
@@ -81,4 +100,8 @@ private:
   void diffuse(const float dt);
   void project(const float dt);
   void advect(const float dt);
+
+#ifndef FLUID_GPU_USE_COMPUTE_SHADER
+  void copy_last_frames_textures();
+#endif
 };
