@@ -72,7 +72,12 @@ namespace Graphics
   class Texture3D
   {
   public:
-    Texture3D(const unsigned int w = 32, const unsigned int h = 32, const unsigned int d = 32, const GLuint m = GL_RGBA);
+    Texture3D(const unsigned int w = 32,
+              const unsigned int h = 32,
+              const unsigned int d = 32,
+              const GLuint _data_format = GL_UNSIGNED_BYTE,
+              const GLuint _internal_format = GL_RGBA,
+              const GLuint _tex_format = GL_RGBA);
     Texture3D(const char *n);
 
     ~Texture3D();
@@ -88,13 +93,16 @@ namespace Graphics
     void init();
 
     bool load(const unsigned int depth);
-    bool load_from_file_data(TextureFileData &tfd);
+    //bool load_from_file_data(TextureFileData &tfd);
     bool render_gl(GLuint tex_stage = GL_TEXTURE0) const;
 
     bool update_pixels_from_mem(void *pixels);
   private:
     unsigned int       dim[3];
-    char               fname[256];
+    std::string        fname;
+    GLenum             tex_format;
+    GLenum             data_format;
+    GLint              internal_format;
     GLuint             gl_texture;
     GLuint             gl_mode;
     GLuint             wrap_mode[3];

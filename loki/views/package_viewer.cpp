@@ -129,6 +129,7 @@ void PackageViewer::save_package(std::string pkg_fname)
     {
       of << " format=\"" << _pt._textures[i]._format << "\"";
     }
+    of << " slices=\"" << _pt._textures[i]._slices << "\""; 
     if (_pt._textures[i]._wrap_u.length() > 0)
     {
       of << " wrap_u=\"" << _pt._textures[i]._wrap_u << "\"";
@@ -136,6 +137,10 @@ void PackageViewer::save_package(std::string pkg_fname)
     if (_pt._textures[i]._wrap_v.length() > 0)
     {
       of << " wrap_v=\"" << _pt._textures[i]._wrap_v << "\"";
+    }
+    if (_pt._textures[i]._wrap_w.length() > 0)
+    {
+      of << " wrap_w=\"" << _pt._textures[i]._wrap_w << "\"";
     }
     of << ">" << _pt._textures[i]._fname << "</texture>" << endl;
   }
@@ -491,6 +496,8 @@ void PackageViewer::render_texture_ui()
   _ui_texture_names[idx] = name_buffer; //terrible, fix this
   tt->_name = name_buffer;
 
+  ImGui::InputInt("Depth Slices", (int *)(&tt->_slices));
+
   if (ImGui::Button("..."))
   {
     tt->_fname = make_filename_relative(open_file_dialog("/meshes", "Image Files\0*.tga;*.png;*.jpg;*tif;*.tiff\0All\*.*\0"));
@@ -501,6 +508,7 @@ void PackageViewer::render_texture_ui()
   static int curr_format = 0;
   static int curr_wrap_u = 0;
   static int curr_wrap_v = 0;
+  static int curr_wrap_w = 0;
 
   if (tt->_format.length() == 0) { curr_format = 0; }
   else if (!tt->_format.compare("DXT3")) { curr_format = 1; }
@@ -530,9 +538,10 @@ void PackageViewer::render_texture_ui()
   else if (!tt->_wrap_v.compare("CLAMP")) { curr_wrap_v = 1; }
   else if (!tt->_wrap_v.compare("CLAMP_BORDER")) { curr_wrap_v = 2; }
   ImGui::Text("Wrap Mode");
-  ImGui::PushItemWidth(140);
+  ImGui::PushItemWidth(100);
   ImGui::Combo("U", &curr_wrap_u, "REPEAT\0CLAMP\0CLAMP_BORDER"); ImGui::SameLine();
-  ImGui::Combo("V", &curr_wrap_v, "REPEAT\0CLAMP\0CLAMP_BORDER");
+  ImGui::Combo("V", &curr_wrap_v, "REPEAT\0CLAMP\0CLAMP_BORDER"); ImGui::SameLine();
+  ImGui::Combo("W", &curr_wrap_w, "REPEAT\0CLAMP\0CLAMP_BORDER");
   ImGui::PopItemWidth();
 
   switch (curr_wrap_u)
@@ -564,6 +573,22 @@ void PackageViewer::render_texture_ui()
     break;
   default:
     tt->_wrap_v = "";
+    break;
+  }
+
+  switch (curr_wrap_w)
+  {
+  case 0:
+    tt->_wrap_w = "";
+    break;
+  case 1:
+    tt->_wrap_w = "CLAMP";
+    break;
+  case 2:
+    tt->_wrap_w = "CLAMP_BORDER";
+    break;
+  default:
+    tt->_wrap_w = "";
     break;
   }
 }

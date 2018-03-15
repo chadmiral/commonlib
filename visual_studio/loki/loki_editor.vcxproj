@@ -59,6 +59,7 @@
     <ClCompile Include="..\..\mathlib\src\voronoi.cpp" />
     <ClCompile Include="..\..\mathlib\src\voronoi_sphere.cpp" />
     <ClCompile Include="..\..\tools\src\animation_baker.cpp" />
+    <ClCompile Include="..\..\tools\src\lens_flare_baker.cpp" />
     <ClCompile Include="..\..\tools\src\material_baker.cpp" />
     <ClCompile Include="..\..\tools\src\mxml-2.9\mxml-attr.c" />
     <ClCompile Include="..\..\tools\src\mxml-2.9\mxml-entity.c" />
@@ -135,6 +136,7 @@
     <ClInclude Include="..\..\mathlib\include\voronoi_sphere.h" />
     <ClInclude Include="..\..\platform.h" />
     <ClInclude Include="..\..\platform_gl.h" />
+    <ClInclude Include="..\..\structures\include\kdtree.h" />
     <ClInclude Include="..\..\tools\include\material_baker.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -207,7 +209,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;__LOKI__;NO_IMGUIFILESYSTEM;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\..\loki\;..\..\;..\..\..\imgui_addons\;..\..\..\imgui\examples\opengl3_example\;..\..\..\imgui;..\..\..\SDL2-2.0.4\include;..\..\..\glm-0.9.8.4\glm\;..\..\..\gl3w;..\..\..\SDL2_image-2.0.1\include\;..\..\..\glfw\include;..\..\graphics\include;..\..\mathlib\include;..\..\loki\views;..\..\game\include\animation;..\..\tools\src\mxml-2.9\;..\..\tools\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\loki\;..\..\;..\..\..\imgui_addons\;..\..\..\imgui\examples\opengl3_example\;..\..\..\imgui;..\..\..\SDL2-2.0.4\include;..\..\..\glm-0.9.8.4\glm\;..\..\..\gl3w;..\..\..\SDL2_image-2.0.1\include\;..\..\..\glfw\include;..\..\graphics\include;..\..\mathlib\include;..\..\loki\views;..\..\game\include\animation;..\..\tools\src\mxml-2.9\;..\..\tools\include\;..\..\structures\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ShowIncludes>false</ShowIncludes>
     </ClCompile>
     <Link>
@@ -239,7 +241,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;__LOKI__;NO_IMGUIFILESYSTEM;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\..\loki\;..\..\;..\..\..\imgui_addons\;..\..\..\imgui\examples\opengl3_example\;..\..\..\imgui;..\..\..\SDL2-2.0.4\include;..\..\..\glm-0.9.8.4\glm\;..\..\..\gl3w;..\..\..\SDL2_image-2.0.1\include\;..\..\..\glfw\include;..\..\graphics\include;..\..\mathlib\include;..\..\loki\views;..\..\game\include\animation;..\..\tools\src\mxml-2.9\;..\..\tools\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\loki\;..\..\;..\..\..\imgui_addons\;..\..\..\imgui\examples\opengl3_example\;..\..\..\imgui;..\..\..\SDL2-2.0.4\include;..\..\..\glm-0.9.8.4\glm\;..\..\..\gl3w;..\..\..\SDL2_image-2.0.1\include\;..\..\..\glfw\include;..\..\graphics\include;..\..\mathlib\include;..\..\loki\views;..\..\game\include\animation;..\..\tools\src\mxml-2.9\;..\..\tools\include\;..\..\structures\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ShowIncludes>false</ShowIncludes>
     </ClCompile>
     <Link>

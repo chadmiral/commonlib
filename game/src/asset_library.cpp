@@ -114,6 +114,16 @@ Texture2D *AssetLibrary::retrieve_texture(std::string name)
   return tex_asset->t;
 }
 
+Texture3D *AssetLibrary::retrieve_texture_3d(std::string name)
+{
+  Texture3DAsset *tex_asset = (Texture3DAsset *)retrieve_asset(name);
+  assert(tex_asset);
+  if (!tex_asset) { return NULL; }
+  assert(tex_asset->type == TEXTURE_3D_ASSET);
+  assert(tex_asset->t);
+  return tex_asset->t;
+}
+
 Material *AssetLibrary::retrieve_material(std::string name)
 {
   MaterialAsset *mat_asset = (MaterialAsset *)retrieve_asset(name);

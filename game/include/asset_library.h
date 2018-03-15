@@ -20,6 +20,7 @@ namespace Game
   {
     SHADER_ASSET,
     TEXTURE_ASSET,
+    TEXTURE_3D_ASSET,
     MATERIAL_ASSET,
     MESH_ASSET,
     SKELETON_ASSET,
@@ -68,6 +69,17 @@ namespace Game
     virtual void reload_from_disk();
 
     Graphics::Texture2D *t;
+  };
+
+  class Texture3DAsset : public GameAsset
+  {
+  public:
+    Texture3DAsset() : GameAsset(TEXTURE_3D_ASSET) {}
+    ~Texture3DAsset() {}
+
+    virtual void reload_from_disk() { assert(false); }
+
+    Graphics::Texture3D *t;
   };
 
   class MaterialAsset : public GameAsset
@@ -149,6 +161,7 @@ namespace Game
     GameAsset *retrieve_asset(std::string name);
     Graphics::Shader *retrieve_shader(std::string name);
     Graphics::Texture2D *retrieve_texture(std::string name);
+    Graphics::Texture3D *retrieve_texture_3d(std::string name);
     Graphics::Material *retrieve_material(std::string name);
     Graphics::StaticMesh *retrieve_mesh(std::string name);
     Animation::Skeleton *retrieve_skeleton(std::string name);

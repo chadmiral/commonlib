@@ -41,7 +41,7 @@ namespace Game
 
     VMExpressionTree *parse_expression(std::string exp)
     {
-      while(*c != '\0')
+      //while(*c != '\0')
       {
 
       }
@@ -49,6 +49,7 @@ namespace Game
 
     float evaluate(char *instruction, uint8_t instruction_length)
     {
+      /*
       // 1 byte each
       //----------------------------------------------------+
       //|  OP CODE  |  operand  A  | operand B |  operand C |
@@ -74,6 +75,7 @@ namespace Game
         default:
           break;
       }
+      */
     }
   private:
   };

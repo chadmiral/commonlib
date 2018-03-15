@@ -267,26 +267,30 @@ void Texture2D::write_to_tga(std::string fname)
   }
 }
 
-Texture3D::Texture3D(const unsigned int w, const unsigned int h, const unsigned int d, const GLuint m)
+Texture3D::Texture3D(const unsigned int w, const unsigned int h, const unsigned int d, const GLuint _data_format, const GLuint _internal_format, const GLuint _tex_format)
 {
   fname[0] = '\0';
 
   assert(w > 0 && h > 0 && d > 0);
   dim[0] = w; dim[1] = h; dim[2] = d;
 
-  gl_mode = m;
   wrap_mode[0] = wrap_mode[1] = wrap_mode[2] = GL_REPEAT;
   filter_mode = GL_NEAREST;
+  data_format = _data_format;
+  internal_format = _internal_format;
+  tex_format = _tex_format;
 }
 
 Texture3D::Texture3D(const char *n)
 {
 #if defined (_WIN32)
-  strcpy_s(fname, n);
+  fname = n;
 #else
   strcpy(fname, n);
 #endif
-  gl_mode = GL_RGBA;
+  data_format = GL_UNSIGNED_BYTE;
+  internal_format = GL_RGBA;
+  tex_format = GL_RGBA;
   wrap_mode[0] = wrap_mode[1] = wrap_mode[2] = GL_REPEAT;
   filter_mode = GL_LINEAR;
 }
@@ -307,13 +311,13 @@ void Texture3D::init()
 
   glTexImage3D(GL_TEXTURE_3D,
                0,
-               gl_mode,
+               internal_format,
                dim[0],
                dim[1],
                dim[2],
                0,
-               gl_mode,
-               GL_UNSIGNED_BYTE,
+               tex_format,
+               data_format,
                NULL);
 
    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, wrap_mode[0]);
@@ -323,6 +327,24 @@ void Texture3D::init()
    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, filter_mode);
 
    assert(glIsTexture(gl_texture) == GL_TRUE);
+}
+
+bool Texture3D::update_pixels_from_mem(void *pixels)
+{
+  int mip_level = 0;
+  glBindTexture(GL_TEXTURE_3D, gl_texture);
+  glTexSubImage3D(GL_TEXTURE_3D,
+    mip_level,        //mip level to overwrite
+    0,                //starting u-coord
+    0,                //starting v-coord
+    0,                //starting w-coord
+    dim[0],           //width of update rect
+    dim[1],           //height of update rect
+    dim[2],
+    tex_format,       //pixel format
+    data_format,      //GL_UNSIGNED_BYTE, etc.
+    pixels);          //pointer to pixel data
+  return true;
 }
 
 bool Texture3D::load(const unsigned int depth)
@@ -341,7 +363,7 @@ bool Texture3D::load(const unsigned int depth)
 #else
     //SDL2 way of loading
     cout<<"IMG_Load("<<fname<<")"<<endl;
-    SDL_Surface *image = IMG_Load(fname);
+    SDL_Surface *image = IMG_Load(fname.c_str());
 
     assert(image);
     dim[0] = width = image->w / depth;

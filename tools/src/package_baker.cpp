@@ -551,6 +551,14 @@ void PackageBaker::parse_texture_xml(mxml_node_t *texture_node, TextureTemplate 
   const char *buffer = NULL;
   buffer = mxmlElementGetAttr(texture_node, "name");
   tt._name = buffer;
+
+  tt._slices = 1;
+  buffer = mxmlElementGetAttr(texture_node, "slices");
+  if (buffer)
+  {
+    tt._slices = atoi(buffer);
+  }
+
   buffer = mxmlElementGetAttr(texture_node, "format");
   if (buffer)
   {
@@ -565,6 +573,11 @@ void PackageBaker::parse_texture_xml(mxml_node_t *texture_node, TextureTemplate 
   if (buffer)
   {
     tt._wrap_v = buffer;
+  }
+  buffer = mxmlElementGetAttr(texture_node, "wrap_w");
+  if (buffer)
+  {
+    tt._wrap_w = buffer;
   }
 
   buffer = mxmlGetText(texture_node, NULL);
@@ -582,7 +595,7 @@ void PackageBaker::read_texture_file(TextureTemplate &tt, std::ostream &log)
 
   texture_asset->name = tt._name;
   texture_asset->fname = tt._fname;
-  tt._format = tt._format;
+  //texture_asset->format = tt._format; //TODO
 
   SDL_Surface *image = IMG_Load(texture_asset->fname.c_str());
   if (!image)
@@ -593,11 +606,14 @@ void PackageBaker::read_texture_file(TextureTemplate &tt, std::ostream &log)
 
   log << __CONSOLE_LOG_GREEN__ << "OK" << endl;
 
-  log << "\twidth: "<< image->w <<endl;
+  log << "\twidth: " << image->w / tt._slices << endl;
   log << "\theight: " << image->h << endl;
+  log << "\tdepth: " << tt._slices << endl;
+
   texture_asset->bpp = image->format->BytesPerPixel;
-  texture_asset->width = image->w;
+  texture_asset->width = image->w / tt._slices;
   texture_asset->height = image->h;
+  texture_asset->depth = tt._slices;
 
   //copy the texture data to the asset object to be written to the package
   texture_asset->tex_data_size = texture_asset->bpp * image->w * image->h;
@@ -1082,8 +1098,10 @@ void PackageBaker::write_texture_packlet(FILE *fp, TexturePackageAsset *t, std::
   fwrite(&t->bpp, sizeof(uint32_t), 1, fp);
   fwrite(&t->width, sizeof(uint32_t), 1, fp);
   fwrite(&t->height, sizeof(uint32_t), 1, fp);
+  fwrite(&t->depth, sizeof(uint32_t), 1, fp);
   fwrite(&t->wrap_u, sizeof(uint32_t), 1, fp);
   fwrite(&t->wrap_v, sizeof(uint32_t), 1, fp);
+  fwrite(&t->wrap_w, sizeof(uint32_t), 1, fp);
   fwrite(&(t->tex_data_size), sizeof(uint32_t), 1, fp);
 
   fwrite(t->name.c_str(), sizeof(char), name_length, fp);

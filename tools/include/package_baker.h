@@ -27,23 +27,33 @@ namespace Tool
     std::string _format;
     std::string _wrap_u;
     std::string _wrap_v;
+    std::string _wrap_w;
     std::string _fname;
+    uint32_t    _slices; // for 3D textures
   };
 
   class TexturePackageAsset : public PackageAsset
   {
   public:
-    TexturePackageAsset() : PackageAsset(PACKAGE_ASSET_TEXTURE) { tex_data = NULL; tex_data_size = 0; wrap_u = GL_REPEAT; wrap_v = GL_REPEAT; }
-    TexturePackageAsset(TextureTemplate &tt) : PackageAsset(PACKAGE_ASSET_TEXTURE)
-    {
-      tex_data = NULL;
-      tex_data_size = 0;
+    TexturePackageAsset() : PackageAsset(PACKAGE_ASSET_TEXTURE),
+      tex_data(NULL),
+      tex_data_size(0),
+      wrap_u(GL_REPEAT),
+      wrap_v(GL_REPEAT),
+      wrap_w(GL_REPEAT),
+      slices(1) {}
 
+    TexturePackageAsset(TextureTemplate &tt) : PackageAsset(PACKAGE_ASSET_TEXTURE),
+      tex_data(NULL),
+      tex_data_size(0),
+      wrap_u(GL_REPEAT),
+      wrap_v(GL_REPEAT),
+      wrap_w(GL_REPEAT),
+      slices(tt._slices)
+    {
       name = tt._name;
       fname = tt._fname;
 
-      wrap_u = GL_REPEAT;
-      wrap_v = GL_REPEAT;
       if (tt._wrap_u.length() > 0 && !stricmp(tt._wrap_u.c_str(), "clamp"))
       {
         wrap_u = GL_CLAMP;
@@ -57,9 +67,14 @@ namespace Tool
 
     uint32_t width;  //texture width
     uint32_t height; //texture height
+    uint32_t depth;  //texture depth
+
+    uint32_t slices; //for 3d textures
     uint32_t bpp;    //bytes per pixel
+
     uint32_t wrap_u; //wrap mode for u axis
     uint32_t wrap_v; //wrap mode for v axis
+    uint32_t wrap_w; //wrap_mode for w axis
 
     void     *tex_data;       //pointer to the actual texture data
     uint32_t tex_data_size;   //size of the texture data

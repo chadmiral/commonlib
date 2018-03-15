@@ -623,7 +623,7 @@ void MaterialTool::generate_glsl(int pipeline_stage, std::ostream &codex)
     _nge[pipeline_stage].getAllNodesOfType(SHADER_NODE_FS_OUTPUT, &out_nodes);
 
     assert(fs_in_nodes.size() == 1);
-    in_node = (FSInputNode *)fs_in_nodes[0];
+    in_node = (MeshInputNode *)fs_in_nodes[0];
   }
 
   for (int i = 0; i < out_nodes.size(); i++) //really, there should only ever be one
