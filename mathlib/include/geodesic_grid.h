@@ -402,6 +402,11 @@ public:
       delete kd_tree;
     }
   }
+  
+  float get_cell_surface_area()
+  {
+    return 4.0f * M_PI / (float)num_cells;
+  }
 
   void generate_kd_tree()
   {
