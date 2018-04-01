@@ -16,6 +16,8 @@ namespace Graphics
     RenderContext() { _camera = NULL; }
     ~RenderContext() {}
 
+    Camera *get_camera() { return _camera; }
+
     Light *get_sun_light() { return _lights[0]; }
 
     //TODO: this is sloppy
