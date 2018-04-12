@@ -75,26 +75,26 @@ template <class T>
 class GeodesicGrid
 {
 private:
-  int file_version;
-  int selected_cell;                  //index of currently selected cell
+  int _file_version;
+  int _selected_cell;                  //index of currently selected cell
 
-  uint32_t subdivision_levels;             //current subdivision level
-  uint32_t num_cells;                      //number of geodesic cells
+  uint32_t _subdivision_levels;        //current subdivision level
+  uint32_t _num_cells;                 //number of geodesic cells
                                       //int num_dual_cells;                 //number of cells in the geometric dual
-  uint32_t num_edges;                      //number of edges
-  uint32_t num_faces;                      //number of faces
+  uint32_t _num_edges;                 //number of edges
+  uint32_t _num_faces;                 //number of faces
 
-  GeodesicCell<T>    *cells;          //the array of cells that store the actual data
+  GeodesicCell<T>    *_cells;          //the array of cells that store the actual data
                                       //GeodesicCell<T>    *dual_cells;     //the array of cells of the dual polyhedron
 
-  GeodesicEdge<T>    *edges;          //the array of cell pairs (edges)
-  GeodesicFace<T>    *faces;          //the array of edge triangles (faces)
+  GeodesicEdge<T>    *_edges;          //the array of cell pairs (edges)
+  GeodesicFace<T>    *_faces;          //the array of edge triangles (faces)
 
-  Structures::KDTree3D<GeodesicCell<T> *>        *kd_tree;
+  Structures::KDTree3D<GeodesicCell<T> *>        *_kd_tree;
 
                                       //obsolete? (could be useful if we ever want to move this to the GPU)
-  GeodesicCell<T> ***adjacency_grid;  //store adjacency information
-  int *adj_dv;                        //vertical offset for adjacency grid
+  GeodesicCell<T> ***_adjacency_grid;  //store adjacency information
+  int *_adj_dv;                        //vertical offset for adjacency grid
 public:
   GeodesicGrid()
   {
@@ -107,18 +107,18 @@ public:
     // each vertex of the icosahedron is a cell. So we have 12 cells @ the
     // first subdivision level.
     //dual_cells = NULL;
-    kd_tree = NULL;
-    selected_cell = 0;
+    _kd_tree = NULL;
+    _selected_cell = 0;
 
-    subdivision_levels = 0;
-    num_cells = 12;
+    _subdivision_levels = 0;
+    _num_cells = 12;
     //num_dual_cells = 30;
-    num_edges = 30;
-    num_faces = 20;
+    _num_edges = 30;
+    _num_faces = 20;
 
-    cells = new GeodesicCell<T>[12];
-    edges = new GeodesicEdge<T>[30];
-    faces = new GeodesicFace<T>[20];
+    _cells = new GeodesicCell<T>[12];
+    _edges = new GeodesicEdge<T>[30];
+    _faces = new GeodesicFace<T>[20];
 
     // fill the 12 vertices with the cartesian coordinates of the icosahedron
     // (0, ±1, ± φ)
@@ -151,192 +151,192 @@ public:
     //      way right now. (also, I don't have a matrix class in my math library yet)
     //
 
-    cells[CELL_N].pos = Math::Float3( 0.00000f,  1.00000f,  0.00000f);  // A (N pole)
+    _cells[CELL_N].pos = Math::Float3( 0.00000f,  1.00000f,  0.00000f);  // A (N pole)
 
-    cells[CELL_B].pos = Math::Float3( 0.89442f,  0.44721f, 0.00000f);
-    cells[CELL_C].pos = Math::Float3( 0.27639f, 0.44721f, -0.85064f);
-    cells[CELL_D].pos = Math::Float3(-0.72360f, 0.44721f, -0.52572f);
-    cells[CELL_E].pos = Math::Float3(-0.72360f,  0.44721f, 0.52572f);
-    cells[CELL_F].pos = Math::Float3( 0.27639f,  0.44721f, 0.85064f);
+    _cells[CELL_B].pos = Math::Float3( 0.89442f,  0.44721f, 0.00000f);
+    _cells[CELL_C].pos = Math::Float3( 0.27639f, 0.44721f, -0.85064f);
+    _cells[CELL_D].pos = Math::Float3(-0.72360f, 0.44721f, -0.52572f);
+    _cells[CELL_E].pos = Math::Float3(-0.72360f,  0.44721f, 0.52572f);
+    _cells[CELL_F].pos = Math::Float3( 0.27639f,  0.44721f, 0.85064f);
 
-    cells[CELL_G].pos = Math::Float3( 0.72360f, -0.44721f, -0.52572f);
-    cells[CELL_H].pos = Math::Float3(-0.27639f, -0.44721f, -0.85064f);
-    cells[CELL_I].pos = Math::Float3(-0.89442f, -0.44721f, 0.00000f);
-    cells[CELL_J].pos = Math::Float3(-0.27639f, -0.44721f, 0.85064f);
-    cells[CELL_K].pos = Math::Float3( 0.72360f, -0.44721f, 0.52572f);
+    _cells[CELL_G].pos = Math::Float3( 0.72360f, -0.44721f, -0.52572f);
+    _cells[CELL_H].pos = Math::Float3(-0.27639f, -0.44721f, -0.85064f);
+    _cells[CELL_I].pos = Math::Float3(-0.89442f, -0.44721f, 0.00000f);
+    _cells[CELL_J].pos = Math::Float3(-0.27639f, -0.44721f, 0.85064f);
+    _cells[CELL_K].pos = Math::Float3( 0.72360f, -0.44721f, 0.52572f);
 
-    cells[CELL_S].pos = Math::Float3( 0.00000f, -1.00000f,  0.00000f);  // F (S pole)q
+    _cells[CELL_S].pos = Math::Float3( 0.00000f, -1.00000f,  0.00000f);  // F (S pole)q
 
     //add edges
-    edges[0].a = &cells[CELL_A];    edges[0].b = &cells[CELL_B];
-    edges[1].a = &cells[CELL_A];    edges[1].b = &cells[CELL_C];
-    edges[2].a = &cells[CELL_A];    edges[2].b = &cells[CELL_D];
-    edges[3].a = &cells[CELL_A];    edges[3].b = &cells[CELL_E];
-    edges[4].a = &cells[CELL_A];    edges[4].b = &cells[CELL_F];
+    _edges[0].a = &_cells[CELL_A];    _edges[0].b = &_cells[CELL_B];
+    _edges[1].a = &_cells[CELL_A];    _edges[1].b = &_cells[CELL_C];
+    _edges[2].a = &_cells[CELL_A];    _edges[2].b = &_cells[CELL_D];
+    _edges[3].a = &_cells[CELL_A];    _edges[3].b = &_cells[CELL_E];
+    _edges[4].a = &_cells[CELL_A];    _edges[4].b = &_cells[CELL_F];
 
-    edges[5].a = &cells[CELL_B];    edges[5].b = &cells[CELL_F];
-    edges[6].a = &cells[CELL_B];    edges[6].b = &cells[CELL_K];
-    edges[7].a = &cells[CELL_B];    edges[7].b = &cells[CELL_G];
-    edges[8].a = &cells[CELL_B];    edges[8].b = &cells[CELL_C];
+    _edges[5].a = &_cells[CELL_B];    _edges[5].b = &_cells[CELL_F];
+    _edges[6].a = &_cells[CELL_B];    _edges[6].b = &_cells[CELL_K];
+    _edges[7].a = &_cells[CELL_B];    _edges[7].b = &_cells[CELL_G];
+    _edges[8].a = &_cells[CELL_B];    _edges[8].b = &_cells[CELL_C];
 
-    edges[9].a = &cells[CELL_C];    edges[9].b = &cells[CELL_G];
-    edges[10].a = &cells[CELL_C];    edges[10].b = &cells[CELL_H];
-    edges[11].a = &cells[CELL_C];    edges[11].b = &cells[CELL_D];
+    _edges[9].a = &_cells[CELL_C];     _edges[9].b = &_cells[CELL_G];
+    _edges[10].a = &_cells[CELL_C];    _edges[10].b = &_cells[CELL_H];
+    _edges[11].a = &_cells[CELL_C];    _edges[11].b = &_cells[CELL_D];
 
-    edges[12].a = &cells[CELL_D];    edges[12].b = &cells[CELL_H];
-    edges[13].a = &cells[CELL_D];    edges[13].b = &cells[CELL_I];
-    edges[14].a = &cells[CELL_D];    edges[14].b = &cells[CELL_E];
+    _edges[12].a = &_cells[CELL_D];    _edges[12].b = &_cells[CELL_H];
+    _edges[13].a = &_cells[CELL_D];    _edges[13].b = &_cells[CELL_I];
+    _edges[14].a = &_cells[CELL_D];    _edges[14].b = &_cells[CELL_E];
 
-    edges[15].a = &cells[CELL_E];    edges[15].b = &cells[CELL_I];
-    edges[16].a = &cells[CELL_E];    edges[16].b = &cells[CELL_J];
-    edges[17].a = &cells[CELL_E];    edges[17].b = &cells[CELL_F];
+    _edges[15].a = &_cells[CELL_E];    _edges[15].b = &_cells[CELL_I];
+    _edges[16].a = &_cells[CELL_E];    _edges[16].b = &_cells[CELL_J];
+    _edges[17].a = &_cells[CELL_E];    _edges[17].b = &_cells[CELL_F];
 
-    edges[18].a = &cells[CELL_F];    edges[18].b = &cells[CELL_J];
-    edges[19].a = &cells[CELL_F];    edges[19].b = &cells[CELL_K];
+    _edges[18].a = &_cells[CELL_F];    _edges[18].b = &_cells[CELL_J];
+    _edges[19].a = &_cells[CELL_F];    _edges[19].b = &_cells[CELL_K];
 
-    edges[20].a = &cells[CELL_G];    edges[20].b = &cells[CELL_K];
-    edges[21].a = &cells[CELL_G];    edges[21].b = &cells[CELL_L];
-    edges[22].a = &cells[CELL_G];    edges[22].b = &cells[CELL_H];
+    _edges[20].a = &_cells[CELL_G];    _edges[20].b = &_cells[CELL_K];
+    _edges[21].a = &_cells[CELL_G];    _edges[21].b = &_cells[CELL_L];
+    _edges[22].a = &_cells[CELL_G];    _edges[22].b = &_cells[CELL_H];
 
-    edges[23].a = &cells[CELL_H];    edges[23].b = &cells[CELL_L];
-    edges[24].a = &cells[CELL_H];    edges[24].b = &cells[CELL_I];
+    _edges[23].a = &_cells[CELL_H];    _edges[23].b = &_cells[CELL_L];
+    _edges[24].a = &_cells[CELL_H];    _edges[24].b = &_cells[CELL_I];
 
-    edges[25].a = &cells[CELL_I];    edges[25].b = &cells[CELL_L];
-    edges[26].a = &cells[CELL_I];    edges[26].b = &cells[CELL_J];
+    _edges[25].a = &_cells[CELL_I];    _edges[25].b = &_cells[CELL_L];
+    _edges[26].a = &_cells[CELL_I];    _edges[26].b = &_cells[CELL_J];
 
-    edges[27].a = &cells[CELL_J];    edges[27].b = &cells[CELL_L];
-    edges[28].a = &cells[CELL_J];    edges[28].b = &cells[CELL_K];
+    _edges[27].a = &_cells[CELL_J];    _edges[27].b = &_cells[CELL_L];
+    _edges[28].a = &_cells[CELL_J];    _edges[28].b = &_cells[CELL_K];
 
-    edges[29].a = &cells[CELL_K];    edges[29].b = &cells[CELL_L];
+    _edges[29].a = &_cells[CELL_K];    _edges[29].b = &_cells[CELL_L];
 
     //set up faces
-    faces[0].set_faces(&cells[CELL_A], &cells[CELL_B], &cells[CELL_C]);      //ABC
-    faces[1].set_faces(&cells[CELL_A], &cells[CELL_C], &cells[CELL_D]);      //ACD
-    faces[2].set_faces(&cells[CELL_A], &cells[CELL_D], &cells[CELL_E]);      //ADE
-    faces[3].set_faces(&cells[CELL_A], &cells[CELL_E], &cells[CELL_F]);      //AEF
-    faces[4].set_faces(&cells[CELL_A], &cells[CELL_F], &cells[CELL_B]);      //AFB
+    _faces[0].set_faces(&_cells[CELL_A], &_cells[CELL_B], &_cells[CELL_C]);      //ABC
+    _faces[1].set_faces(&_cells[CELL_A], &_cells[CELL_C], &_cells[CELL_D]);      //ACD
+    _faces[2].set_faces(&_cells[CELL_A], &_cells[CELL_D], &_cells[CELL_E]);      //ADE
+    _faces[3].set_faces(&_cells[CELL_A], &_cells[CELL_E], &_cells[CELL_F]);      //AEF
+    _faces[4].set_faces(&_cells[CELL_A], &_cells[CELL_F], &_cells[CELL_B]);      //AFB
 
-    faces[5].set_faces(&cells[CELL_B], &cells[CELL_G], &cells[CELL_C]);      //BGC
-    faces[6].set_faces(&cells[CELL_C], &cells[CELL_G], &cells[CELL_H]);      //CGH
-    faces[7].set_faces(&cells[CELL_C], &cells[CELL_H], &cells[CELL_D]);      //CHD
-    faces[8].set_faces(&cells[CELL_D], &cells[CELL_H], &cells[CELL_I]);      //DHI
-    faces[9].set_faces(&cells[CELL_D], &cells[CELL_I], &cells[CELL_E]);      //DIE
-    faces[10].set_faces(&cells[CELL_E], &cells[CELL_I], &cells[CELL_J]);    //EIJ
-    faces[11].set_faces(&cells[CELL_E], &cells[CELL_J], &cells[CELL_F]);    //EJF
-    faces[12].set_faces(&cells[CELL_F], &cells[CELL_J], &cells[CELL_K]);    //FJK
-    faces[13].set_faces(&cells[CELL_F], &cells[CELL_K], &cells[CELL_B]);    //FKB
-    faces[14].set_faces(&cells[CELL_B], &cells[CELL_K], &cells[CELL_G]);    //BKG
+    _faces[5].set_faces(&_cells[CELL_B], &_cells[CELL_G], &_cells[CELL_C]);      //BGC
+    _faces[6].set_faces(&_cells[CELL_C], &_cells[CELL_G], &_cells[CELL_H]);      //CGH
+    _faces[7].set_faces(&_cells[CELL_C], &_cells[CELL_H], &_cells[CELL_D]);      //CHD
+    _faces[8].set_faces(&_cells[CELL_D], &_cells[CELL_H], &_cells[CELL_I]);      //DHI
+    _faces[9].set_faces(&_cells[CELL_D], &_cells[CELL_I], &_cells[CELL_E]);      //DIE
+    _faces[10].set_faces(&_cells[CELL_E], &_cells[CELL_I], &_cells[CELL_J]);    //EIJ
+    _faces[11].set_faces(&_cells[CELL_E], &_cells[CELL_J], &_cells[CELL_F]);    //EJF
+    _faces[12].set_faces(&_cells[CELL_F], &_cells[CELL_J], &_cells[CELL_K]);    //FJK
+    _faces[13].set_faces(&_cells[CELL_F], &_cells[CELL_K], &_cells[CELL_B]);    //FKB
+    _faces[14].set_faces(&_cells[CELL_B], &_cells[CELL_K], &_cells[CELL_G]);    //BKG
 
-    faces[15].set_faces(&cells[CELL_L], &cells[CELL_G], &cells[CELL_K]);    //LGK
-    faces[16].set_faces(&cells[CELL_L], &cells[CELL_K], &cells[CELL_J]);    //LKJ
-    faces[17].set_faces(&cells[CELL_L], &cells[CELL_J], &cells[CELL_I]);    //LJI
-    faces[18].set_faces(&cells[CELL_L], &cells[CELL_I], &cells[CELL_H]);    //LIH
-    faces[19].set_faces(&cells[CELL_L], &cells[CELL_H], &cells[CELL_G]);    //LHG
+    _faces[15].set_faces(&_cells[CELL_L], &_cells[CELL_G], &_cells[CELL_K]);    //LGK
+    _faces[16].set_faces(&_cells[CELL_L], &_cells[CELL_K], &_cells[CELL_J]);    //LKJ
+    _faces[17].set_faces(&_cells[CELL_L], &_cells[CELL_J], &_cells[CELL_I]);    //LJI
+    _faces[18].set_faces(&_cells[CELL_L], &_cells[CELL_I], &_cells[CELL_H]);    //LIH
+    _faces[19].set_faces(&_cells[CELL_L], &_cells[CELL_H], &_cells[CELL_G]);    //LHG
 
 
     // set up adjacency (graph version)
     // IMPORTANT: THESE MUST BE CLOCKWISE FOR RENDERING TO WORK PROPERLY!!!
     // N - BCDEF
-    cells[CELL_N].add_neighbor(&cells[CELL_B]);
-    cells[CELL_N].add_neighbor(&cells[CELL_C]);
-    cells[CELL_N].add_neighbor(&cells[CELL_D]);
-    cells[CELL_N].add_neighbor(&cells[CELL_E]);
-    cells[CELL_N].add_neighbor(&cells[CELL_F]);
+    _cells[CELL_N].add_neighbor(&_cells[CELL_B]);
+    _cells[CELL_N].add_neighbor(&_cells[CELL_C]);
+    _cells[CELL_N].add_neighbor(&_cells[CELL_D]);
+    _cells[CELL_N].add_neighbor(&_cells[CELL_E]);
+    _cells[CELL_N].add_neighbor(&_cells[CELL_F]);
 
     // B - AFKGC
-    cells[CELL_B].add_neighbor(&cells[CELL_N]);
-    cells[CELL_B].add_neighbor(&cells[CELL_F]);
-    cells[CELL_B].add_neighbor(&cells[CELL_K]);
-    cells[CELL_B].add_neighbor(&cells[CELL_G]);
-    cells[CELL_B].add_neighbor(&cells[CELL_C]);
+    _cells[CELL_B].add_neighbor(&_cells[CELL_N]);
+    _cells[CELL_B].add_neighbor(&_cells[CELL_F]);
+    _cells[CELL_B].add_neighbor(&_cells[CELL_K]);
+    _cells[CELL_B].add_neighbor(&_cells[CELL_G]);
+    _cells[CELL_B].add_neighbor(&_cells[CELL_C]);
 
     // C - ABGHD
-    cells[CELL_C].add_neighbor(&cells[CELL_N]);
-    cells[CELL_C].add_neighbor(&cells[CELL_B]);
-    cells[CELL_C].add_neighbor(&cells[CELL_G]);
-    cells[CELL_C].add_neighbor(&cells[CELL_H]);
-    cells[CELL_C].add_neighbor(&cells[CELL_D]);
+    _cells[CELL_C].add_neighbor(&_cells[CELL_N]);
+    _cells[CELL_C].add_neighbor(&_cells[CELL_B]);
+    _cells[CELL_C].add_neighbor(&_cells[CELL_G]);
+    _cells[CELL_C].add_neighbor(&_cells[CELL_H]);
+    _cells[CELL_C].add_neighbor(&_cells[CELL_D]);
 
     // D - ACHIE
-    cells[CELL_D].add_neighbor(&cells[CELL_N]);
-    cells[CELL_D].add_neighbor(&cells[CELL_C]);
-    cells[CELL_D].add_neighbor(&cells[CELL_H]);
-    cells[CELL_D].add_neighbor(&cells[CELL_I]);
-    cells[CELL_D].add_neighbor(&cells[CELL_E]);
+    _cells[CELL_D].add_neighbor(&_cells[CELL_N]);
+    _cells[CELL_D].add_neighbor(&_cells[CELL_C]);
+    _cells[CELL_D].add_neighbor(&_cells[CELL_H]);
+    _cells[CELL_D].add_neighbor(&_cells[CELL_I]);
+    _cells[CELL_D].add_neighbor(&_cells[CELL_E]);
 
     // E - ADIJF
-    cells[CELL_E].add_neighbor(&cells[CELL_N]);
-    cells[CELL_E].add_neighbor(&cells[CELL_D]);
-    cells[CELL_E].add_neighbor(&cells[CELL_I]);
-    cells[CELL_E].add_neighbor(&cells[CELL_J]);
-    cells[CELL_E].add_neighbor(&cells[CELL_F]);
+    _cells[CELL_E].add_neighbor(&_cells[CELL_N]);
+    _cells[CELL_E].add_neighbor(&_cells[CELL_D]);
+    _cells[CELL_E].add_neighbor(&_cells[CELL_I]);
+    _cells[CELL_E].add_neighbor(&_cells[CELL_J]);
+    _cells[CELL_E].add_neighbor(&_cells[CELL_F]);
 
     // F - AEJKB
-    cells[CELL_F].add_neighbor(&cells[CELL_N]);
-    cells[CELL_F].add_neighbor(&cells[CELL_E]);
-    cells[CELL_F].add_neighbor(&cells[CELL_J]);
-    cells[CELL_F].add_neighbor(&cells[CELL_K]);
-    cells[CELL_F].add_neighbor(&cells[CELL_B]);
+    _cells[CELL_F].add_neighbor(&_cells[CELL_N]);
+    _cells[CELL_F].add_neighbor(&_cells[CELL_E]);
+    _cells[CELL_F].add_neighbor(&_cells[CELL_J]);
+    _cells[CELL_F].add_neighbor(&_cells[CELL_K]);
+    _cells[CELL_F].add_neighbor(&_cells[CELL_B]);
 
     // G - BKLHC
-    cells[CELL_G].add_neighbor(&cells[CELL_B]);
-    cells[CELL_G].add_neighbor(&cells[CELL_K]);
-    cells[CELL_G].add_neighbor(&cells[CELL_S]);
-    cells[CELL_G].add_neighbor(&cells[CELL_H]);
-    cells[CELL_G].add_neighbor(&cells[CELL_C]);
+    _cells[CELL_G].add_neighbor(&_cells[CELL_B]);
+    _cells[CELL_G].add_neighbor(&_cells[CELL_K]);
+    _cells[CELL_G].add_neighbor(&_cells[CELL_S]);
+    _cells[CELL_G].add_neighbor(&_cells[CELL_H]);
+    _cells[CELL_G].add_neighbor(&_cells[CELL_C]);
 
     // H - CGLID
-    cells[CELL_H].add_neighbor(&cells[CELL_C]);
-    cells[CELL_H].add_neighbor(&cells[CELL_G]);
-    cells[CELL_H].add_neighbor(&cells[CELL_S]);
-    cells[CELL_H].add_neighbor(&cells[CELL_I]);
-    cells[CELL_H].add_neighbor(&cells[CELL_D]);
+    _cells[CELL_H].add_neighbor(&_cells[CELL_C]);
+    _cells[CELL_H].add_neighbor(&_cells[CELL_G]);
+    _cells[CELL_H].add_neighbor(&_cells[CELL_S]);
+    _cells[CELL_H].add_neighbor(&_cells[CELL_I]);
+    _cells[CELL_H].add_neighbor(&_cells[CELL_D]);
 
     // I - DHLJE
-    cells[CELL_I].add_neighbor(&cells[CELL_D]);
-    cells[CELL_I].add_neighbor(&cells[CELL_H]);
-    cells[CELL_I].add_neighbor(&cells[CELL_S]);
-    cells[CELL_I].add_neighbor(&cells[CELL_J]);
-    cells[CELL_I].add_neighbor(&cells[CELL_E]);
+    _cells[CELL_I].add_neighbor(&_cells[CELL_D]);
+    _cells[CELL_I].add_neighbor(&_cells[CELL_H]);
+    _cells[CELL_I].add_neighbor(&_cells[CELL_S]);
+    _cells[CELL_I].add_neighbor(&_cells[CELL_J]);
+    _cells[CELL_I].add_neighbor(&_cells[CELL_E]);
 
     // J - EILKF
-    cells[CELL_J].add_neighbor(&cells[CELL_E]);
-    cells[CELL_J].add_neighbor(&cells[CELL_I]);
-    cells[CELL_J].add_neighbor(&cells[CELL_S]);
-    cells[CELL_J].add_neighbor(&cells[CELL_K]);
-    cells[CELL_J].add_neighbor(&cells[CELL_F]);
+    _cells[CELL_J].add_neighbor(&_cells[CELL_E]);
+    _cells[CELL_J].add_neighbor(&_cells[CELL_I]);
+    _cells[CELL_J].add_neighbor(&_cells[CELL_S]);
+    _cells[CELL_J].add_neighbor(&_cells[CELL_K]);
+    _cells[CELL_J].add_neighbor(&_cells[CELL_F]);
 
     // K - BFJLG
-    cells[CELL_K].add_neighbor(&cells[CELL_B]);
-    cells[CELL_K].add_neighbor(&cells[CELL_F]);
-    cells[CELL_K].add_neighbor(&cells[CELL_J]);
-    cells[CELL_K].add_neighbor(&cells[CELL_S]);
-    cells[CELL_K].add_neighbor(&cells[CELL_G]);
+    _cells[CELL_K].add_neighbor(&_cells[CELL_B]);
+    _cells[CELL_K].add_neighbor(&_cells[CELL_F]);
+    _cells[CELL_K].add_neighbor(&_cells[CELL_J]);
+    _cells[CELL_K].add_neighbor(&_cells[CELL_S]);
+    _cells[CELL_K].add_neighbor(&_cells[CELL_G]);
 
     // S - GKJIH
-    cells[CELL_S].add_neighbor(&cells[CELL_G]);
-    cells[CELL_S].add_neighbor(&cells[CELL_K]);
-    cells[CELL_S].add_neighbor(&cells[CELL_J]);
-    cells[CELL_S].add_neighbor(&cells[CELL_I]);
-    cells[CELL_S].add_neighbor(&cells[CELL_H]);
+    _cells[CELL_S].add_neighbor(&_cells[CELL_G]);
+    _cells[CELL_S].add_neighbor(&_cells[CELL_K]);
+    _cells[CELL_S].add_neighbor(&_cells[CELL_J]);
+    _cells[CELL_S].add_neighbor(&_cells[CELL_I]);
+    _cells[CELL_S].add_neighbor(&_cells[CELL_H]);
 
     //assign random colors to each vertex for now
     for(int i = 0; i < 12; i++)
     {
-      cells[i].color = Math::Float3(Math::random(0.0f, 1.0f), Math::random(0.0f, 1.0f), Math::random(0.0f, 1.0f));
+      _cells[i].color = Math::Float3(Math::random(0.0f, 1.0f), Math::random(0.0f, 1.0f), Math::random(0.0f, 1.0f));
       //cells[i].make_neighbors_clockwise();
     }
 
     //create 6 rows of adjacency data
-    adjacency_grid = new GeodesicCell<T> **[7];
+    _adjacency_grid = new GeodesicCell<T> **[7];
     for(int i = 0; i < 7; i++)
     {
       //longest rows have 4 entries
-      adjacency_grid[i] = new GeodesicCell<T> *[4];
+      _adjacency_grid[i] = new GeodesicCell<T> *[4];
       for(int j = 0; j < 4; j++)
       {
         //start off pointing to nothing (we'll fix this later)
-        adjacency_grid[i][j] = NULL;
+        _adjacency_grid[i][j] = NULL;
       }
     }
 
@@ -392,14 +392,14 @@ public:
 
   ~GeodesicGrid()
   {
-    delete[] cells;
-    delete[] edges;
-    delete[] faces;
+    delete[] _cells;
+    delete[] _edges;
+    delete[] _faces;
 
-    delete[] adjacency_grid;
-    if (kd_tree)
+    delete[] _adjacency_grid;
+    if (_kd_tree)
     {
-      delete kd_tree;
+      delete _kd_tree;
     }
   }
   
@@ -410,16 +410,17 @@ public:
 
   void generate_kd_tree()
   {
-    if (kd_tree)
+    //TODO: don't trigger garbage collection every frame!
+    if (_kd_tree)
     {
-      delete kd_tree;
+      delete _kd_tree;
     }
-    kd_tree = new Structures::KDTree3D<GeodesicCell<T> *>;
+    _kd_tree = new Structures::KDTree3D<GeodesicCell<T> *>;
 
-    for (uint32_t i = 0; i < num_cells; i++)
+    for (uint32_t i = 0; i < _num_cells; i++)
     {
-      GeodesicCell<T> *c = &(cells[i]);
-      kd_tree->insert_element(c->pos, c);
+      GeodesicCell<T> *c = &(_cells[i]);
+      _kd_tree->insert_element(c->pos, c);
     }
   }
 
@@ -431,7 +432,7 @@ public:
     }
   }
 
-  int get_subdivision_levels() const { return subdivision_levels; }
+  int get_subdivision_levels() const { return _subdivision_levels; }
 
   void select_next_cell()
   {
@@ -458,11 +459,11 @@ public:
     c->make_neighbors_clockwise();
   }
 
-  GeodesicCell<T> *get_cell_array() { return cells; }
-  uint32_t get_num_cells() const { return num_cells; }
+  GeodesicCell<T> *get_cell_array() { return _cells; }
+  uint32_t get_num_cells() const { return _num_cells; }
   //int get_num_dual_cells() const { return num_dual_cells; }
-  uint32_t get_num_edges() const { return num_edges; }
-  uint32_t get_num_faces() const { return num_faces; }
+  uint32_t get_num_edges() const { return _num_edges; }
+  uint32_t get_num_faces() const { return _num_faces; }
 
   GeodesicCell<T> *get_cell_by_uv(const Math::Float2 uv)
   {
@@ -475,11 +476,11 @@ public:
   
   GeodesicCell<T> *get_cell_by_xyz(const Math::Float3 xyz)
   {
-    if (!kd_tree)
+    if (!_kd_tree)
     {
       generate_kd_tree();
     }
-    Structures::KDNode<GeodesicCell<T> *> *n = kd_tree->find_nearest_neighbor(xyz);
+    Structures::KDNode<GeodesicCell<T> *> *n = _kd_tree->find_nearest_neighbor(xyz);
     return n->data;
   }
 
@@ -504,19 +505,19 @@ public:
   {
     assert(f);
 
-    fread(&file_version, sizeof(int), 1, f);
-    fread(&subdivision_levels, sizeof(int), 1, f);
+    fread(&_file_version, sizeof(int), 1, f);
+    fread(&_subdivision_levels, sizeof(int), 1, f);
 
-    fread(&num_cells, sizeof(int), 1, f);
+    fread(&_num_cells, sizeof(int), 1, f);
     //fread(&num_dual_cells, sizeof(int), 1, f);
-    fread(&num_edges, sizeof(int), 1, f);
-    fread(&num_faces, sizeof(int), 1, f);
+    fread(&_num_edges, sizeof(int), 1, f);
+    fread(&_num_faces, sizeof(int), 1, f);
 
-    delete [] cells;
-    cells = new GeodesicCell<T>[num_cells];
-    for(uint32_t i = 0; i < num_cells; i++)
+    delete [] _cells;
+    _cells = new GeodesicCell<T>[_num_cells];
+    for(uint32_t i = 0; i < _num_cells; i++)
     {
-      fread_cell(&cells[i], f);
+      fread_cell(&_cells[i], f);
     }
 
     /*delete [] dual_cells;
@@ -526,18 +527,17 @@ public:
       fread_cell(&dual_cells[i], f);
     }*/
 
-    delete [] edges;
-    edges = new GeodesicEdge<T>[num_edges];
-    for(uint32_t i = 0; i < num_edges; i++)
+    delete [] _edges;
+    _edges = new GeodesicEdge<T>[_num_edges];
+    for(uint32_t i = 0; i < _num_edges; i++)
     {
-      fread_edge(&edges[i], f);
+      fread_edge(&_edges[i], f);
     }
 
     generate_neighbor_centroids();
 
-    //....da fuq?!?!
-    delete [] faces;
-    faces = new GeodesicFace<T>[num_faces];
+    //delete [] _faces;
+    //_faces = new GeodesicFace<T>[_num_faces];
   }
 
   void fwrite_grid(FILE *f)
@@ -547,17 +547,17 @@ public:
 
     int file_version = GEODESIC_GRID_FILE_VERSION;
     fwrite(&file_version, sizeof(int), 1, f);
-    fwrite(&subdivision_levels, sizeof(int), 1, f);
+    fwrite(&_subdivision_levels, sizeof(int), 1, f);
 
-    fwrite(&num_cells, sizeof(int), 1, f);
+    fwrite(&_num_cells, sizeof(int), 1, f);
     //fwrite(&num_dual_cells, sizeof(int), 1, f);
-    fwrite(&num_edges, sizeof(int), 1, f);
-    fwrite(&num_faces, sizeof(int), 1, f);
+    fwrite(&_num_edges, sizeof(int), 1, f);
+    fwrite(&_num_faces, sizeof(int), 1, f);
 
     //write the actual arrays
-    for(uint32_t i = 0; i < num_cells; i++)
+    for(uint32_t i = 0; i < _num_cells; i++)
     {
-      fwrite_cell(&cells[i], f);
+      fwrite_cell(&_cells[i], f);
     }
 
     /*for(int i = 0; i < num_dual_cells; i++)
@@ -565,9 +565,9 @@ public:
       fwrite_cell(&dual_cells[i], f);
     }*/
 
-    for(uint32_t i = 0; i < num_edges; i++)
+    for(uint32_t i = 0; i < _num_edges; i++)
     {
-      fwrite_edge(&edges[i], f);
+      fwrite_edge(&_edges[i], f);
     }
 
     /*
@@ -631,18 +631,18 @@ private:
 
   void sub()
   {
-    subdivision_levels++;
+    _subdivision_levels++;
 
     // E = F + V - 2 (Euler)
-    uint32_t old_num_verts = num_cells;
-    uint32_t new_num_verts = num_cells + num_edges;
+    uint32_t old_num_verts = _num_cells;
+    uint32_t new_num_verts = _num_cells + _num_edges;
     GeodesicCell<T> *new_cells = new GeodesicCell<T>[new_num_verts];
 
-    uint32_t old_num_edges = num_edges;
-    uint32_t new_num_edges = num_edges * 2 * 2;
+    uint32_t old_num_edges = _num_edges;
+    uint32_t new_num_edges = _num_edges * 2 * 2;
     GeodesicEdge<T> *new_edges = new GeodesicEdge<T>[new_num_edges];
 
-    uint32_t old_num_faces = num_faces;
+    uint32_t old_num_faces = _num_faces;
     uint32_t new_num_faces = new_num_edges + 2 - new_num_verts; //E + 2 - V (Euler)
     GeodesicFace<T> *new_faces = new GeodesicFace<T>[new_num_faces];
 
@@ -651,8 +651,8 @@ private:
     for(uint32_t i = 0; i < old_num_verts; i++)
     {
       //copy the old vert to the temp list (operator=)
-      cells[i].pos.normalize();
-      new_cells[new_vert_idx] = cells[i];
+      _cells[i].pos.normalize();
+      new_cells[new_vert_idx] = _cells[i];
 
       GeodesicCell<T> *c = &new_cells[new_vert_idx];
       c->num_neighbors = 0;
@@ -660,16 +660,16 @@ private:
       //fix up edge list
       for(uint32_t j = 0; j < old_num_edges; j++)
       {
-        if(edges[j].a == &cells[i]) { edges[j].a = c; }
-        if(edges[j].b == &cells[i]) { edges[j].b = c; }
+        if(_edges[j].a == &_cells[i]) { _edges[j].a = c; }
+        if(_edges[j].b == &_cells[i]) { _edges[j].b = c; }
       }
 
       //fix up face list
       for(uint32_t j = 0; j < old_num_faces; j++)
       {
-        if(faces[j].a == &cells[i]) { faces[j].a = c; }
-        if(faces[j].b == &cells[i]) { faces[j].b = c; }
-        if(faces[j].c == &cells[i]) { faces[j].c = c; }
+        if(_faces[j].a == &_cells[i]) { _faces[j].a = c; }
+        if(_faces[j].b == &_cells[i]) { _faces[j].b = c; }
+        if(_faces[j].c == &_cells[i]) { _faces[j].c = c; }
       }
       new_vert_idx++;
     }
@@ -683,7 +683,7 @@ private:
       GeodesicCell<T> *bc = NULL;
       GeodesicCell<T> *ca = NULL;
 
-      GeodesicFace<T> *f = &faces[i];
+      GeodesicFace<T> *f = &_faces[i];
       Math::Float3 mid_ab = midpoint(f->a->pos, f->b->pos);
       Math::Float3 mid_bc = midpoint(f->b->pos, f->c->pos);
       Math::Float3 mid_ca = midpoint(f->c->pos, f->a->pos);
@@ -779,9 +779,9 @@ private:
     //generate_neighbor_centroids();
     //std::cout<<"edge_count: "<<edge_count<<std::endl;
 
-    delete[] cells;
-    cells = new_cells;
-    num_cells = new_num_verts;
+    delete[] _cells;
+    _cells = new_cells;
+    _num_cells = new_num_verts;
 
     generate_neighbor_centroids();
 
@@ -790,21 +790,21 @@ private:
     //std::cout<<"num_cells: "<<num_cells<<std::endl;
     //std::cout<<"new_num_edges: "<<new_num_edges<<std::endl;
 
-    delete[] faces;
-    faces = new_faces;
-    num_faces = new_num_faces;
+    delete[] _faces;
+    _faces = new_faces;
+    _num_faces = new_num_faces;
 
-    delete[] edges;
-    edges = new_edges;
-    num_edges = new_num_edges;
+    delete[] _edges;
+    _edges = new_edges;
+    _num_edges = new_num_edges;
   }
 
   void generate_neighbor_centroids()
   {
     //compute the neighbor centroids
-    for(uint32_t i = 0; i < num_cells; i++)
+    for(uint32_t i = 0; i < _num_cells; i++)
     {
-      GeodesicCell<T> *cell = &cells[i];
+      GeodesicCell<T> *cell = &_cells[i];
       for(uint32_t j = 0; j < cell->num_neighbors; j++)
       {
         GeodesicCell<T> *b = cell->neighbors[j];
@@ -829,8 +829,8 @@ private:
     {
       uint32_t cell_idx;
       fread(&cell_idx, sizeof(uint32_t), 1, f);
-      assert(cell_idx >= 0 && cell_idx < num_cells);
-      c->neighbors[i] = &cells[cell_idx];
+      assert(cell_idx >= 0 && cell_idx < _num_cells);
+      c->neighbors[i] = &_cells[cell_idx];
     }
   }
 
@@ -845,12 +845,12 @@ private:
     fwrite(&c->num_neighbors, sizeof(uint32_t), 1, f);
     for(uint32_t j = 0; j < c->num_neighbors; j++)
     {
-      for(uint32_t k = 0; k < num_cells; k++)
+      for(uint32_t k = 0; k < _num_cells; k++)
       {
-        if(&cells[k] == c->neighbors[j])
+        if(&_cells[k] == c->neighbors[j])
         {
           fwrite(&k, sizeof(uint32_t), 1, f);
-          k = num_cells;
+          k = _num_cells;
         }
       }
     }
@@ -865,22 +865,22 @@ private:
     assert(a_idx >= 0 && a_idx < num_cells);
     assert(b_idx >= 0 && b_idx < num_cells);
 
-    e->a = &cells[a_idx];
-    e->b = &cells[b_idx];
+    e->a = &_cells[a_idx];
+    e->b = &_cells[b_idx];
   }
 
   void fwrite_edge(GeodesicEdge<T> *e, FILE *f)
   {
-    for(uint32_t i = 0; i < num_cells; i++)
+    for(uint32_t i = 0; i < _num_cells; i++)
     {
-      if(&cells[i] == e->a)
+      if(&_cells[i] == e->a)
       {
         fwrite(&i, sizeof(int), 1, f);
       }
     }
-    for(uint32_t i = 0; i < num_cells; i++)
+    for(uint32_t i = 0; i < _num_cells; i++)
     {
-      if(&cells[i] == e->b)
+      if(&_cells[i] == e->b)
       {
         fwrite(&i, sizeof(int), 1, f);
       }

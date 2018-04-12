@@ -21,7 +21,7 @@ namespace Structures    {
   struct KDNode
   {
     KDNode(Math::Float3 v = Math::Float3(0.f, 0.f, 0.f), T t = T()) : data(t), value(v), left(NULL), right(NULL) {}
-    ~KDNode() { delete left; delete right; }
+    ~KDNode() { delete left; delete right; } //TODO: don't use GC -> write our own memory manager
 
     T data;
     Math::Float3 value;
