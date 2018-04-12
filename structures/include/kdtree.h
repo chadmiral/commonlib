@@ -6,7 +6,7 @@
 
 
 /*
- * KDTree for 3-dimensional points. By Ellis Hoag.
+ * KDTree for 3-dimensional points. By Ellis Hoag & Chandra Foxglove.
  * TODO: Currently you can insert and remove nodes
  * but the tree will not necessarily remain balanced.
  * After several insert/remove calls, this will become
@@ -16,12 +16,15 @@
  * when the balance becomes too bad.
  */
 
+#define KD_TREE_MAX_NODES 100000
+
 namespace Structures    {
   template <class T>
   struct KDNode
   {
+    //KDNode() : data(T()), value(Math::Float3()), left(NULL), right(NULL) {}
     KDNode(Math::Float3 v = Math::Float3(0.f, 0.f, 0.f), T t = T()) : data(t), value(v), left(NULL), right(NULL) {}
-    ~KDNode() { delete left; delete right; } //TODO: don't use GC -> write our own memory manager
+    ~KDNode() {} 
 
     T data;
     Math::Float3 value;
@@ -33,12 +36,59 @@ namespace Structures    {
   class KDTree3D
   {
   public:
-    KDTree3D() { root = NULL; }
-    ~KDTree3D() { delete root; }
+    KDTree3D(int max_nodes = KD_TREE_MAX_NODES) { root = NULL; mem_init(max_nodes); }
+    ~KDTree3D() { mem_destroy(); }
 
     void insert_element(Math::Float3 element, T data) { insertElementHelper(element, data, root, 0); }
     void remove_element(Math::Float3 element) { removeElementHelper(element, root, 0); }
-    void reset() { delete root; root = NULL; }
+    void reset() { root = NULL; mem_reset(); }
+
+    void mem_init(int max_nodes)
+    {
+      _pool = new KDNode<T>[max_nodes];
+      _pool_index = new bool[max_nodes];
+      memset(_pool_index, 0, sizeof(bool) * max_nodes);
+      _pool_size = max_nodes;
+    }
+
+    void mem_reset()
+    {
+      memset(_pool_index, 0, sizeof(bool) * _pool_size);
+    }
+
+    void mem_destroy() { if (_pool) { delete _pool; delete _pool_index; } }
+
+    KDNode<T> *allocate_node(Math::Float3 value, T data = T())
+    {
+      //find an empty node
+      for (int i = 0; i < _pool_size; i++)
+      {
+        if (!_pool_index[i])
+        {
+          _pool[i].data = data;
+          _pool[i].value = value;
+          _pool[i].left = NULL;
+          _pool[i].right = NULL;
+
+          _pool_index[i] = true;
+          return &(_pool[i]);
+        }
+      }
+
+      return NULL; //something done fucked up real good.
+    }
+
+    void free_node(KDNode<T> *n)
+    {
+      uint32_t idx = ((void *)n - (void *)_pool) / sizeof(KDNode<T>);
+      _pool_idx[idx] = false;
+    }
+
+    //TODO - I think a simple way to do this is to loop through each node and look at
+    //the element to the left. If it is NULL, move it over one. Over time this should shift
+    //all the nodes to the left.
+    void defrag() {} 
+                   
 
     KDNode<T> *find_nearest_neighbor(Math::Float3 query)
     {
@@ -48,6 +98,9 @@ namespace Structures    {
     }
 
   private:
+    bool      *_pool_index;
+    KDNode<T> *_pool; //memory pool we allocate nodes from
+    uint32_t _pool_size;
     KDNode<T> *root;
     /*
      * epsilon is used to determine if two Float3's are equal.
@@ -118,7 +171,8 @@ namespace Structures    {
         }
         else
         {
-          delete cRoot;
+          //delete cRoot;
+          free_node(cRoot);
           cRoot = NULL;
         }
       }   //else we need to search for our element
@@ -137,7 +191,7 @@ namespace Structures    {
 
       if(cRoot == NULL)
       {
-        cRoot = new KDNode<T>(value, data);
+        cRoot = allocate_node(value, data);//new KDNode<T>(value, data);
         return;
       }
 

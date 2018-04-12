@@ -410,12 +410,14 @@ public:
 
   void generate_kd_tree()
   {
-    //TODO: don't trigger garbage collection every frame!
-    if (_kd_tree)
+    if (!_kd_tree)
     {
-      delete _kd_tree;
+      _kd_tree = new Structures::KDTree3D<GeodesicCell<T> *>;
     }
-    _kd_tree = new Structures::KDTree3D<GeodesicCell<T> *>;
+    else
+    {
+      _kd_tree->reset();
+    }
 
     for (uint32_t i = 0; i < _num_cells; i++)
     {
