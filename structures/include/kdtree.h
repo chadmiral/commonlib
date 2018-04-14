@@ -61,7 +61,7 @@ namespace Structures    {
     KDNode<T> *allocate_node(Math::Float3 value, T data = T())
     {
       //find an empty node
-      for (int i = 0; i < _pool_size; i++)
+      for (uint32_t i = 0; i < _pool_size; i++)
       {
         if (!_pool_index[i])
         {

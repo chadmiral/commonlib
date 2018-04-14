@@ -319,7 +319,16 @@ void SDLGame::process_events()
         }
         else
         {
-          game_context.console.activate(game_context.console.is_active() ? CONSOLE_INACTIVE : CONSOLE_ACTIVE_DEFAULT);
+          if (game_context.console.is_active())
+          {
+            game_context.console.activate(CONSOLE_INACTIVE);
+            SDL_StopTextInput();
+          }
+          else
+          {
+            game_context.console.activate(CONSOLE_ACTIVE_DEFAULT);
+            SDL_StartTextInput();
+          }
         }
         break;
       case SDLK_ESCAPE:
@@ -359,6 +368,7 @@ void SDLGame::process_events()
         break;
       }
     }
+    
 
     if(event.type == SDL_TEXTINPUT)
     {
@@ -608,6 +618,9 @@ void SDLGame::init_sdl_gl_context()
 
   int res = SDL_GL_SetSwapInterval(vsync_enabled ? 1 : 0);
   assert(res == 0);
+
+  game_context._num_cpu_cores = SDL_GetCPUCount();
+  cout << "Found " << game_context._num_cpu_cores << " CPU cores..." << endl;
 
   game_context.console.console_log << "Initializing OpenGL..." << endl;
   game_context.console.console_log << "version " << glGetString(GL_VERSION) << endl;//major_version<<"."<<minor_version<<endl;

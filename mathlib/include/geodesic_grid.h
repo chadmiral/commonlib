@@ -864,8 +864,8 @@ private:
     fread(&a_idx, sizeof(int), 1, f);
     fread(&b_idx, sizeof(int), 1, f);
 
-    assert(a_idx >= 0 && a_idx < num_cells);
-    assert(b_idx >= 0 && b_idx < num_cells);
+    assert(a_idx >= 0 && a_idx < _num_cells);
+    assert(b_idx >= 0 && b_idx < _num_cells);
 
     e->a = &_cells[a_idx];
     e->b = &_cells[b_idx];

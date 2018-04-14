@@ -35,6 +35,8 @@ class GameContext
 {
   friend class SDLGame;
 public:
+  uint32_t                 _num_cpu_cores;
+
   Game::Switchboard        switch_board;
   Game::AssetLibrary       asset_library;
   DebugConsole             console;
@@ -50,7 +52,7 @@ public:
 
   std::vector<Game::Object3D *> active_game_objects;
 
-  GameContext() { sdl_window = NULL; sdl_gl_context = NULL; }
+  GameContext() : _num_cpu_cores(0), sdl_window(NULL), sdl_gl_context(NULL) {}
   ~GameContext() {}
 };
 
@@ -132,6 +134,7 @@ public:
   DebugConsole *get_debug_console() { return &game_context.console; }
 
   double get_game_time() const { return (double)SDL_GetTicks(); }
+  GameContext *get_game_context() { return &game_context; }
 
   void set_pause_menu(UI::Menu *menu) { assert(!(flags & SDL_GAME_GENERATE_PAUSE_MENU)); pause_menu = menu; }
 
