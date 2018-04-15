@@ -39,6 +39,20 @@ namespace Structures    {
     KDTree3D(int max_nodes = KD_TREE_MAX_NODES) { root = NULL; mem_init(max_nodes); }
     ~KDTree3D() { mem_destroy(); }
 
+    KDTree3D &operator=(KDTree3D<T> &t)
+    {
+      //duplicate a KD tree
+      //mem_init(t._pool_size);
+      mem_reset();
+      root = NULL;
+
+      //climb the tree and duplicate
+      root = allocate_node(t.root->value, t.root->data);
+      clone_helper(root, t.root);
+
+      return *this;
+    }
+
     void insert_element(Math::Float3 element, T data) { insertElementHelper(element, data, root, 0); }
     void remove_element(Math::Float3 element) { removeElementHelper(element, root, 0); }
     void reset() { root = NULL; mem_reset(); }
@@ -47,13 +61,18 @@ namespace Structures    {
     {
       _pool = new KDNode<T>[max_nodes];
       _pool_index = new bool[max_nodes];
-      memset(_pool_index, 0, sizeof(bool) * max_nodes);
       _pool_size = max_nodes;
+      mem_reset();
     }
 
     void mem_reset()
     {
       memset(_pool_index, 0, sizeof(bool) * _pool_size);
+      _pool_free_slots.clear();
+      for (int i = 0; i < _pool_size; i++)
+      {
+        _pool_free_slots.push_back(i);
+      }
     }
 
     void mem_destroy() { if (_pool) { delete _pool; delete _pool_index; } }
@@ -61,7 +80,7 @@ namespace Structures    {
     KDNode<T> *allocate_node(Math::Float3 value, T data = T())
     {
       //find an empty node
-      for (uint32_t i = 0; i < _pool_size; i++)
+      /*for (uint32_t i = 0; i < _pool_size; i++)
       {
         if (!_pool_index[i])
         {
@@ -73,6 +92,18 @@ namespace Structures    {
           _pool_index[i] = true;
           return &(_pool[i]);
         }
+      }*/
+      if (_pool_free_slots.size() > 0)
+      {
+        int idx = _pool_free_slots[_pool_free_slots.size() - 1];
+        _pool_free_slots.pop_back();
+
+        _pool[idx].data = data;
+        _pool[idx].value = value;
+        _pool[idx].left = NULL;
+        _pool[idx].right = NULL;
+
+        return &(_pool[idx]);
       }
 
       return NULL; //something done fucked up real good.
@@ -81,14 +112,14 @@ namespace Structures    {
     void free_node(KDNode<T> *n)
     {
       uint32_t idx = ((void *)n - (void *)_pool) / sizeof(KDNode<T>);
-      _pool_idx[idx] = false;
+      _pool_free_slots.push_back(idx);
+      //_pool_idx[idx] = false;
     }
 
     //TODO - I think a simple way to do this is to loop through each node and look at
     //the element to the left. If it is NULL, move it over one. Over time this should shift
     //all the nodes to the left.
     void defrag() {} 
-                   
 
     KDNode<T> *find_nearest_neighbor(Math::Float3 query)
     {
@@ -101,6 +132,8 @@ namespace Structures    {
     bool      *_pool_index;
     KDNode<T> *_pool; //memory pool we allocate nodes from
     uint32_t _pool_size;
+    std::vector<int> _pool_free_slots;
+
     KDNode<T> *root;
     /*
      * epsilon is used to determine if two Float3's are equal.
@@ -110,6 +143,21 @@ namespace Structures    {
     float infinity = (float)99999999999999;
 
     int DIM = 3;
+
+
+    void clone_helper(KDNode<T> *new_root, KDNode<T> *old_root)
+    {
+      if (old_root->left)
+      {
+        root->left = allocate_node(old_root->left->value, old_root->left->data);
+        clone_helper(root->left, old_root->left);
+      }
+      if (old_root->right)
+      {
+        root->right = allocate_node(old_root->right->value, old_root->right->data);
+        clone_helper(root->right, old_root->right);
+      }
+    }
 
     Math::Float3 findMin(KDNode<T> * cRoot, int searchDimension, int currentDimension)
     {
