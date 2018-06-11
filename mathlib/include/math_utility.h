@@ -95,6 +95,20 @@ namespace Math
   }
 
 	uint32_t hash_value_from_string(const char *str);
+
+  /*
+  uint32_t next_power_of_2(uint32_t n)
+  {
+    uint32_t p = 1;
+    if (n && !(n & (n - 1)))
+      return n;
+
+    while (p < n)
+      p <<= 1;
+
+    return p;
+  }
+  */
 }
 
 #endif // _MATH_UTILITY_H_

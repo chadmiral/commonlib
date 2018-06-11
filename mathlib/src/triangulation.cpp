@@ -12,7 +12,7 @@ using boost::polygon::voronoi_diagram;
 using namespace Math;
 using namespace std;
 
-Triangulation2D::Triangulation2D() { vertices = NULL; }
+Triangulation2D::Triangulation2D() {  }
 
 Triangulation2D::~Triangulation2D() {}
 
@@ -22,10 +22,10 @@ void Triangulation2D::reset()
   edges.clear();
 }
 
-void Triangulation2D::set_vertices(std::vector<Float2> *verts)
+void Triangulation2D::copy_vertices(std::vector<Float2> &verts)
 {
-  assert(verts);
-  vertices = verts;
+  vertices.clear();
+  vertices.insert(vertices.end(), verts.begin(), verts.end());
 }
 
 bool sort_compare_x(Float2 a, Float2 b)
@@ -42,7 +42,6 @@ bool sort_compare_y(Float2 a, Float2 b)
 void Triangulation2D::generate_delaunay_triangulation()
 {
   //cout<<"calculating delaunay triangulation..."<<endl;
-  assert(vertices);
   triangles.clear();
 
   //first, sort the vertices by x-coord, w/ y-coord for tie breakers
@@ -51,7 +50,7 @@ void Triangulation2D::generate_delaunay_triangulation()
 
   //delaunay_cgal();
 #if defined(__USE_BOOST__)
-  if(vertices->size() >= 3)
+  if(vertices.size() >= 3)
   {
     delaunay_boost();
   }
@@ -66,9 +65,9 @@ void Triangulation2D::delaunay_boost()
   voronoi_diagram<double> vd;
 
   std::vector<VPoint> points;
-  for(uint32_t i = 0; i < vertices->size(); i++)
+  for(uint32_t i = 0; i < vertices.size(); i++)
   {
-    VPoint vp((int)((*vertices)[i][0] * 1000000.0f), (int)((*vertices)[i][1] * 1000000.0f));
+    VPoint vp((int)(vertices[i][0] * 1000000.0f), (int)(vertices[i][1] * 1000000.0f));
     points.push_back(vp);
   }
 
@@ -116,8 +115,8 @@ void Triangulation2D::delaunay_merge(int start_a, int end_a, int start_b, int en
 
 void Triangulation2D::delaunay_divide_and_conquer(int axis, int start_idx, int end_idx)
 {
-  std::vector<Float2>::iterator start = vertices->begin() + start_idx;
-  std::vector<Float2>::iterator end = vertices->begin() + end_idx;
+  std::vector<Float2>::iterator start = vertices.begin() + start_idx;
+  std::vector<Float2>::iterator end = vertices.begin() + end_idx;
   if(axis == 0)
   {
     std::sort(start, end, sort_compare_x);
@@ -130,7 +129,7 @@ void Triangulation2D::delaunay_divide_and_conquer(int axis, int start_idx, int e
   //find the mean vertex
   int num_verts = (end_idx - start_idx);
   int mean_idx = num_verts / 2;
-  Float2 mean_vertex = (*vertices)[start_idx + mean_idx];
+  Float2 mean_vertex = vertices[start_idx + mean_idx];
 
   cout<<"num verts: "<<num_verts<<endl;
   cout<<"mean index: "<<mean_idx<<endl;
@@ -179,8 +178,7 @@ struct CompareAngle {
 
 void Triangulation2D::generate_convex_hull()
 {
-  assert(vertices);
-  unsigned int num_verts = (unsigned int)vertices->size();
+  unsigned int num_verts = (unsigned int)vertices.size();
   if(num_verts < 3) { return; }
   edges.clear();
 
@@ -196,10 +194,10 @@ void Triangulation2D::generate_convex_hull()
   //first, find the vertex with the smallest y coordinate
   int min_y_idx = -1;
   Float2 min_vert;
-  for(unsigned int i = 0; i < vertices->size(); i++)
+  for(unsigned int i = 0; i < vertices.size(); i++)
   {
     index_list.push_back(i);
-    Float2 v = (*vertices)[i];
+    Float2 v = vertices[i];
     if(min_y_idx < 0 || v[1] < min_vert[1] || (v[1] == min_vert[1] && v[0] < min_vert[0]))
     {
       min_y_idx = i;
@@ -216,17 +214,17 @@ void Triangulation2D::generate_convex_hull()
   // next sort the vertex list according to the angle betwixt each point
   // and min_y (polar angle)
   CompareAngle ca;
-  ca.root = (*vertices)[min_y_idx];
-  ca.vertex_list = vertices;
+  ca.root = vertices[min_y_idx];
+  ca.vertex_list = &vertices;
   //std::sort(vertices->begin(), vertices->end(), ca);
   std::sort(index_list.begin(), index_list.end(), ca);
 
   std::vector<int> convex_hull;
   for(unsigned int i = 0; i < index_list.size(); i++)
   {
-    Float2 p = (*vertices)[index_list[i]];
-    while(convex_hull.size() > 2 && ccw((*vertices)[convex_hull[i - 2]],
-                                        (*vertices)[convex_hull[i - 1]], p) <= 0)
+    Float2 p = vertices[index_list[i]];
+    while(convex_hull.size() > 2 && ccw(vertices[convex_hull[i - 2]],
+                                        vertices[convex_hull[i - 1]], p) <= 0)
     {
       convex_hull.pop_back();
     }

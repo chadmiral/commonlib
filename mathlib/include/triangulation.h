@@ -14,9 +14,19 @@ namespace Math {
     Triangulation2D();
     ~Triangulation2D();
 
+    Triangulation2D &operator=(Triangulation2D &t)
+    {
+      Triangulation2D new_t;
+      new_t.vertices.insert(new_t.vertices.end(), t.vertices.begin(), t.vertices.end());
+      new_t.edges.insert(new_t.edges.end(), t.edges.begin(), t.edges.end());
+      new_t.triangles.insert(new_t.triangles.end(), t.triangles.begin(), t.triangles.end());
+
+      return new_t;
+    }
+
     void reset();
 
-    void set_vertices(std::vector<Float2> *verts);
+    void copy_vertices(std::vector<Float2> &verts);
     void generate_delaunay_triangulation();
 
     void generate_convex_hull();
@@ -47,7 +57,7 @@ namespace Math {
     Triangle2D create_super_triangle();
     void delaunay_super_triangle_method();
 
-    std::vector<Float2>     *vertices;
+    std::vector<Float2>     vertices;
     std::vector<Triangle2D> triangles;
     std::vector<Edge2D>     edges;
   };

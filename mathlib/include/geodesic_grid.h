@@ -7,6 +7,8 @@
 #include "geodesic_cell.h"
 #include "kdtree.h"
 
+//#define GEODESIC_GRID_RECTILINEAR
+
 #define GEODESIC_GRID_FILE_VERSION 1
 
 //a subdividible geodesic grid on the surface of the sphere
@@ -76,26 +78,80 @@ class GeodesicGrid
 {
 private:
   int _file_version;
-  int _selected_cell;                  //index of currently selected cell
 
   uint32_t _subdivision_levels;        //current subdivision level
+
   uint32_t _num_cells;                 //number of geodesic cells
-                                      //int num_dual_cells;                 //number of cells in the geometric dual
   uint32_t _num_edges;                 //number of edges
   uint32_t _num_faces;                 //number of faces
 
+#if defined(GEODESIC_GRID_RECTILINEAR)
+  uint32_t            _cell_idx_grid_size;  //total number of cells we will allocate (not actual number of unique cells, since some are duped / empty)
+  uint32_t           *_cell_idx_grid;       //linear array of cells that we will index in 2 dimensions
+#else
   GeodesicCell<T>    *_cells;          //the array of cells that store the actual data
-                                      //GeodesicCell<T>    *dual_cells;     //the array of cells of the dual polyhedron
-
   GeodesicEdge<T>    *_edges;          //the array of cell pairs (edges)
   GeodesicFace<T>    *_faces;          //the array of edge triangles (faces)
 
   Structures::KDTree3D<GeodesicCell<T> *>        *_kd_tree;
+#endif // GEODESIC_GRID_RECTILINEAR
 
-                                      //obsolete? (could be useful if we ever want to move this to the GPU)
-  GeodesicCell<T> ***_adjacency_grid;  //store adjacency information
-  int *_adj_dv;                        //vertical offset for adjacency grid
 public:
+#if defined GEODESIC_GRID_RECTILINEAR
+  GeodesicGrid(unsigned int sub_levels = 0)
+  {
+    // start with an icosahedron
+    // E = F + V - 2 (Euler)
+    // E = 30
+    // V = 12
+    // F = 20
+
+    _subdivision_levels = sub_levels;
+
+    _num_cells = 12;
+    _num_edges = 30;
+    _num_faces = 20;
+
+    _cells = new GeodesicCell<T>[_num_cells];
+    // fill the 12 vertices with the cartesian coordinates of the icosahedron
+    // (0, ±1, ± φ)
+    // (±1, ± φ, 0)
+    // (± φ, 0, ±1)
+
+    cells[0].pos =  Float3(-1.0f,  M_PHI, 0.0f);
+    cells[1].pos =  Float3( 1.0f,  M_PHI, 0.0f);
+    cells[2].pos =  Float3(-1.0f, -M_PHI, 0.0f);
+    cells[3].pos =  Float3( 1.0f, -M_PHI, 0.0f);
+
+    cells[4].pos =  Float3( 0.0f, -1.0f,  M_PHI);
+    cells[5].pos =  Float3( 0.0f,  1.0f,  M_PHI);
+    cells[6].pos =  Float3( 0.0f, -1.0f, -M_PHI);
+    cells[7].pos =  Float3( 0.0f,  1.0f, -M_PHI);
+
+    cells[8].pos =  Float3( M_PHI, 0.0f, -1.0f);
+    cells[9].pos =  Float3( M_PHI, 0.0f,  1.0f);
+    cells[10].pos = Float3(-M_PHI, 0.0f, -1.0f);
+    cells[11].pos = Float3(-M_PHI, 0.0f,  1.0f);
+
+    //                       dU
+    //             A-B-C     4
+    //             |/|/|
+    //           A-K-L-F     3
+    //           |/|/|
+    //         A-I-J-F       2
+    //         |/|/|                =>
+    //       A-G-H-F         1
+    //       |/|/|                       .-.-A-A-A-.-.
+    //     A-D-E-F           0           .-A-G-I-K-B-.
+    //     |/|/|                         A-D-E-H-J-L-C
+    //     B-C-F             0           B-C-F-F-F-F-F
+    // dV: 0-0-0-1-2-3-4                 0-0-0-1-2-3-4
+
+    unsigned int w, h;
+    w = 7; h = 6;
+    _cell_idx_grid = new uint32_t[w * h];
+  }
+#else
   GeodesicGrid()
   {
     // start with an icosahedron
@@ -108,7 +164,6 @@ public:
     // first subdivision level.
     //dual_cells = NULL;
     _kd_tree = NULL;
-    _selected_cell = 0;
 
     _subdivision_levels = 0;
     _num_cells = 12;
@@ -326,69 +381,8 @@ public:
       _cells[i].color = Math::Float3(Math::random(0.0f, 1.0f), Math::random(0.0f, 1.0f), Math::random(0.0f, 1.0f));
       //cells[i].make_neighbors_clockwise();
     }
-
-    //create 6 rows of adjacency data
-    _adjacency_grid = new GeodesicCell<T> **[7];
-    for(int i = 0; i < 7; i++)
-    {
-      //longest rows have 4 entries
-      _adjacency_grid[i] = new GeodesicCell<T> *[4];
-      for(int j = 0; j < 4; j++)
-      {
-        //start off pointing to nothing (we'll fix this later)
-        _adjacency_grid[i][j] = NULL;
-      }
-    }
-
-    //                       dU
-    //             A-B-C     4
-    //             |/|/|
-    //           A-K-L-F     3
-    //           |/|/|
-    //         A-I-J-F       2
-    //         |/|/|                =>
-    //       A-G-H-F         1
-    //       |/|/|                       .-.-A-A-A-.-.
-    //     A-D-E-F           0           .-A-G-I-K-B-.
-    //     |/|/|                         A-D-E-H-J-L-C
-    //     B-C-F             0           B-C-F-F-F-F-F
-    // dV: 0-0-0-1-2-3-4                 0-0-0-1-2-3-4
-
-    /*adjacency_grid[0][0] = &cells[CELL_B];    //B
-    adjacency_grid[1][0] = &cells[CELL_C];    //C
-    adjacency_grid[2][0] = &cells[CELL_F];    //F
-    adjacency_grid[3][0] = &cells[CELL_F];    //F
-    adjacency_grid[4][0] = &cells[CELL_F];    //F
-    adjacency_grid[5][0] = &cells[CELL_F];    //F
-    adjacency_grid[6][0] = &cells[CELL_F];    //F
-
-    adjacency_grid[0][1] = &cells[CELL_A];    //A
-    adjacency_grid[1][1] = &cells[CELL_D];    //D
-    adjacency_grid[2][1] = &cells[CELL_E];    //E
-    adjacency_grid[3][1] = &cells[CELL_H];    //H
-    adjacency_grid[4][1] = &cells[CELL_J];    //J
-    adjacency_grid[5][1] = &cells[CELL_L];    //L
-    //adjacency_grid[6][1] = &cells[2];    //C
-
-    adjacency_grid[1][2] = &cells[CELL_A];    //A
-    adjacency_grid[2][2] = &cells[CELL_G];    //G
-    adjacency_grid[3][2] = &cells[CELL_I];    //I
-    adjacency_grid[4][2] = &cells[CELL_K];    //K
-    //adjacency_grid[5][2] = &cells[1];    //B
-
-    adjacency_grid[2][3] = &cells[CELL_A];    //A
-    adjacency_grid[3][3] = &cells[CELL_A];    //A
-    //adjacency_grid[4][3] = &cells[0];    //A
-
-    adj_dv = new int[7];
-    adj_dv[0] = 0;
-    adj_dv[1] = 0;
-    adj_dv[2] = 0;
-    adj_dv[3] = 1;
-    adj_dv[4] = 2;
-    adj_dv[5] = 3;
-    adj_dv[6] = 4;*/
   }
+
 
   ~GeodesicGrid()
   {
@@ -396,18 +390,45 @@ public:
     delete[] _edges;
     delete[] _faces;
 
-    delete[] _adjacency_grid;
+    //delete[] _adjacency_grid;
     if (_kd_tree)
     {
       delete _kd_tree;
     }
   }
   
+  GeodesicGrid<T> &operator=(GeodesicGrid<T> &g)
+  {
+    _file_version = g._file_version;
+    _subdivision_levels = g._subdivision_levels;
+
+    _num_cells = g._num_cells;
+    _num_edges = g._num_edges;
+    _num_faces = g._num_faces;
+
+    if (_cells) { delete[] _cells; }
+    if (_edges) { delete[] _edges; }
+    if (_faces) { delete[] _faces; }
+    //if (_adjacency_grid) { delete[] _adjacency_grid; }
+    if (_kd_tree) { delete _kd_tree; }
+
+    _cells = new GeodesicCell<T>[_num_cells];
+    memcpy(_cells, g._cells, sizeof(GeodesicCell<T>) * _num_cells);
+    _edges = new GeodesicEdge<T>[_num_edges];
+    memcpy(_edges, g._edges, sizeof(GeodesicEdge<T>) * _num_edges);
+    _faces = new GeodesicFace<T>[_num_edges];
+    memcpy(_faces, g._faces, sizeof(GeodesicFace<T>) * _num_faces);
+    
+    return *this;
+  }
+#endif // GEODESIC_GRID_RECTILINEAR
+
   float get_cell_surface_area()
   {
     return 4.0f * M_PI / (float)num_cells;
   }
 
+#ifndef GEODESIC_GRID_RECTILINEAR
   void generate_kd_tree()
   {
     if (!_kd_tree)
@@ -426,6 +447,7 @@ public:
     }
   }
 
+
   void subdivide(int levels)
   {
     for(int i = 0; i < levels; i++)
@@ -433,27 +455,9 @@ public:
       sub();
     }
   }
+#endif //GEODESIC_GRID_RECTILINEAR
 
   int get_subdivision_levels() const { return _subdivision_levels; }
-
-  void select_next_cell()
-  {
-    selected_cell++;
-    if(selected_cell >= num_cells)
-    {
-      selected_cell = 0;
-    }
-    std::cout<<"selected_cell: "<<selected_cell<<std::endl;
-  }
-
-  void select_prev_cell()
-  {
-    selected_cell--;
-    if(selected_cell < 0)
-    {
-      selected_cell = num_cells - 1;
-    }
-  }
 
   void make_selected_neighbors_clockwise()
   {
@@ -631,6 +635,9 @@ private:
     return &_cells[cell_count++];
   }
 
+#if defined GEODESIC_GRID_RECTILINEAR
+
+#else
   void sub()
   {
     _subdivision_levels++;
@@ -800,6 +807,7 @@ private:
     _edges = new_edges;
     _num_edges = new_num_edges;
   }
+#endif // GEODESIC_GRID_RECTILINEAR
 
   void generate_neighbor_centroids()
   {

@@ -4,7 +4,7 @@ using namespace Math;
 
 Voronoi2D::Voronoi2D()
 {
-  delaunay.set_vertices(&pc);
+  //delaunay.set_vertices(&pc);
 }
 
 Voronoi2D::~Voronoi2D() {}
@@ -33,7 +33,7 @@ unsigned int Voronoi2D::get_num_points() const
 void Voronoi2D::triangulate()
 {
   if(pc.size() <= 0) { return; }
-  delaunay.set_vertices(&pc);
+  delaunay.copy_vertices(pc);
   delaunay.generate_delaunay_triangulation();
   //delaunay.generate_convex_hull();
 }
